@@ -1,0 +1,304 @@
+openapi: 3.0.3
+info:
+  title: person API
+  description: |-
+    This is a super simple API for managing persons
+  contact:
+    email: devs@agile-learning.institute
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+paths:
+  /api/person/:
+    post:
+      summary: Add a new person
+      operationId: addperson
+      requestBody:
+        description: Prodcut Name
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'          
+        '405':
+          description: Invalid input
+    get:
+      summary: Get a list of people names and ids
+      operationId: getNames
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Names'          
+        '404':
+          description: not found
+        '405':
+          description: Validation exception
+  /api/person/{id}:
+    patch:
+      summary: Update an existing person
+      description: Update an existing person by Id
+      operationId: updatePerson
+      parameters:
+        - name: id
+          in: path
+          description: ID of person to update
+          required: true
+          schema:
+            type: string
+            format: GUID
+      requestBody:
+        description: Updated field
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'          
+        '404':
+          description: person not found
+        '405':
+          description: Validation exception
+    get:
+      summary: Get an existing person
+      description: Get an existing person by Id
+      operationId: gettPerson
+      parameters:
+        - name: id
+          in: path
+          description: ID of person to return
+          required: true
+          schema:
+            type: string
+            format: GUID
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'          
+        '404':
+          description: person not found
+        '405':
+          description: Validation exception
+  /api/partners/:
+    get:
+      summary: Get Partner Names
+      operationId: getPartners
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Names'          
+  /api/mentors/:
+    get:
+      summary: Get Mentor Names
+      operationId: getMentors
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Names'          
+  /api/enums/:
+    get:
+      summary: Get Enumerator Values
+      operationId: getEnums
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enums'          
+  /api/config/:
+    get:
+      summary: Get API Configuration Information
+      operationId: getConfig
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'          
+  /api/health/:
+    get:
+      summary: Promethius Healthcheck endpoint
+      operationId: getHealth
+      responses:
+        '200':
+          description: Successful operation
+
+components:
+  schemas:
+    Enums:
+      type: object
+    Names: 
+      type: array
+      items:
+        type: object
+        properties: 
+          ID:
+            description: MongoDB _id
+            type: string
+            format: uuid
+          name:
+            description: Name
+            type: string      
+    Config:
+      type: object
+      properties:
+        apiVersion:
+          type: string
+          description: Symantic Version Number
+        Stores: 
+          type: array
+          items:
+            type: object
+            properties:
+              CollectionName: 
+                description: Mongodb Collection name
+                type: string
+              Version:
+                description: Schema Version for the collection
+                type: string
+              Filter:
+                description: special Filter applied to collection
+                type: string
+        ConfigItems:
+          type: array
+          items:
+            type: object
+            properties: 
+              name:
+                description: Conf Item Name (Env Var Name, File Name)
+                type: string
+              value:
+                description: The value for that config item
+                type: string
+              from:
+                description: Where the value was found
+                type: string
+                enum:
+                  - default
+                  - environment
+                  - file
+    Person:
+      type: object
+      required:
+      - name
+      properties:
+        _id:
+          description: The unique identifier for a person
+          type: string
+          format: UUID
+        name:
+          description: The persons name, first and last, or VERSION for the Schema Version
+            document
+          type: string
+          maxLength: 32
+        description:
+          description: Notes or other descriptive text
+          type: string
+          maxLength: 256
+        status:
+          description: The status of this member
+          type: string
+          enum:
+          - Pending
+          - Active
+          - Inactive
+          - Archived
+        member:
+          description: Is this person a Member
+          type: boolean
+        mentor:
+          description: Is this person a Mentor
+          type: boolean
+        donor:
+          description: Is this person a Donor
+          type: boolean
+        contact:
+          description: Is this person a Partner Contact
+          type: boolean
+        mentorId:
+          description: the _id of this persons Mentor if they have one
+          type: string
+          format: UUID
+        partnerId:
+          description: the _id of this persons partner (contacts and members)
+          type: string
+          format: UUID
+        title:
+          description: The person's title in the career path
+          type: string
+          enum:
+          - Apprentice Candidate
+          - Apprentice
+          - Resident
+          - Associate
+          - Senior
+          - Distinguished
+          - N/A
+        eMail:
+          description: The person's eMail address
+          type: string
+          maxLength: 256
+          pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        gitHub:
+          description: The person's gitHub User ID
+          type: string
+          maxLength: 32
+        phone:
+          description: The person's phone number
+          type: string
+          pattern: "^\\d{3}[-.\\s]?\\d{3}[-.\\s]?\\d{4}$"
+        device:
+          description: The type of PC this person is using
+          type: string
+          enum:
+          - Mac Intel
+          - Mac Apple
+          - Linux
+          - Windows / WSL
+        location:
+          description: The location where this person lives
+          type: string
+          maxLength: 64
+        lastSaved:
+          description: The location where this person lives
+          type: object
+          properties:
+            fromIp:
+              description: Http Request remote IP address
+              type: string
+            byUser:
+              description: UUID Of User
+              type: string
+            atTime:
+              description: The date-time when last updated
+              type: string
+            correlationId:
+              description: The logging correlation ID of the update transaction
+              type: string
