@@ -1,25 +1,25 @@
 openapi: 3.0.3
 info:
-  title: person API
+  title: Curriculum API
   description: |-
-    This is a super simple API for managing persons
+    This API manages the curriculum for apprentices, providing endpoints to add, update, and retrieve learning resources.
   contact:
     email: devs@agile-learning.institute
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 1.0.11
+  version: 1.0.0
 paths:
-  /api/person/:
+  /api/curriculum/:
     post:
-      summary: Add a new person
-      operationId: addperson
+      summary: Add a new curriculum
+      operationId: addCurriculum
       requestBody:
-        description: Prodcut Name
+        description: Curriculum details
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Person'
+              $ref: '#/components/schemas/Curriculum'
         required: true
       responses:
         '200':
@@ -27,42 +27,41 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Person'          
+                $ref: '#/components/schemas/Curriculum'
         '405':
           description: Invalid input
     get:
-      summary: Get a list of people names and ids
-      operationId: getNames
+      summary: Get a list of all curricula
+      operationId: getAllCurricula
       responses:
         '200':
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Names'          
+                $ref: '#/components/schemas/Curricula'
         '404':
-          description: not found
+          description: Not found
         '405':
           description: Validation exception
-  /api/person/{id}:
+  /api/curriculum/{id}:
     patch:
-      summary: Update an existing person
-      description: Update an existing person by Id
-      operationId: updatePerson
+      summary: Update an existing curriculum
+      operationId: updateCurriculum
       parameters:
         - name: id
           in: path
-          description: ID of person to update
+          description: ID of curriculum to update
           required: true
           schema:
             type: string
             format: GUID
       requestBody:
-        description: Updated field
+        description: Updated curriculum details
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Person'
+              $ref: '#/components/schemas/Curriculum'
         required: true
       responses:
         '200':
@@ -70,19 +69,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Person'          
+                $ref: '#/components/schemas/Curriculum'
         '404':
-          description: person not found
+          description: Curriculum not found
         '405':
           description: Validation exception
     get:
-      summary: Get an existing person
-      description: Get an existing person by Id
-      operationId: gettPerson
+      summary: Get an existing curriculum
+      operationId: getCurriculum
       parameters:
         - name: id
           in: path
-          description: ID of person to return
+          description: ID of curriculum to retrieve
           required: true
           schema:
             type: string
@@ -93,44 +91,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Person'          
+                $ref: '#/components/schemas/Curriculum'
         '404':
-          description: person not found
+          description: Curriculum not found
         '405':
           description: Validation exception
-  /api/partners/:
-    get:
-      summary: Get Partner Names
-      operationId: getPartners
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Names'          
-  /api/mentors/:
-    get:
-      summary: Get Mentor Names
-      operationId: getMentors
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Names'          
-  /api/enums/:
-    get:
-      summary: Get Enumerator Values
-      operationId: getEnums
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Enums'          
   /api/config/:
     get:
       summary: Get API Configuration Information
@@ -141,164 +106,147 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Config'          
+                $ref: '#/components/schemas/Config'
   /api/health/:
     get:
-      summary: Promethius Healthcheck endpoint
-      operationId: getHealth
+      summary: Health Check Endpoint
+      operationId: healthCheck
       responses:
         '200':
           description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: The status of the API
+                  uptime:
+                    type: string
+                    description: The uptime of the API
+                  version:
+                    type: string
+                    description: The version of the API
 
 components:
   schemas:
-    Enums:
+    Curriculum:
       type: object
-    Names: 
-      type: array
-      items:
-        type: object
-        properties: 
-          ID:
-            description: MongoDB _id
-            type: string
-            format: uuid
-          name:
-            description: Name
-            type: string      
+      required:
+        - name
+        - version
+        - resources
+      properties:
+        _id:
+          description: The unique identifier for a curriculum
+          type: string
+          format: UUID
+        name:
+          description: The name of the curriculum
+          type: string
+        version:
+          description: The version of the curriculum
+          type: string
+        resources:
+          description: An array of resources within the curriculum
+          type: array
+          items:
+            $ref: '#/components/schemas/Resource'
+    Resource:
+      type: object
+      required:
+        - type
+        - review
+        - roadmap
+      properties:
+        type:
+          description: The type of resource (topic or adhoc)
+          type: string
+          enum:
+            - topic
+            - adhoc
+        resourceId:
+          description: The ID of the resource assigned
+          type: string
+          format: UUID
+        topicId:
+          description: The ID of the topic associated with the resource
+          type: string
+          format: UUID
+        name:
+          description: The name of the resource
+          type: string
+        link:
+          description: The link to the resource (for adhoc resources)
+          type: string
+        review:
+          description: Free text review of the person's experience with this resource
+          type: string
+        roadmap:
+          description: The status of the resource in the learning roadmap
+          type: string
+          enum:
+            - completed
+            - celebrated
+            - now
+            - next
+            - later
+        status:
+          description: Archived, Assigned, Started, Completed
+          type: string
+        statusDate:
+          description: Date the status was last changed
+          type: string
+          format: date-time
+        started:
+          description: Date/time the resource was started
+          type: string
+          format: date-time
+        completed:
+          description: Date/time the resource was completed
+          type: string
+          format: date-time
+        rating:
+          description: Rating of the resource (0-5)
+          type: integer
+          minimum: 0
+          maximum: 5
     Config:
       type: object
       properties:
         apiVersion:
           type: string
-          description: Symantic Version Number
-        Stores: 
+          description: Semantic Version Number
+        stores:
           type: array
           items:
             type: object
             properties:
-              CollectionName: 
-                description: Mongodb Collection name
+              collectionName:
                 type: string
-              Version:
+                description: MongoDB Collection name
+              version:
+                type: string
                 description: Schema Version for the collection
+              filter:
                 type: string
-              Filter:
-                description: special Filter applied to collection
-                type: string
-        ConfigItems:
+                description: Special Filter applied to collection
+        configItems:
           type: array
           items:
             type: object
-            properties: 
+            properties:
               name:
+                type: string
                 description: Conf Item Name (Env Var Name, File Name)
-                type: string
               value:
+                type: string
                 description: The value for that config item
-                type: string
               from:
-                description: Where the value was found
                 type: string
+                description: Where the value was found
                 enum:
                   - default
                   - environment
                   - file
-    Person:
-      type: object
-      required:
-      - name
-      properties:
-        _id:
-          description: The unique identifier for a person
-          type: string
-          format: UUID
-        name:
-          description: The persons name, first and last, or VERSION for the Schema Version
-            document
-          type: string
-          maxLength: 32
-        description:
-          description: Notes or other descriptive text
-          type: string
-          maxLength: 256
-        status:
-          description: The status of this member
-          type: string
-          enum:
-          - Pending
-          - Active
-          - Inactive
-          - Archived
-        member:
-          description: Is this person a Member
-          type: boolean
-        mentor:
-          description: Is this person a Mentor
-          type: boolean
-        donor:
-          description: Is this person a Donor
-          type: boolean
-        contact:
-          description: Is this person a Partner Contact
-          type: boolean
-        mentorId:
-          description: the _id of this persons Mentor if they have one
-          type: string
-          format: UUID
-        partnerId:
-          description: the _id of this persons partner (contacts and members)
-          type: string
-          format: UUID
-        title:
-          description: The person's title in the career path
-          type: string
-          enum:
-          - Apprentice Candidate
-          - Apprentice
-          - Resident
-          - Associate
-          - Senior
-          - Distinguished
-          - N/A
-        eMail:
-          description: The person's eMail address
-          type: string
-          maxLength: 256
-          pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-        gitHub:
-          description: The person's gitHub User ID
-          type: string
-          maxLength: 32
-        phone:
-          description: The person's phone number
-          type: string
-          pattern: "^\\d{3}[-.\\s]?\\d{3}[-.\\s]?\\d{4}$"
-        device:
-          description: The type of PC this person is using
-          type: string
-          enum:
-          - Mac Intel
-          - Mac Apple
-          - Linux
-          - Windows / WSL
-        location:
-          description: The location where this person lives
-          type: string
-          maxLength: 64
-        lastSaved:
-          description: The location where this person lives
-          type: object
-          properties:
-            fromIp:
-              description: Http Request remote IP address
-              type: string
-            byUser:
-              description: UUID Of User
-              type: string
-            atTime:
-              description: The date-time when last updated
-              type: string
-            correlationId:
-              description: The logging correlation ID of the update transaction
-              type: string
