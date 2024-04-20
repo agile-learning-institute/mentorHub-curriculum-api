@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Curriculum API
-  description: |-
+  description: |
     This API manages the curriculum for apprentices, providing endpoints to add, update, and retrieve learning resources.
   contact:
     email: devs@agile-learning.institute
@@ -10,17 +10,20 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 1.0.0
 paths:
-  /api/curriculum/:
-    post:
-      summary: Add a new curriculum
-      operationId: addCurriculum
-      requestBody:
-        description: Curriculum details
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Curriculum'
-        required: true
+  /api/curriculum/{id}:
+    get:
+      summary: Get or create a curriculum
+      description: |
+        If the curriculum with the given ID exists, retrieves it. If not, a new curriculum will be created with the provided ID.
+      operationId: getOrCreateCurriculum
+      parameters:
+        - name: id
+          in: path
+          description: ID of curriculum to retrieve or create
+          required: true
+          schema:
+            type: string
+            format: GUID
       responses:
         '200':
           description: Successful operation
@@ -28,25 +31,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Curriculum'
-        '405':
-          description: Invalid input
-    get:
-      summary: Get a list of all curricula
-      operationId: getAllCurricula
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Curricula'
         '404':
-          description: Not found
+          description: Curriculum not found or unable to be created
         '405':
           description: Validation exception
-  /api/curriculum/{id}:
+      requestBody:
+        description: Curriculum details for creating a new curriculum
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Curriculum'
+        required: false
     patch:
       summary: Update an existing curriculum
+      description: |
+        Updates an existing curriculum with the provided ID. If the curriculum does not exist, a new one will not be created.
       operationId: updateCurriculum
       parameters:
         - name: id
@@ -74,31 +73,12 @@ paths:
           description: Curriculum not found
         '405':
           description: Validation exception
-    get:
-      summary: Get an existing curriculum
-      operationId: getCurriculum
-      parameters:
-        - name: id
-          in: path
-          description: ID of curriculum to retrieve
-          required: true
-          schema:
-            type: string
-            format: GUID
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Curriculum'
-        '404':
-          description: Curriculum not found
-        '405':
-          description: Validation exception
+
   /api/config/:
     get:
       summary: Get API Configuration Information
+      description: |
+        Retrieves information about the API's configuration.
       operationId: getConfig
       responses:
         '200':
@@ -107,9 +87,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Config'
+
   /api/health/:
     get:
       summary: Health Check Endpoint
+      description: |
+        Retrieves information about the health status of the API.
       operationId: healthCheck
       responses:
         '200':
@@ -129,13 +112,112 @@ paths:
                     type: string
                     description: The version of the API
 
+  /api/curriculum/{id}/topic:
+    post:
+      summary: Add a topic to a curriculum
+      description: |
+        Adds a new topic to the curriculum with the provided ID.
+      operationId: addTopicToCurriculum
+      parameters:
+        - name: id
+          in: path
+          description: ID of the curriculum
+          required: true
+          schema:
+            type: string
+            format: GUID
+      requestBody:
+        description: Topic details to add to the curriculum
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Topic'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+        '404':
+          description: Curriculum not found
+        '405':
+          description: Validation exception
+
+    patch:
+      summary: Update a topic within a curriculum
+      description: |
+        Updates an existing topic within the curriculum with the provided ID.
+      operationId: updateTopicInCurriculum
+      parameters:
+        - name: id
+          in: path
+          description: ID of the curriculum
+          required: true
+          schema:
+            type: string
+            format: GUID
+        - name: topicId
+          in: path
+          description: ID of the topic to update
+          required: true
+          schema:
+            type: string
+            format: GUID
+      requestBody:
+        description: Updated topic details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Topic'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+        '404':
+          description: Topic not found
+        '405':
+          description: Validation exception
+
+    delete:
+      summary: Delete a topic from a curriculum
+      description: |
+        Deletes the topic with the provided ID from the curriculum.
+      operationId: deleteTopicFromCurriculum
+      parameters:
+        - name: id
+          in: path
+          description: ID of the curriculum
+          required: true
+          schema:
+            type: string
+            format: GUID
+        - name: topicId
+          in: path
+          description: ID of the topic to delete
+          required: true
+          schema:
+            type: string
+            format: GUID
+      responses:
+        '204':
+          description: Topic successfully deleted
+        '404':
+          description: Topic not found
+        '405':
+          description: Validation exception
+
 components:
   schemas:
     Curriculum:
       type: object
       required:
         - name
-        - version
         - resources
       properties:
         _id:
@@ -145,14 +227,12 @@ components:
         name:
           description: The name of the curriculum
           type: string
-        version:
-          description: The version of the curriculum
-          type: string
         resources:
           description: An array of resources within the curriculum
           type: array
           items:
             $ref: '#/components/schemas/Resource'
+
     Resource:
       type: object
       required:
@@ -188,7 +268,6 @@ components:
           type: string
           enum:
             - completed
-            - celebrated
             - now
             - next
             - later
@@ -212,6 +291,24 @@ components:
           type: integer
           minimum: 0
           maximum: 5
+
+    Topic:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          description: The name of the topic
+          type: string
+        description:
+          description: Description of the topic
+          type: string
+        resources:
+          description: An array of resources related to the topic
+          type: array
+          items:
+            $ref: '#/components/schemas/Resource'
+
     Config:
       type: object
       properties:
