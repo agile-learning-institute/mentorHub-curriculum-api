@@ -74,44 +74,6 @@ paths:
         '405':
           description: Validation exception
 
-  /api/config/:
-    get:
-      summary: Get API Configuration Information
-      description: |
-        Retrieves information about the API's configuration.
-      operationId: getConfig
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Config'
-
-  /api/health/:
-    get:
-      summary: Health Check Endpoint
-      description: |
-        Retrieves information about the health status of the API.
-      operationId: healthCheck
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    description: The status of the API
-                  uptime:
-                    type: string
-                    description: The uptime of the API
-                  version:
-                    type: string
-                    description: The version of the API
-
   /api/curriculum/{id}/topic:
     post:
       summary: Add a topic to a curriculum
@@ -145,6 +107,7 @@ paths:
         '405':
           description: Validation exception
 
+  /api/curriculum/{id}/{topic_id}:
     patch:
       summary: Update a topic within a curriculum
       description: |
@@ -184,6 +147,7 @@ paths:
         '405':
           description: Validation exception
 
+
     delete:
       summary: Delete a topic from a curriculum
       description: |
@@ -212,13 +176,50 @@ paths:
         '405':
           description: Validation exception
 
+  /api/config/:
+    get:
+      summary: Get API Configuration Information
+      description: |
+        Retrieves information about the API's configuration.
+      operationId: getConfig
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
+
+  /api/health/:
+    get:
+      summary: Health Check Endpoint
+      description: |
+        Retrieves information about the health status of the API.
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: The status of the API
+                  uptime:
+                    type: string
+                    description: The uptime of the API
+                  version:
+                    type: string
+                    description: The version of the API
+
 components:
   schemas:
     Curriculum:
       type: object
       required:
-        - name
-        - resources
+        _id:
       properties:
         _id:
           description: The unique identifier for a curriculum
@@ -236,9 +237,7 @@ components:
     Resource:
       type: object
       required:
-        - type
-        - review
-        - roadmap
+        - id
       properties:
         type:
           description: The type of resource (topic or adhoc)
