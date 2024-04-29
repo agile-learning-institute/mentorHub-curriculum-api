@@ -2,9 +2,8 @@ FROM python:3.12
 
 WORKDIR /src/flask_app
 
-
 # Copy the dependencies file to the working directory
-COPY src/flask_app/requirements.txt .
+COPY requirements.txt .
 
 # Install any needed dependencies specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
