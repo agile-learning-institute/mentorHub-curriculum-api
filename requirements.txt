@@ -1,0 +1,4 @@
+Flask==3.0.3
+requests==2.31.0
+mongoengine==0.28.2
+pytest==8.1.2
