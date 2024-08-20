@@ -1,32 +1,107 @@
-># Search ALL files for "TODO:" and address task
+# curriculum-api
 
-# <<TODO:domain>>-<<TODO:component>>
+## Overview
 
-This is repository contains <<TODO:service-description>>
+This is a simple Flask API that provides Get/Post/Patch services for docuements in the Curriculum collection. This API uses data from a [backing Mongo Database](https://github.com/agile-learning-institute/mentorHub-mongodb), and supports a [Single Page Application.](https://github.com/agile-learning-institute/mentorHub-curriculum-ui)
 
-[Here](https://github.com/orgs/agile-learning-institute/repositories?q=mentorhub-&type=all&sort=name) are all of the repositories in the [mentorHub](https://github.com/agile-learning-institute/mentorhub/tree/main) system
+The OpenAPI specifications for the api can be found in the ``docs`` folder, and are served [here](https://agile-learning-institute.github.io/mentorHub-curriculum-api/)
 
-## Prerequisites
+## Prerequisits
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- TODO: Additional Prerequisites
+- [Mentorhub Developer Edition](https://github.com/agile-learning-institute/mentorHub/blob/main/mentorHub-developer-edition/README.md)
+- [Python](https://www.python.org/downloads/)
+- [Pipenv](https://pipenv.pypa.io/en/latest/installation.html)
 
-## Contributing
+### Optional
 
-Instructions on how to contribute, how to install dependencies and run locally. Including how to run backing services locally.
+- [Mongo Compass](https://www.mongodb.com/try/download/compass) - if you want a way to look into the database
 
-## Build and test the container
-
-Use the following command to build and run the container locally. See [here for details](https://github.com/agile-learning-institute/mentorhub/blob/main/docker-compose/README.md) on how to stop/start the database.
+## Install Flask Dependencies
 
 ```bash
-../src/docker/docker-build.sh
+pipenv install
 ```
 
-After that command completes successfully you can verify it worked successfully by
+## Run the API locally
 
-- TODO: Describe functional baseline tests
+```bash
+pipenv run start
+```
+Serves up the API locally with a backing mongodb database, ctrl-c to exit
 
-## Refactors and Enhancements
+## Run Unit Testing
 
-- [ ] To Be Documented
+```bash
+pipenv run test
+```
+
+## Run StepCI black box end-2-end testing
+
+```bash
+pipenv run stepci
+```
+
+## Build and run the API Container
+
+```bash
+pipenv run container
+```
+
+This will build the new container, and start the mongodb and API container ready for testing. 
+
+## API Testing with CURL
+
+If you want to do more manual testing, here are the curl commands to use
+
+### Test Health Endpoint
+
+This endpoint supports the promethius monitoring standards for a healthcheck endpoint
+
+```bash
+curl http://localhost:8088/api/health/
+
+```
+
+### Test Config Endpoint
+
+```bash
+curl http://localhost:8088/api/config/
+
+```
+
+### Test get a Curriculum
+
+```bash
+curl http://localhost:8088/api/curriculum/AAAA00000000000000000001/
+```
+
+### Test add a Resource to a Curriculum
+
+```bash
+curl -X POST http://localhost:8088/api/curriculum/AAAA00000000000000000001/ \
+     -d '{"sequence":100, "roadmap":"Later"}'
+
+```
+
+### Test update a Resource
+
+```bash
+curl -X PATCH http://localhost:8088/api/curriculum/AAAA00000000000000000001/100 \
+     -d '{"path":"Some Path"}'
+
+```
+
+### Test delete a Resource
+
+```bash
+curl -X DELETE http://localhost:8088/api/curriculum/AAAA00000000000000000001/100 
+
+```
+
+## Observability and Configuration
+
+The ```api/config/``` endpoint will return a list of configuration values. These values are either "defaults" or loaded from an Environment Variable, or found in a singleton configuration file of the same name. Configuration files take precidence over environment variables. The variable "CONFIG_FOLDER" will change the location of configuration files from the default of ```./```
+
+The ```api/health/``` endpoint is a Promethius Healthcheck endpoint.
+
+The [Dockerfile](./Dockerfile) uses a 2-stage build, and supports both amd64 and arm64 architectures. See [docker-build.sh](./src/docker/docker-build.sh) for details about how to build in the local architecture for testing, and [docker-push.sh] for details about how to build and push multi-architecture images.

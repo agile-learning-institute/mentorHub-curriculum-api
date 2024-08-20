@@ -31,17 +31,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Curriculum'
-        '404':
-          description: Curriculum not found or unable to be created
-        '405':
-          description: Validation exception
+        '500':
+          description: A Processing Error occured
+    post:
+      summary: Add a Resource to a curriculum
+      description: |
+        Adds a new Respirce to the curriculum with the provided ID.
+      operationId: addResourceToCurriculum
+      parameters:
+        - name: id
+          in: path
+          description: ID of the curriculum
+          required: true
+          schema:
+            type: string
+            format: GUID
       requestBody:
-        description: Curriculum details for creating a new curriculum
+        description: Resource details to add to the curriculum
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Curriculum'
-        required: false
+              $ref: '#/components/schemas/Resource'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+        '500':
+          description: A processing error has occured
+
+  /api/curriculum/{id}/{seq}:
     patch:
       summary: Update an existing curriculum
       description: |
@@ -55,12 +77,18 @@ paths:
           schema:
             type: string
             format: GUID
+        - name: seq
+          in: path
+          description: Sequence of Resource to update
+          required: true
+          schema:
+            type: number
       requestBody:
-        description: Updated curriculum details
+        description: Updated Resource details
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Curriculum'
+              $ref: '#/components/schemas/Resource'
         required: true
       responses:
         '200':
@@ -68,113 +96,33 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Curriculum'
-        '404':
-          description: Curriculum not found
-        '405':
-          description: Validation exception
-
-  /api/curriculum/{id}/topic:
-    post:
-      summary: Add a topic to a curriculum
-      description: |
-        Adds a new topic to the curriculum with the provided ID.
-      operationId: addTopicToCurriculum
-      parameters:
-        - name: id
-          in: path
-          description: ID of the curriculum
-          required: true
-          schema:
-            type: string
-            format: GUID
-      requestBody:
-        description: Topic details to add to the curriculum
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Topic'
-        required: true
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Topic'
-        '404':
-          description: Curriculum not found
-        '405':
-          description: Validation exception
-
-  /api/curriculum/{id}/{topic_id}:
-    patch:
-      summary: Update a topic within a curriculum
-      description: |
-        Updates an existing topic within the curriculum with the provided ID.
-      operationId: updateTopicInCurriculum
-      parameters:
-        - name: id
-          in: path
-          description: ID of the curriculum
-          required: true
-          schema:
-            type: string
-            format: GUID
-        - name: topicId
-          in: path
-          description: ID of the topic to update
-          required: true
-          schema:
-            type: string
-            format: GUID
-      requestBody:
-        description: Updated topic details
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Topic'
-        required: true
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Topic'
-        '404':
-          description: Topic not found
-        '405':
-          description: Validation exception
-
-
+                $ref: '#/components/schemas/Resource'
+        '500':
+          description: A processing error has occured
     delete:
-      summary: Delete a topic from a curriculum
+      summary: Delete a Resource from a curriculum
       description: |
-        Deletes the topic with the provided ID from the curriculum.
-      operationId: deleteTopicFromCurriculum
+        Deletes the Resource with the provided Sequence from the curriculum.
+      operationId: deleteResourceFromCurriculum
       parameters:
         - name: id
           in: path
-          description: ID of the curriculum
+          description: ID of curriculum to update
           required: true
           schema:
             type: string
             format: GUID
-        - name: topicId
+        - name: seq
           in: path
-          description: ID of the topic to delete
+          description: Sequence of Resource to update
           required: true
           schema:
-            type: string
-            format: GUID
+            type: number
       responses:
         '204':
-          description: Topic successfully deleted
-        '404':
-          description: Topic not found
-        '405':
-          description: Validation exception
+          description: Resource successfully deleted
+        '500':
+          description: A processing error has occured
 
   /api/config/:
     get:
@@ -199,114 +147,81 @@ paths:
       responses:
         '200':
           description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    description: The status of the API
-                  uptime:
-                    type: string
-                    description: The uptime of the API
-                  version:
-                    type: string
-                    description: The version of the API
 
 components:
   schemas:
     Curriculum:
       type: object
-      required:
-        _id:
       properties:
         _id:
           description: The unique identifier for a curriculum
           type: string
           format: UUID
-        name:
-          description: The name of the curriculum
-          type: string
         resources:
           description: An array of resources within the curriculum
           type: array
           items:
             $ref: '#/components/schemas/Resource'
+      additionalProperties: false
 
     Resource:
       type: object
-      required:
-        - id
       properties:
-        type:
-          description: The type of resource (topic or adhoc)
-          type: string
-          enum:
-            - topic
-            - adhoc
-        resourceId:
-          description: The ID of the resource assigned
-          type: string
-          format: UUID
-        topicId:
-          description: The ID of the topic associated with the resource
-          type: string
-          format: UUID
-        name:
-          description: The name of the resource
-          type: string
-        link:
-          description: The link to the resource (for adhoc resources)
-          type: string
-        review:
-          description: Free text review of the person's experience with this resource
-          type: string
+        sequence:
+          description: Sequence for ordering
+          type: number
         roadmap:
-          description: The status of the resource in the learning roadmap
-          type: string
+          description: roadmap status - now/next/later/celebrated
           enum:
-            - completed
-            - now
-            - next
-            - later
-        status:
-          description: Archived, Assigned, Started, Completed
+            - Completed
+            - Now
+            - Next
+            - Later
           type: string
-        statusDate:
-          description: Date the status was last changed
+        path:
+          description: A path to group segments
+          pattern: ^[ -~]{0,256}$
           type: string
-          format: date-time
+        segment:
+          description: A segment to group topics
+          pattern: ^[ -~]{0,256}$
+          type: string
+        topic:
+          description: A topic to group resources
+          pattern: ^[ -~]{0,256}$
+          type: string
+        type:
+          description: resource type - Resource or Adhoc
+          enum:
+            - Resource
+            - Adhoc
+          type: string
+        resource_id:
+          description: resource id for topic resources
+          type: string
+        resource_name:
+          description: resource name for adHoc resources
+          pattern: ^[ -~]{0,256}$
+          type: string
+        resource_url:
+          description: resource link for adHoc resources
+          pattern: >-
+            ^(https?:\/\/)([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z-]{2,24}(:[0-9]{1,5})?(\/(([\w\-\.~]|%[a-fA-F0-9]{2}|[!\$&'\(\)\*\+,;=:@])*\/?)*)?
+          type: string
         started:
-          description: Date/time the resource was started
+          description: When did they start this resource
           type: string
-          format: date-time
         completed:
-          description: Date/time the resource was completed
+          description: resource short name
           type: string
-          format: date-time
         rating:
-          description: Rating of the resource (0-5)
-          type: integer
-          minimum: 0
-          maximum: 5
-
-    Topic:
-      type: object
-      required:
-        - name
-      properties:
-        name:
-          description: The name of the topic
+          description: resource short name
+          type: number
+        review:
+          description: resource short name
+          pattern: ^[ -~]{0,256}$
           type: string
-        description:
-          description: Description of the topic
-          type: string
-        resources:
-          description: An array of resources related to the topic
-          type: array
-          items:
-            $ref: '#/components/schemas/Resource'
+      additionalProperties: false
 
     Config:
       type: object
@@ -314,20 +229,6 @@ components:
         apiVersion:
           type: string
           description: Semantic Version Number
-        stores:
-          type: array
-          items:
-            type: object
-            properties:
-              collectionName:
-                type: string
-                description: MongoDB Collection name
-              version:
-                type: string
-                description: Schema Version for the collection
-              filter:
-                type: string
-                description: Special Filter applied to collection
         configItems:
           type: array
           items:
