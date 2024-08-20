@@ -1,17 +1,27 @@
-FROM python:3.12
+# Use an official Python runtime as a parent image
+FROM python:3.12-slim
 
-WORKDIR /src/flask_app
+# Set the working directory in the container
+WORKDIR /app
 
-# Copy the dependencies file to the working directory
-COPY requirements.txt .
+# Copy the Pipfile and Pipfile.lock to the working directory
+COPY Pipfile Pipfile.lock /app/
 
-# Install any needed dependencies specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Install pipenv and dependencies
+RUN pip install pipenv && pipenv install --deploy --system
 
-COPY src/flsk_app/ .
+# Install Gunicorn for running the Flask app in production
+RUN pipenv install gunicorn
 
-# Make port 80 available to the world outside this container
-EXPOSE 80
+# Verify Gunicorn installation
+RUN pipenv run gunicorn --version
 
-# Run app.py when the container launches
-CMD ["python3", "main.py"]
+# Copy the rest of the application code to the working directory
+COPY . /app
+
+# Expose the port the app will run on
+EXPOSE 8088
+
+# Command to run the application using Gunicorn
+CMD pipenv run gunicorn --bind 0.0.0.0:8088 src.server:app
+# CMD ["gunicorn", "--bind", "0.0.0.0:8088", "src.server:app"]

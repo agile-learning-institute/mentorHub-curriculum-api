@@ -1,121 +1,107 @@
-# institute-curriculum-api
+# curriculum-api
 
 ## Overview
 
-The Institute Curriculum API is a Python API that facilitates CRUD operations for documents in the curriculum collection. It interacts with a MongoDB database. The API is built using the Flask web framework and the mongoengine library.
+This is a simple Flask API that provides Get/Post/Patch services for docuements in the Curriculum collection. This API uses data from a [backing Mongo Database](https://github.com/agile-learning-institute/mentorHub-mongodb), and supports a [Single Page Application.](https://github.com/agile-learning-institute/mentorHub-curriculum-ui)
 
-The OpenAPI specifications for the API can be found in the docs folder and served [here](mentorHub-curriculum-api/docs/index.html).
+The OpenAPI specifications for the api can be found in the ``docs`` folder, and are served [here](https://agile-learning-institute.github.io/mentorHub-curriculum-api/)
 
-## Prerequisites
+## Prerequisits
 
-- Docker Desktop
-- Python (latest version)
-- Optional:
-    - MongoDB Compass (for database visualization)
+- [Mentorhub Developer Edition](https://github.com/agile-learning-institute/mentorHub/blob/main/mentorHub-developer-edition/README.md)
+- [Python](https://www.python.org/downloads/)
+- [Pipenv](https://pipenv.pypa.io/en/latest/installation.html)
 
-## Using the Database Container
+### Optional
 
-For a local database setup with preloaded test data, refer to the instructions in the mentorHub repository's docker configurations.
+- [Mongo Compass](https://www.mongodb.com/try/download/compass) - if you want a way to look into the database
 
-## Install Dependencies and Run
+## Install Flask Dependencies
 
-f you've started the database separately, you can run the API locally by executing the following commands:
-
-```
-cd src
-pip install -r requirements.txt
-python3 main.py
-```
-## Build and Test the Container
-```
-docker-build.sh
+```bash
+pipenv install
 ```
 
-## Local API Testing with CURL
+## Run the API locally
 
-GET /api/curriculum/{id}
+```bash
+pipenv run start
 ```
-curl http://localhost:8080/api/curriculum/123
-```
+Serves up the API locally with a backing mongodb database, ctrl-c to exit
 
-PATCH /api/curriculum/{id}
-```
-curl -X PATCH http://localhost:8080/api/curriculum/123 -d '{"title":"New Title"}'
-```
+## Run Unit Testing
 
-POST /api/curriculum/{id}/topic
-```
-curl -X POST http://localhost:8080/api/curriculum/123/topic -d '{"title":"New Topic"}'
+```bash
+pipenv run test
 ```
 
-PATCH /api/curriculum/{id}/{topic_id}
-```
-curl -X PATCH http://localhost:8080/api/curriculum/123/456 -d '{"title":"Updated Topic"}'
-```
+## Run StepCI black box end-2-end testing
 
-DELETE /api/curriculum/{id}/{topic_id}
-```
-curl -X DELETE http://localhost:8080/api/curriculum/123/456
+```bash
+pipenv run stepci
 ```
 
-GET /api/config/
+## Build and run the API Container
 
-```
-curl http://localhost:8080/api/config/
-```
-
-GET /api/health/
-```
-curl http://localhost:8080/api/health/
+```bash
+pipenv run container
 ```
 
-## Postman Tests
-GET /api/curriculum/{id}
-- Method: GET
-- Endpoint: http://localhost:8080/api/curriculum/123
+This will build the new container, and start the mongodb and API container ready for testing. 
 
-PATCH /api/curriculum/{id}
+## API Testing with CURL
 
-- Method: PATCH
-- Endpoint: http://localhost:8080/api/curriculum/123
-- Body:
+If you want to do more manual testing, here are the curl commands to use
 
-```
-{
-  "title": "New Title"
-}
-```
+### Test Health Endpoint
 
-POST /api/curriculum/{id}/topic
-- Method: POST
-- Endpoint: http://localhost:8080/api/curriculum/123/topic
-- Body:
+This endpoint supports the promethius monitoring standards for a healthcheck endpoint
+
+```bash
+curl http://localhost:8088/api/health/
 
 ```
-{
-  "title": "New Topic"
-}
-```
 
-PATCH /api/curriculum/{id}/{topic_id}
-- Method: PATCH
-- Endpoint: http://localhost:8080/api/curriculum/123/456
-- Body:
+### Test Config Endpoint
+
+```bash
+curl http://localhost:8088/api/config/
 
 ```
-{
-  "title": "Updated Topic"
-}
+
+### Test get a Curriculum
+
+```bash
+curl http://localhost:8088/api/curriculum/AAAA00000000000000000001/
 ```
 
-DELETE /api/curriculum/{id}/{topic_id}
-- Method: DELETE
-- Endpoint: http://localhost:8080/api/curriculum/123/456
+### Test add a Resource to a Curriculum
 
-GET /api/config/
-- Method: GET
-- Endpoint: http://localhost:8080/api/config/
+```bash
+curl -X POST http://localhost:8088/api/curriculum/AAAA00000000000000000001/ \
+     -d '{"sequence":100, "roadmap":"Later"}'
 
-GET /api/health/
-- Method: GET
-- Endpoint: http://localhost:8080/api/health/
+```
+
+### Test update a Resource
+
+```bash
+curl -X PATCH http://localhost:8088/api/curriculum/AAAA00000000000000000001/100 \
+     -d '{"path":"Some Path"}'
+
+```
+
+### Test delete a Resource
+
+```bash
+curl -X DELETE http://localhost:8088/api/curriculum/AAAA00000000000000000001/100 
+
+```
+
+## Observability and Configuration
+
+The ```api/config/``` endpoint will return a list of configuration values. These values are either "defaults" or loaded from an Environment Variable, or found in a singleton configuration file of the same name. Configuration files take precidence over environment variables. The variable "CONFIG_FOLDER" will change the location of configuration files from the default of ```./```
+
+The ```api/health/``` endpoint is a Promethius Healthcheck endpoint.
+
+The [Dockerfile](./Dockerfile) uses a 2-stage build, and supports both amd64 and arm64 architectures. See [docker-build.sh](./src/docker/docker-build.sh) for details about how to build in the local architecture for testing, and [docker-push.sh] for details about how to build and push multi-architecture images.
