@@ -105,5 +105,14 @@ class Config:
     def get_db_name(self):
         return self._db_name
 
+    # Serializer
+    def to_dict(self):
+        """Convert the Config object to a dictionary with the required fields."""
+        return {
+            "api_version": self.api_version,
+            "versions": self.versions,
+            "enumerators": self.enumerators,
+            "config_items": self.config_items
+        }    
 # Create a singleton instance of Config and export it
 config = Config.get_instance()

@@ -17,6 +17,23 @@ class TestConfigDefaults(unittest.TestCase):
         self.assertEqual(config.get_version_collection_name(), "msmCurrentVersions")
         self.assertEqual(config.get_enumerators_collection_name(), "enumerators")
 
+    def test_to_dict(self):
+        """Test the to_dict method of the Config class."""
+        expected_dict = {
+            "api_version": "1.0.LOCAL",
+            "versions": [],
+            "enumerators": {},
+        }
+
+        # Convert the config object to a dictionary
+        result_dict = config.to_dict()
+        
+        # Remove config_items from the result for this test
+        result_dict.pop("config_items", None)
+        
+        # Assert that the result matches the expected dictionary
+        self.assertEqual(result_dict, expected_dict)
+        
     def test_default_config_items(self):
         self._test_config_default_value("PORT", "8088")
         self._test_config_default_value("BUILT_AT", "LOCAL")
