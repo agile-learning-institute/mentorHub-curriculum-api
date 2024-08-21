@@ -1,36 +1,54 @@
-from flask import Flask, jsonify
+## Initilize Logging
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
+import sys
+import signal
+from flask import Flask
+from prometheus_flask_exporter import PrometheusMetrics
+from src.config.config import config
+from src.routes.curriculum_routes import create_curriculum_routes
+from src.routes.config_routes import create_config_routes
+from src.utils.mongo_io import MongoIO
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Initilize Flask App
 app = Flask(__name__)
+app.mongo = MongoIO()
 
-@app.route('/api/curriculum/<id>', methods=['GET'])
-def get_or_create_curriculum(id):
-    # Return a static response for now
-    return jsonify({"message": "GET or create curriculum", "id": id}), 200
+# Initialize Configuration
+app.mongo.connect()
+app.mongo.load_versions()
+app.mongo.load_enumerators()
 
-@app.route('/api/curriculum/<id>', methods=['POST'])
-def add_resource_to_curriculum(id):
-    # Return a static response for now
-    return jsonify({"message": "Resource added to curriculum", "id": id}), 200
+# Apply Prometheus monitoring middleware
+metrics = PrometheusMetrics(app, path='/api/health/')
+metrics.info('app_info', 'Application info', version=config.api_version)
 
-@app.route('/api/curriculum/<id>/<int:seq>', methods=['PATCH'])
-def update_curriculum(id, seq):
-    # Return a static response for now
-    return jsonify({"message": "Curriculum updated", "id": id, "seq": seq}), 200
+# Initialize Route Handlers
+config_handler = create_config_routes()
+curriculum_handler = create_curriculum_routes(app.mongo)
 
-@app.route('/api/curriculum/<id>/<int:seq>', methods=['DELETE'])
-def delete_resource_from_curriculum(id, seq):
-    # Return a static response for now
-    return '', 204
+# Register routes
+app.register_blueprint(curriculum_handler, url_prefix='/api/curriculum')
+app.register_blueprint(config_handler, url_prefix='/api/config')
 
-@app.route('/api/config/', methods=['GET'])
-def get_config():
-    # Return a static response for now
-    return jsonify({"message": "API configuration"}), 200
+# Define a signal handler for SIGTERM and SIGINT
+def handle_exit(signum, frame):
+    logger.info(f"Received signal {signum}. Initiating shutdown...")
+    if app.mongo:
+        app.mongo.disconnect()
+        logger.info('MongoDB connection closed.')
+    sys.exit(0)
 
-@app.route('/api/health/', methods=['GET'])
-def health_check():
-    # Return a static response for now
-    return jsonify({"status": "healthy"}), 200
+# Register the signal handler
+signal.signal(signal.SIGTERM, handle_exit)
+signal.signal(signal.SIGINT, handle_exit)
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8088)
+# Expose the app object for Gunicorn
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=config.get_port())

@@ -25,7 +25,7 @@ pipenv install
 ## Run the API locally
 
 ```bash
-pipenv run start
+pipenv run local
 ```
 Serves up the API locally with a backing mongodb database, ctrl-c to exit
 
