@@ -2,10 +2,10 @@ from flask import Flask, request, jsonify
 import atexit
 import signal
 from prometheus_flask_exporter import PrometheusMetrics
-from src.config.config import config
+from config.config import config
 from routes.curriculum_routes import create_curriculum_routes
-from routes.config_routes import config_routes
-from src.utils.mongo_io import MongoIO
+from routes.config_routes import create_config_routes
+from utils.mongo_io import MongoIO
 
 class Server:
     def __init__(self, mongo_io):
@@ -18,12 +18,16 @@ class Server:
         app = self.app
 
         # Apply Prometheus monitoring middleware
-        metrics = PrometheusMetrics(app)
-        metrics.info('app_info', 'Application info', version='1.0')
+        metrics = PrometheusMetrics(self.app, path='/api/health/')
+        metrics.info('app_info', 'Application info', version=config.api_version)
 
+        # Initilize Route Handlers
+        config_handler = create_config_routes()
+        curriculum_handler = create_curriculum_routes(self.mongo_io)
+        
         # Register routes
-        self.app.register_blueprint(create_curriculum_routes(self.mongo_io), url_prefix='/api/curriculum')
-        app.register_blueprint(config_routes, url_prefix='/api/config')
+        self.app.register_blueprint(curriculum_handler, url_prefix='/api/curriculum')
+        self.app.register_blueprint(config_handler, url_prefix='/api/config')
 
         # Start Server
         port = config.get_port()
@@ -50,9 +54,12 @@ class Server:
 
 # Start the server
 if __name__ == "__main__":
-    mongo = MongoIO()
-    mongo.connect()
-    mongo.load_versions()
-    mongo.load_enumerators(config.get_curriculum_collection_name())
-    server = Server(mongo)
-    server.serve()
+    try:
+        mongo = MongoIO()
+        mongo.connect()
+        mongo.load_versions()
+        mongo.load_enumerators()
+        server = Server(mongo)
+        server.serve()
+    except Exception as e:
+        print(f"Server Failed!: {e}")
