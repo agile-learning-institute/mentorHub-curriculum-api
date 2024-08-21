@@ -1,5 +1,8 @@
+import logging
 import os
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 class Config:
     _instance = None  # Singleton instance
@@ -45,7 +48,7 @@ class Config:
         self._version_collection_name = self._get_config_value("VERSION_COLLECTION", "msmCurrentVersions", False)
         self._enumerators_collection_name = self._get_config_value("ENUMERATORS_COLLECTION", "enumerators", False)
 
-        print("Configuration Initialized:", self.config_items)
+        logger.info(f"Configuration Initialized: {self.config_items}")
 
     def _get_config_value(self, name, default_value, is_secret):
         """Retrieve a configuration value, first from a file, then environment variable, then default."""

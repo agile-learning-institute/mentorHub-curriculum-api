@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from config.config import config 
+from src.config.config import config 
 
 # Define the Blueprint for config routes
 def create_config_routes():

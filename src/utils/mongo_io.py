@@ -1,6 +1,9 @@
 import sys
+import logging
 from pymongo import MongoClient
-from config.config import config
+from src.config.config import config
+
+logger = logging.getLogger(__name__)
 
 class MongoIO:
     def __init__(self):
@@ -14,18 +17,18 @@ class MongoIO:
         try:
             self.client = MongoClient(config.get_connection_string())
             self.db = self.client.get_database(config.get_db_name())
-            print("Connected to MongoDB")
+            logger.info("Connected to MongoDB")
         except Exception as e:
-            print(f"Failed to connect to MongoDB: {e} - exiting")
+            logger.fatal(f"Failed to connect to MongoDB: {e} - exiting")
             sys.exit(1)
 
     def disconnect(self):
         """Disconnect from MongoDB."""
         try:
             self.client.close()
-            print("Disconnected from MongoDB")
+            logger.info("Disconnected from MongoDB")
         except Exception as e:
-            print(f"Failed to disconnect to MongoDB: {e} - exiting")
+            logger.fatal(f"Failed to disconnect to MongoDB: {e} - exiting")
             sys.exit(1)
 
     def load_versions(self):
@@ -33,7 +36,7 @@ class MongoIO:
         try:
             config.versions = [];
         except Exception as e:
-            print(f"Failed to get or load versions: {e} - exiting")
+            logger.fatal(f"Failed to get or load versions: {e} - exiting")
             sys.exit(1)
 
     def load_enumerators(self):
@@ -41,7 +44,7 @@ class MongoIO:
         try:
             config.enumerators = {};
         except Exception as e:
-            print(f"Failed to get or load enumerators: {e} - exiting")
+            logger.fatal(f"Failed to get or load enumerators: {e} - exiting")
             sys.exit(1)
 
     def get_or_create_curriculum(self, curriculum_id):
@@ -50,7 +53,7 @@ class MongoIO:
             result = {"method": "get_or_create_curriculum"};
             return result
         except Exception as e:
-            print(f"Failed to get or create curriculum: {e}")
+            logger.error(f"Failed to get or create curriculum: {e}")
             raise
 
     def add_resource_to_curriculum(self, curriculum_id, resource_data):
@@ -59,7 +62,7 @@ class MongoIO:
             result = {"method": "add_resource_to_curriculum"};
             return result
         except Exception as e:
-            print(f"Failed to add resource to curriculum: {e}")
+            logger.error(f"Failed to add resource to curriculum: {e}")
             raise
 
     def update_curriculum(self, curriculum_id, seq, resource_data):
@@ -68,7 +71,7 @@ class MongoIO:
             result = {"method": "update_curriculum"};
             return result
         except Exception as e:
-            print(f"Failed to update resource in curriculum: {e}")
+            logger.error(f"Failed to update resource in curriculum: {e}")
             raise
 
     def delete_resource_from_curriculum(self, curriculum_id, seq):
@@ -77,5 +80,5 @@ class MongoIO:
             result = {"method": "delete_resource_from_curriculum"};
             return result
         except Exception as e:
-            print(f"Failed to delete resource from curriculum: {e}")
+            logger.error(f"Failed to delete resource from curriculum: {e}")
             raise
