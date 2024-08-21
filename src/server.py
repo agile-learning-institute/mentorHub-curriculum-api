@@ -1,36 +1,58 @@
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
+import atexit
+import signal
+from prometheus_flask_exporter import PrometheusMetrics
+from src.config.config import config
+from routes.curriculum_routes import create_curriculum_routes
+from routes.config_routes import config_routes
+from src.utils.mongo_io import MongoIO
 
-app = Flask(__name__)
+class Server:
+    def __init__(self, mongo_io):
+        self.mongo_io = mongo_io
+        self.app = Flask(__name__)
+        self.server = None
 
-@app.route('/api/curriculum/<id>', methods=['GET'])
-def get_or_create_curriculum(id):
-    # Return a static response for now
-    return jsonify({"message": "GET or create curriculum", "id": id}), 200
+    def serve(self):
+        # Initialize Flask app
+        app = self.app
 
-@app.route('/api/curriculum/<id>', methods=['POST'])
-def add_resource_to_curriculum(id):
-    # Return a static response for now
-    return jsonify({"message": "Resource added to curriculum", "id": id}), 200
+        # Apply Prometheus monitoring middleware
+        metrics = PrometheusMetrics(app)
+        metrics.info('app_info', 'Application info', version='1.0')
 
-@app.route('/api/curriculum/<id>/<int:seq>', methods=['PATCH'])
-def update_curriculum(id, seq):
-    # Return a static response for now
-    return jsonify({"message": "Curriculum updated", "id": id, "seq": seq}), 200
+        # Register routes
+        self.app.register_blueprint(create_curriculum_routes(self.mongo_io), url_prefix='/api/curriculum')
+        app.register_blueprint(config_routes, url_prefix='/api/config')
 
-@app.route('/api/curriculum/<id>/<int:seq>', methods=['DELETE'])
-def delete_resource_from_curriculum(id, seq):
-    # Return a static response for now
-    return '', 204
+        # Start Server
+        port = config.get_port()
+        self.server = app.run(host='0.0.0.0', port=port)
+        print(f"Server running on port {port}")
 
-@app.route('/api/config/', methods=['GET'])
-def get_config():
-    # Return a static response for now
-    return jsonify({"message": "API configuration"}), 200
+        # Register exit handler
+        print("Registering Exit Handler")
+        atexit.register(self.on_exit_handler)
+        signal.signal(signal.SIGTERM, lambda sig, frame: self.on_exit_handler())
+        signal.signal(signal.SIGINT, lambda sig, frame: self.on_exit_handler())
+        signal.signal(signal.SIGUSR1, lambda sig, frame: self.on_exit_handler())
+        signal.signal(signal.SIGUSR2, lambda sig, frame: self.on_exit_handler())
+        signal.signal(signal.SIGTERM, lambda sig, frame: self.on_exit_handler())
+        signal.signal(signal.SIGINT, lambda sig, frame: self.on_exit_handler())
 
-@app.route('/api/health/', methods=['GET'])
-def health_check():
-    # Return a static response for now
-    return jsonify({"status": "healthy"}), 200
+    def on_exit_handler(self):
+        print('Server is shutting down...')
+        if self.server:
+            print('HTTP server closed.')
+        self.mongo_io.disconnect()
+        print('MongoDB connection closed.')
+        exit()
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8088)
+# Start the server
+if __name__ == "__main__":
+    mongo = MongoIO()
+    mongo.connect()
+    mongo.load_versions()
+    mongo.load_enumerators(config.get_curriculum_collection_name())
+    server = Server(mongo)
+    server.serve()

@@ -12,6 +12,7 @@ container = "sh -c 'mh down && docker build --tag ghcr.io/agile-learning-institu
 [packages]
 flask = "*"
 pymongo = "*"
+prometheus-flask-exporter = "*"
 
 [dev-packages]
 
