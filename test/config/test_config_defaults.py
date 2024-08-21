@@ -1,7 +1,7 @@
 import unittest
 from src.config.config import config
 
-class TestConfig(unittest.TestCase):
+class TestConfigDefaults(unittest.TestCase):
 
     def setUp(self):
         """Re-initialize the config for each test."""
