@@ -11,7 +11,7 @@ COPY Pipfile Pipfile.lock /app/
 RUN pip install pipenv && pipenv install --deploy --system
 
 # Install Gunicorn for running the Flask app in production
-RUN pip install gunicorn
+RUN pip install gunicorn gevent
 
 # Copy the rest of the application code to the working directory
 COPY . /app
@@ -22,5 +22,6 @@ EXPOSE 8088
 # Set Environment Variables
 ENV PYTHONPATH=/app
 
-# Command to run the application using Gunicorn with debug logging
-CMD gunicorn -c gunicorn.conf.py --chdir /app --pythonpath /app --log-level debug --bind 0.0.0.0:8088 src.server:app
+# Command to run the application using Gunicorn with exec to forward signals
+CMD exec gunicorn --bind 0.0.0.0:8088 src.server:app
+
