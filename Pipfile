@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [scripts]
-start = "sh -c 'mh up mongodb && python3 src/server.py'"
+start = "sh -c 'mh up mongodb && export PYTHONPATH=./src && python3 src/server.py'"
 test = "echo 'Not Yet Implemented'"
 stepci = "echo 'Not Yet Implemented'"
 container = "sh -c 'mh down && docker build --tag ghcr.io/agile-learning-institute/mentorhub-curriculum-api:latest . && mh up curriculum-api'"
