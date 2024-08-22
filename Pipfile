@@ -7,7 +7,8 @@ name = "pypi"
 local = "sh -c 'mh down && mh up mongodb && python3 -m server'"
 test = "echo 'Not Yet Implemented'"
 stepci = "echo 'Not Yet Implemented'"
-container = "sh -c 'mh down && docker build --tag ghcr.io/agile-learning-institute/mentorhub-curriculum-api:latest . && mh up curriculum-api'"
+build = "docker build --tag ghcr.io/agile-learning-institute/mentorhub-curriculum-api:latest ."
+container = "sh -c 'mh down && pipenv run build && mh up curriculum-api'"
 
 [packages]
 flask = "*"
