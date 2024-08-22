@@ -31,7 +31,7 @@ metrics.info('app_info', 'Application info', version=config.api_version)
 
 # Initialize Route Handlers
 config_handler = create_config_routes()
-curriculum_handler = create_curriculum_routes(app.mongo)
+curriculum_handler = create_curriculum_routes()
 
 # Register routes
 app.register_blueprint(curriculum_handler, url_prefix='/api/curriculum')

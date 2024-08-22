@@ -1,46 +1,28 @@
-from flask import Blueprint, request, jsonify
+from config import config
 
-def create_curriculum_routes(mongo_io):
-    # Define the Blueprint
-    curriculum_routes = Blueprint('curriculum_routes', __name__)
+class CurriculumService:
 
-    # GET /api/curriculum/{id} - Get or create a curriculum
-    @curriculum_routes.route('/<string:id>', methods=['GET'])
-    def get_or_create_curriculum(id):
-        try:
-            curriculum = mongo_io.get_or_create_curriculum(id)
-            return jsonify(curriculum), 200
-        except Exception as e:
-            return jsonify({"error": "A processing error occurred"}), 500
+    @staticmethod
+    def get_or_create_curriculum(curriculum_id):
+        mongo_io = config.get_mongo_io()
+        # Business logic, encoding, RBAC, etc. can be added here
+        return mongo_io.get_or_create_curriculum(curriculum_id)
 
-    # POST /api/curriculum/{id} - Add a Resource to a curriculum
-    @curriculum_routes.route('/<string:id>', methods=['POST'])
-    def add_resource_to_curriculum(id):
-        try:
-            resource_data = request.get_json()
-            resource = mongo_io.add_resource_to_curriculum(id, resource_data)
-            return jsonify(resource), 200
-        except Exception as e:
-            return jsonify({"error": "A processing error occurred"}), 500
+    @staticmethod
+    def add_resource_to_curriculum(curriculum_id, resource_data):
+        mongo_io = config.get_mongo_io()
+        # Business logic, encoding, RBAC, etc. can be added here
+        return mongo_io.add_resource_to_curriculum(curriculum_id, resource_data)
 
-    # PATCH /api/curriculum/{id}/{seq} - Update an existing curriculum
-    @curriculum_routes.route('/<string:id>/<int:seq>', methods=['PATCH'])
-    def update_curriculum(id, seq):
-        try:
-            resource_data = request.get_json()
-            updated_resource = mongo_io.update_curriculum(id, seq, resource_data)
-            return jsonify(updated_resource), 200
-        except Exception as e:
-            return jsonify({"error": "A processing error occurred"}), 500
+    @staticmethod
+    def update_curriculum(curriculum_id, seq, resource_data):
+        mongo_io = config.get_mongo_io()
+        # Business logic, encoding, RBAC, etc. can be added here
+        return mongo_io.update_curriculum(curriculum_id, seq, resource_data)
 
-    # DELETE /api/curriculum/{id}/{seq} - Delete a Resource from a curriculum
-    @curriculum_routes.route('/<string:id>/<int:seq>', methods=['DELETE'])
-    def delete_resource_from_curriculum(id, seq):
-        try:
-            mongo_io.delete_resource_from_curriculum(id, seq)
-            return '', 204  # No content response
-        except Exception as e:
-            return jsonify({"error": "A processing error occurred"}), 500
+    @staticmethod
+    def delete_resource_from_curriculum(curriculum_id, seq):
+        mongo_io = config.get_mongo_io()
+        # Business logic, encoding, RBAC, etc. can be added here
+        mongo_io.delete_resource_from_curriculum(curriculum_id, seq)
         
-    # Ensure the Blueprint is returned correctly
-    return curriculum_routes
