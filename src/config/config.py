@@ -1,7 +1,6 @@
-import logging
-import os
 from pathlib import Path
-
+import os
+import logging
 logger = logging.getLogger(__name__)
 
 class Config:
@@ -28,7 +27,7 @@ class Config:
             self._paths_collection_name = ""
             self._version_collection_name = ""
             self._enumerators_collection_name = ""
-
+            
             # Initialize configuration
             self.initialize()
 
@@ -49,7 +48,7 @@ class Config:
         self._enumerators_collection_name = self._get_config_value("ENUMERATORS_COLLECTION", "enumerators", False)
 
         logger.info(f"Configuration Initialized: {self.config_items}")
-
+            
     def _get_config_value(self, name, default_value, is_secret):
         """Retrieve a configuration value, first from a file, then environment variable, then default."""
         value = default_value
@@ -72,13 +71,6 @@ class Config:
             "from": from_source
         })
         return value
-
-    @staticmethod
-    def get_instance():
-        """Get the singleton instance of the Config class."""
-        if Config._instance is None:
-            Config()
-        return Config._instance
 
     # Simple Getters
     def get_port(self):
@@ -117,5 +109,14 @@ class Config:
             "enumerators": self.enumerators,
             "config_items": self.config_items
         }    
+
+    # Singleton Getter
+    @staticmethod
+    def get_instance():
+        """Get the singleton instance of the Config class."""
+        if Config._instance is None:
+            Config()
+        return Config._instance
+        
 # Create a singleton instance of Config and export it
 config = Config.get_instance()

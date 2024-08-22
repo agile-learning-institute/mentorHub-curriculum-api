@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
 from src.services.curriculum_services import CurriculumService
+import logging
+logger = logging.getLogger(__name__)
 
 def create_curriculum_routes():
     # Define the Blueprint
@@ -12,6 +14,7 @@ def create_curriculum_routes():
             curriculum = CurriculumService.get_or_create_curriculum(id)
             return jsonify(curriculum), 200
         except Exception as e:
+            logger.warn(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500
 
     # POST /api/curriculum/{id}/ - Add a Resource to a curriculum
@@ -22,6 +25,7 @@ def create_curriculum_routes():
             resource = CurriculumService.add_resource_to_curriculum(id, resource_data)
             return jsonify(resource), 200
         except Exception as e:
+            logger.warn(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500
 
     # PATCH /api/curriculum/{id}/{seq}/ - Update an existing curriculum
@@ -32,6 +36,7 @@ def create_curriculum_routes():
             updated_resource = CurriculumService.update_curriculum(id, seq, resource_data)
             return jsonify(updated_resource), 200
         except Exception as e:
+            logger.warn(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500
 
     # DELETE /api/curriculum/{id}/{seq}/ - Delete a Resource from a curriculum
@@ -41,6 +46,7 @@ def create_curriculum_routes():
             CurriculumService.delete_resource_from_curriculum(id, seq)
             return '', 204  # No content response
         except Exception as e:
+            logger.warn(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500
         
     # Ensure the Blueprint is returned correctly
