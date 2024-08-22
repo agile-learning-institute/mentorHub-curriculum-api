@@ -51,13 +51,22 @@ class MongoIO:
             logger.fatal(f"Failed to get or load enumerators: {e} - exiting")
             sys.exit(1)
     
-    def get_or_create_curriculum(self, curriculum_id):
-        """Retrieve or create a curriculum by ID."""
+    def get_curriculum(self, curriculum_id):
+        """Retrieve a curriculum by ID."""
         try:
-            result = {"method": "get_or_create_curriculum"}
+            result = {"method": "get_curriculum"}
             return result
         except Exception as e:
-            logger.error(f"Failed to get or create curriculum: {e}")
+            logger.error(f"Failed to get curriculum: {e}")
+            raise
+
+    def create_curriculum(self, curriculum_id):
+        """Create a curriculum by ID."""
+        try:
+            result = {"method": "create_curriculum"}
+            return result
+        except Exception as e:
+            logger.error(f"Failed to create curriculum: {e}")
             raise
 
     def add_resource_to_curriculum(self, curriculum_id, resource_data):

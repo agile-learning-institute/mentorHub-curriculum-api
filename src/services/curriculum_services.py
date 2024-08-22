@@ -27,7 +27,10 @@ class CurriculumService:
         CurriculumService.check_user_access()
 
         mongo_io = MongoIO()
-        return mongo_io.get_or_create_curriculum(curriculum_id)
+        curriculum = mongo_io.get_curriculum(curriculum_id)
+        if curriculum == None:
+            curriculum = mongo_io.create_curriculum(curriculum_id)
+        return curriculum
 
     @staticmethod
     def add_resource_to_curriculum(curriculum_id, resource_data):
