@@ -1,4 +1,4 @@
-## Initilize Logging
+# Initilize Logging
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -11,10 +11,6 @@ from src.config.config import config
 from src.utils.mongo_io import mongoIO
 from src.routes.curriculum_routes import create_curriculum_routes
 from src.routes.config_routes import create_config_routes
-
-# Setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Initilize Flask App
 app = Flask(__name__)
