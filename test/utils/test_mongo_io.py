@@ -18,31 +18,6 @@ class TestMongoIO(unittest.TestCase):
         mongo_io2 = MongoIO.get_instance()
         self.assertIs(mongo_io1, mongo_io2, "MongoIO should be a singleton")
 
-    # def test_connect_method(self):
-    #     # Test the connect method (assuming it's setting up a connection)
-    #     mongo_io = MongoIO.get_instance()
-    #     self.assertIsNotNone(mongo_io.client, "MongoIO should have a MongoClient instance after connecting")
-    #     self.assertIsNotNone(mongo_io.db, "MongoIO should have a database instance after connecting")
-
-    # def test_disconnect_method(self):
-    #     # Test the disconnect method
-    #     mongo_io = MongoIO.get_instance()
-    #     mongo_io.disconnect()
-    #     with self.assertRaises(AttributeError):
-    #         _ = mongo_io.client.server_info()
-
-    # def test_load_versions(self):
-    #     # Test the load_versions method
-    #     mongo_io = MongoIO.get_instance()
-    #     mongo_io.load_versions()
-    #     self.assertIsInstance(mongo_io.db, dict, "Versions should be loaded into config.versions as a list")
-
-    # def test_load_enumerators(self):
-    #     # Test the load_enumerators method
-    #     mongo_io = MongoIO.get_instance()
-    #     mongo_io.load_enumerators()
-    #     self.assertIsInstance(config.enumerators, dict, "Enumerators should be loaded into config.enumerators as a dictionary")
-
     def test_get_curriculum(self):
         # Test get_curriculum method
         mongo_io = MongoIO.get_instance()

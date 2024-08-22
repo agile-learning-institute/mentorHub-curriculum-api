@@ -11,12 +11,12 @@ class MongoIO:
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super(MongoIO, cls).__new__(cls, *args, **kwargs)
-            cls._instance.connect()
-            cls._instance.load_versions()
-            cls._instance.load_enumerators()
+            cls._instance._connect()
+            cls._instance._load_versions()
+            cls._instance._load_enumerators()
         return cls._instance
     
-    def connect(self):
+    def _connect(self):
         """Connect to MongoDB."""
         try:
             self.client = MongoClient(config.get_connection_string())
@@ -26,6 +26,22 @@ class MongoIO:
             logger.fatal(f"Failed to connect to MongoDB: {e} - exiting")
             sys.exit(1)
 
+    def _load_versions(self):
+        """Load the versions collection into memory."""
+        try:
+            config.versions = []  # Assuming this is correct
+        except Exception as e:
+            logger.fatal(f"Failed to get or load versions: {e} - exiting")
+            sys.exit(1)
+
+    def _load_enumerators(self):
+        """Load the enumerators collection into memory."""
+        try:
+            config.enumerators = {}  # Assuming this is correct
+        except Exception as e:
+            logger.fatal(f"Failed to get or load enumerators: {e} - exiting")
+            sys.exit(1)
+    
     def disconnect(self):
         """Disconnect from MongoDB."""
         try:
@@ -35,22 +51,6 @@ class MongoIO:
             logger.fatal(f"Failed to disconnect from MongoDB: {e} - exiting")
             sys.exit(1)
 
-    def load_versions(self):
-        """Load the versions collection into memory."""
-        try:
-            config.versions = []  # Assuming this is correct
-        except Exception as e:
-            logger.fatal(f"Failed to get or load versions: {e} - exiting")
-            sys.exit(1)
-
-    def load_enumerators(self):
-        """Load the enumerators collection into memory."""
-        try:
-            config.enumerators = {}  # Assuming this is correct
-        except Exception as e:
-            logger.fatal(f"Failed to get or load enumerators: {e} - exiting")
-            sys.exit(1)
-    
     def get_curriculum(self, curriculum_id):
         """Retrieve a curriculum by ID."""
         try:
