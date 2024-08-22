@@ -22,12 +22,17 @@ The OpenAPI specifications for the api can be found in the ``docs`` folder, and 
 pipenv install
 ```
 
-## Run the API locally
+## {re}start the containerized database and run the API locally
 
 ```bash
 pipenv run local
 ```
-Serves up the API locally with a backing mongodb database, ctrl-c to exit
+
+## Run the API locally (assumes database is already running)
+
+```bash
+pipenv run start
+```
 
 ## Run Unit Testing
 
@@ -47,7 +52,7 @@ pipenv run stepci
 pipenv run container
 ```
 
-This will build the new container, and start the mongodb and API container ready for testing. 
+This will build the new container, and {re}start the mongodb and API container - ready for testing. 
 
 ## API Testing with CURL
 
@@ -86,7 +91,7 @@ curl -X POST http://localhost:8088/api/curriculum/AAAA00000000000000000001/ \
 ### Test update a Resource
 
 ```bash
-curl -X PATCH http://localhost:8088/api/curriculum/AAAA00000000000000000001/100 \
+curl -X PATCH http://localhost:8088/api/curriculum/AAAA00000000000000000001/100/ \
      -d '{"path":"Some Path"}'
 
 ```
@@ -94,13 +99,13 @@ curl -X PATCH http://localhost:8088/api/curriculum/AAAA00000000000000000001/100 
 ### Test delete a Resource
 
 ```bash
-curl -X DELETE http://localhost:8088/api/curriculum/AAAA00000000000000000001/100 
+curl -X DELETE http://localhost:8088/api/curriculum/AAAA00000000000000000001/100/ 
 
 ```
 
 ## Observability and Configuration
 
-The ```api/config/``` endpoint will return a list of configuration values. These values are either "defaults" or loaded from an Environment Variable, or found in a singleton configuration file of the same name. Configuration files take precidence over environment variables. The variable "CONFIG_FOLDER" will change the location of configuration files from the default of ```./```
+The ```api/config/``` endpoint will return a list of configuration values. These values are either "defaults" or loaded from a singleton configuration file, or an Environment Variable of the same name. Configuration files take precidence over environment variables. The environment variable "CONFIG_FOLDER" will change the location of configuration files from the default of ```./```
 
 The ```api/health/``` endpoint is a Promethius Healthcheck endpoint.
 
