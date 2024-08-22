@@ -16,10 +16,16 @@ The OpenAPI specifications for the api can be found in the ``docs`` folder, and 
 
 - [Mongo Compass](https://www.mongodb.com/try/download/compass) - if you want a way to look into the database
 
-## Install Flask Dependencies
+## Install Dependencies
 
 ```bash
 pipenv install
+```
+
+## Run Unit Testing
+
+```bash
+pipenv run test
 ```
 
 ## {re}start the containerized database and run the API locally
@@ -34,27 +40,29 @@ pipenv run local
 pipenv run start
 ```
 
-## Run Unit Testing
-
-```bash
-pipenv run test
-```
-
-## Run StepCI black box end-2-end testing
-
-```bash
-pipenv run stepci
-```
-
 ## Build and run the API Container
 
 ```bash
 pipenv run container
 ```
 
-This will build the new container, and {re}start the mongodb and API container - ready for testing. 
+This will build the new container, and {re}start the mongodb and API container.
 
-## API Testing with CURL
+## Run StepCI end-2-end testing
+NOTE: Assumes the API is running at localhost:8088
+
+```bash
+pipenv run stepci
+```
+
+## Run StepCI load testing
+NOTE: Assumes the API is running at localhost:8088
+
+```bash
+pipenv run load
+```
+
+# API Testing with CURL
 
 If you want to do more manual testing, here are the curl commands to use
 
@@ -109,4 +117,4 @@ The ```api/config/``` endpoint will return a list of configuration values. These
 
 The ```api/health/``` endpoint is a Promethius Healthcheck endpoint.
 
-The [Dockerfile](./Dockerfile) uses a 2-stage build, and supports both amd64 and arm64 architectures. See [docker-build.sh](./src/docker/docker-build.sh) for details about how to build in the local architecture for testing, and [docker-push.sh] for details about how to build and push multi-architecture images.
+The [Dockerfile](./Dockerfile) uses a 2-stage build, and supports both amd64 and arm64 architectures. 
