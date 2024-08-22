@@ -9,6 +9,7 @@ class MongoIO:
     _instance = None
 
     def __new__(cls, *args, **kwargs):
+        config.get_instance()   # Ensure the the config is constructed first
         if cls._instance is None:
             cls._instance = super(MongoIO, cls).__new__(cls, *args, **kwargs)
             cls._instance._connect()
@@ -19,7 +20,8 @@ class MongoIO:
     def _connect(self):
         """Connect to MongoDB."""
         try:
-            self.client = MongoClient(config.get_connection_string())
+            self.client = MongoClient(config.get_connection_string(), serverSelectionTimeoutMS=2000)
+            self.client.admin.command('ping') #force connection
             self.db = self.client.get_database(config.get_db_name())
             logger.info("Connected to MongoDB")
         except Exception as e:
