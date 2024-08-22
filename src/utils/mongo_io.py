@@ -6,60 +6,75 @@ from src.config.config import config
 logger = logging.getLogger(__name__)
 
 class MongoIO:
-    def __init__(self):
-        self.client = None
-        self.db = None
-        self.versions = None
-        self.enumerators = None
+    _instance = None
 
-    def connect(self):
+    def __new__(cls, *args, **kwargs):
+        config.get_instance()   # Ensure the the config is constructed first
+        if cls._instance is None:
+            cls._instance = super(MongoIO, cls).__new__(cls, *args, **kwargs)
+            cls._instance._connect()
+            cls._instance._load_versions()
+            cls._instance._load_enumerators()
+        return cls._instance
+    
+    def _connect(self):
         """Connect to MongoDB."""
         try:
-            self.client = MongoClient(config.get_connection_string())
+            self.client = MongoClient(config.get_connection_string(), serverSelectionTimeoutMS=2000)
+            self.client.admin.command('ping') #force connection
             self.db = self.client.get_database(config.get_db_name())
             logger.info("Connected to MongoDB")
         except Exception as e:
             logger.fatal(f"Failed to connect to MongoDB: {e} - exiting")
             sys.exit(1)
 
+    def _load_versions(self):
+        """Load the versions collection into memory."""
+        try:
+            config.versions = []  # Assuming this is correct
+        except Exception as e:
+            logger.fatal(f"Failed to get or load versions: {e} - exiting")
+            sys.exit(1)
+
+    def _load_enumerators(self):
+        """Load the enumerators collection into memory."""
+        try:
+            config.enumerators = {}  # Assuming this is correct
+        except Exception as e:
+            logger.fatal(f"Failed to get or load enumerators: {e} - exiting")
+            sys.exit(1)
+    
     def disconnect(self):
         """Disconnect from MongoDB."""
         try:
             self.client.close()
             logger.info("Disconnected from MongoDB")
         except Exception as e:
-            logger.fatal(f"Failed to disconnect to MongoDB: {e} - exiting")
+            logger.fatal(f"Failed to disconnect from MongoDB: {e} - exiting")
             sys.exit(1)
 
-    def load_versions(self):
-        """Load the versions collection into memory."""
+    def get_curriculum(self, curriculum_id):
+        """Retrieve a curriculum by ID."""
         try:
-            config.versions = [];
-        except Exception as e:
-            logger.fatal(f"Failed to get or load versions: {e} - exiting")
-            sys.exit(1)
-
-    def load_enumerators(self):
-        """Load the enumerators collection into memory."""
-        try:
-            config.enumerators = {};
-        except Exception as e:
-            logger.fatal(f"Failed to get or load enumerators: {e} - exiting")
-            sys.exit(1)
-
-    def get_or_create_curriculum(self, curriculum_id):
-        """Retrieve or create a curriculum by ID."""
-        try:
-            result = {"method": "get_or_create_curriculum"};
+            result = {"method": "get_curriculum"}
             return result
         except Exception as e:
-            logger.error(f"Failed to get or create curriculum: {e}")
+            logger.error(f"Failed to get curriculum: {e}")
+            raise
+
+    def create_curriculum(self, curriculum_id):
+        """Create a curriculum by ID."""
+        try:
+            result = {"method": "create_curriculum"}
+            return result
+        except Exception as e:
+            logger.error(f"Failed to create curriculum: {e}")
             raise
 
     def add_resource_to_curriculum(self, curriculum_id, resource_data):
         """Add a new resource to the curriculum."""
         try:
-            result = {"method": "add_resource_to_curriculum"};
+            result = {"method": "add_resource_to_curriculum"}
             return result
         except Exception as e:
             logger.error(f"Failed to add resource to curriculum: {e}")
@@ -68,7 +83,7 @@ class MongoIO:
     def update_curriculum(self, curriculum_id, seq, resource_data):
         """Update a specific resource in the curriculum."""
         try:
-            result = {"method": "update_curriculum"};
+            result = {"method": "update_curriculum"}
             return result
         except Exception as e:
             logger.error(f"Failed to update resource in curriculum: {e}")
@@ -77,8 +92,19 @@ class MongoIO:
     def delete_resource_from_curriculum(self, curriculum_id, seq):
         """Delete a specific resource from the curriculum."""
         try:
-            result = {"method": "delete_resource_from_curriculum"};
+            result = {"method": "delete_resource_from_curriculum"}
             return result
         except Exception as e:
             logger.error(f"Failed to delete resource from curriculum: {e}")
             raise
+        
+    # Singleton Getter
+    @staticmethod
+    def get_instance():
+        """Get the singleton instance of the MongoIO class."""
+        if MongoIO._instance is None:
+            MongoIO()  # This calls the __new__ method and initializes the instance
+        return MongoIO._instance
+        
+# Create a singleton instance of MongoIO
+mongoIO = MongoIO.get_instance()
