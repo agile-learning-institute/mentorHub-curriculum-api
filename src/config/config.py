@@ -105,9 +105,9 @@ class Config:
         """Convert the Config object to a dictionary with the required fields."""
         return {
             "api_version": self.api_version,
+            "config_items": self.config_items,
             "versions": self.versions,
-            "enumerators": self.enumerators,
-            "config_items": self.config_items
+            "enumerators": self.enumerators
         }    
 
     # Singleton Getter

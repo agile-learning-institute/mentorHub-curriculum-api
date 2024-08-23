@@ -1,12 +1,14 @@
 import unittest
+from src.config.config import config
 from src.utils.mongo_io import MongoIO
 
 class TestMongoIO(unittest.TestCase):
-
     
     def setUp(self):
         # Ensuring we start with a fresh instance for each test
         MongoIO._instance = None
+        mongo_io = MongoIO.get_instance()
+        mongo_io.initialize()
 
     def tearDown(self):
         mongo_io = MongoIO.get_instance()
@@ -17,6 +19,19 @@ class TestMongoIO(unittest.TestCase):
         mongo_io1 = MongoIO.get_instance()
         mongo_io2 = MongoIO.get_instance()
         self.assertIs(mongo_io1, mongo_io2, "MongoIO should be a singleton")
+
+    def test_config_loaded(self):
+        # Test that MongoIO is a singleton
+        self.assertIsInstance(config.versions, list)
+        self.assertEqual(len(config.versions), 11)
+
+        self.assertIsInstance(config.enumerators, dict)
+        self.assertIsInstance(config.enumerators.get("roadmap"), dict)
+        roadmaps = config.enumerators.get("roadmap")
+        self.assertEqual(roadmaps.get("Completed"), "A resource that has been marked as completed")
+        self.assertEqual(roadmaps.get("Now"), "A resources that an apprentice is currently assigned")
+        self.assertEqual(roadmaps.get("Next"), "Resources we think we may do next")
+        self.assertEqual(roadmaps.get("Later"), "Resources that might come later")
 
     def test_get_curriculum(self):
         # Test get_curriculum method
@@ -156,3 +171,4 @@ class TestMongoIO(unittest.TestCase):
         
 if __name__ == '__main__':
     unittest.main()
+    

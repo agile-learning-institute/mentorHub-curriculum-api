@@ -17,6 +17,7 @@ app = Flask(__name__)
 
 # Initialize Database Connection, and load one-time data
 mongo = mongoIO
+mongo.initilize() 
 
 # Apply Prometheus monitoring middleware
 metrics = PrometheusMetrics(app, path='/api/health/')
