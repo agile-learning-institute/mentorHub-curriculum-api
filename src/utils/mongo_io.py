@@ -112,13 +112,43 @@ class MongoIO:
             return None
 
         try:
-            # Query Curriculum
+            # Query Curriculum - Lookup resource name/link by resource_id
             curriculum_object_id = ObjectId(curriculum_id)
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
-            curriculum = curriculum_collection.find_one({"_id": curriculum_object_id})
+            pipeline = [
+                {"$match": {"_id": curriculum_object_id}},
+                {"$unwind": {"path": "$resources", "preserveNullAndEmptyArrays": True}},  # Unwind but keep nulls
+                {"$lookup": {
+                    "from": "resources",
+                    "let": {"resource_id": "$resources.resource_id"},
+                    "pipeline": [
+                        {"$match": {"$expr": {"$eq": ["$_id", "$$resource_id"]}}},
+                        {"$project": {"name": 1, "link": 1}}
+                    ],
+                    "as": "resource_details"
+                }},
+                {"$unwind": {"path": "$resource_details", "preserveNullAndEmptyArrays": True}},  # Unwind lookup results but keep empty
+                {"$addFields": {
+                    "resources.name": {"$ifNull": ["$resource_details.name", "$resources.name"]},  # Preserve original name if no lookup
+                    "resources.link": {"$ifNull": ["$resource_details.link", "$resources.link"]}   # Preserve original link if no lookup
+                }},
+                {"$group": {
+                    "_id": "$_id",
+                    "resources": {"$push": {"$mergeObjects": ["$$ROOT.resources"]}},  # Preserve original structure
+                    "lastSaved": {"$first": "$lastSaved"}  # Keep the lastSaved field
+                }},
+                {"$project": {
+                    "resource_details": 0  # Exclude the temporary resource_details field
+                }},
+                {"$sort": {"resources.seq": 1}}  # Sort resources by original sequence (assuming seq field exists)
+            ]
+
+            # Execute the pipeline and get the single curriculum returned.
+            curriculum_list = list(curriculum_collection.aggregate(pipeline))
+            logger.info(f"Curriculum Pipeline Returned {curriculum_list}")
             
             # Stringify Object ID's and Dates
-            curriculum = self._stringify_mongo_types(curriculum)
+            curriculum = self._stringify_mongo_types(curriculum_list[0])
             return curriculum
         except Exception as e:
             logger.error(f"Failed to get curriculum: {e}")

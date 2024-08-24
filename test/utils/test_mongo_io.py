@@ -50,53 +50,53 @@ class TestMongoIO(unittest.TestCase):
     def test_get_curriculum_resource_1(self):
         mongo_io = MongoIO.get_instance()
         curriculum = mongo_io.get_curriculum("aaaa00000000000000000001")
-        
-        resources = curriculum["resources"]
-        self.assertEqual(resources[0].get("sequence"), 1)
-        self.assertEqual(resources[0].get("roadmap"), "Completed")
-        self.assertEqual(resources[0].get("path"), "The Odin Project")
-        self.assertEqual(resources[0].get("segment"), "Foundations")
-        self.assertEqual(resources[0].get("topic"), "OdinIntro")
-        self.assertEqual(resources[0].get("type"), "Resource")
-        self.assertEqual(resources[0].get("resource_id"), "cccc00000000000000000008")
-        # self.assertEqual(resources[1].get("name"), "JeanBartikandtheENIACWom")
-        # self.assertEqual(resources[1].get("link"), "https://www.markdowntutorial.com/lesson/1/")
-        self.assertEqual(resources[0].get("started"), "2024-07-01T13:00:00")
-        self.assertEqual(resources[0].get("completed"), "2024-07-01T14:30:00")
-        self.assertEqual(resources[0].get("rating"), 4)
-        self.assertEqual(resources[0].get("review"), "This was a great intro")
+
+        resource = curriculum["resources"][0]
+        self.assertEqual(resource.get("sequence"), 1)
+        self.assertEqual(resource.get("roadmap"), "Completed")
+        self.assertEqual(resource.get("path"), "The Odin Project")
+        self.assertEqual(resource.get("segment"), "Foundations")
+        self.assertEqual(resource.get("topic"), "OdinIntro")
+        self.assertEqual(resource.get("type"), "Resource")
+        self.assertEqual(resource.get("resource_id"), "cccc00000000000000000008")
+        self.assertEqual(resource.get("name"), "JeanBartikandtheENIACWom")
+        self.assertEqual(resource.get("link"), "https://somevalidlink08.com")
+        self.assertEqual(resource.get("started"), "2024-07-01T13:00:00")
+        self.assertEqual(resource.get("completed"), "2024-07-01T14:30:00")
+        self.assertEqual(resource.get("rating"), 4)
+        self.assertEqual(resource.get("review"), "This was a great intro")
         
     def test_get_curriculum_resource_2(self):
         mongo_io = MongoIO.get_instance()
         curriculum = mongo_io.get_curriculum("aaaa00000000000000000001")
         
-        resources = curriculum["resources"]
-        self.assertEqual(resources[1].get("sequence"), 2)
-        self.assertEqual(resources[1].get("roadmap"), "Completed")
-        self.assertEqual(resources[1].get("path"), "The Odin Project")
-        self.assertEqual(resources[1].get("segment"), "Foundations")
-        self.assertEqual(resources[1].get("topic"), "OdinIntro")
-        self.assertEqual(resources[1].get("type"), "Adhoc")
-        self.assertEqual(resources[1].get("resource_name"), "Markdown Tutorial")
-        self.assertEqual(resources[1].get("resource_url"), "https://www.markdowntutorial.com/lesson/1/")
-        self.assertEqual(resources[1].get("started"), "2024-07-02T13:00:00")
-        self.assertEqual(resources[1].get("completed"), "2024-07-03T19:36:00")
-        self.assertEqual(resources[1].get("rating"), 3)
-        self.assertEqual(resources[1].get("review"), "I had to read this twice before it made sense")
+        resource = curriculum["resources"][1]
+        self.assertEqual(resource.get("sequence"), 2)
+        self.assertEqual(resource.get("roadmap"), "Completed")
+        self.assertEqual(resource.get("path"), "The Odin Project")
+        self.assertEqual(resource.get("segment"), "Foundations")
+        self.assertEqual(resource.get("topic"), "OdinIntro")
+        self.assertEqual(resource.get("type"), "Adhoc")
+        self.assertEqual(resource.get("resource_name"), "Markdown Tutorial")
+        self.assertEqual(resource.get("resource_url"), "https://www.markdowntutorial.com/lesson/1/")
+        self.assertEqual(resource.get("started"), "2024-07-02T13:00:00")
+        self.assertEqual(resource.get("completed"), "2024-07-03T19:36:00")
+        self.assertEqual(resource.get("rating"), 3)
+        self.assertEqual(resource.get("review"), "I had to read this twice before it made sense")
         
     def test_get_curriculum_resource_7(self):
         mongo_io = MongoIO.get_instance()
         curriculum = mongo_io.get_curriculum("aaaa00000000000000000001")
         
-        resources = curriculum["resources"]
-        self.assertEqual(resources[6].get("sequence"), 7)
-        self.assertEqual(resources[6].get("roadmap"), "Later")
-        self.assertEqual(resources[6].get("path"), "EngineerKit")
-        self.assertEqual(resources[6].get("segment"), "Craftsmanship")
-        self.assertEqual(resources[6].get("type"), "Resource")
-        self.assertEqual(resources[6].get("resource_id"), "cccc00000000000000000010")   
-        # self.assertEqual(resources[1].get("name"), "DigitalLogicSimTool")
-        # self.assertEqual(resources[1].get("link"), "https://somevalidlink10.com")
+        resource = curriculum["resources"][6]
+        self.assertEqual(resource.get("sequence"), 7)
+        self.assertEqual(resource.get("roadmap"), "Later")
+        self.assertEqual(resource.get("path"), "EngineerKit")
+        self.assertEqual(resource.get("segment"), "Craftsmanship")
+        self.assertEqual(resource.get("type"), "Resource")
+        self.assertEqual(resource.get("resource_id"), "cccc00000000000000000010")   
+        self.assertEqual(resource.get("name"), "DigitalLogicSimTool")
+        self.assertEqual(resource.get("link"), "https://somevalidlink10.com")
      
         
     def test_create_curriculum(self):
