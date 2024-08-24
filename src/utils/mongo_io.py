@@ -117,7 +117,7 @@ class MongoIO:
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
             pipeline = [
                 {"$match": {"_id": curriculum_object_id}},
-                {"$unwind": {"path": "$resources", "preserveNullAndEmptyArrays": True}},  # Unwind but keep nulls
+                {"$unwind": {"path": "$resources", "preserveNullAndEmptyArrays": True}}, 
                 {"$lookup": {
                     "from": "resources",
                     "let": {"resource_id": "$resources.resource_id"},
@@ -127,20 +127,20 @@ class MongoIO:
                     ],
                     "as": "resource_details"
                 }},
-                {"$unwind": {"path": "$resource_details", "preserveNullAndEmptyArrays": True}},  # Unwind lookup results but keep empty
+                {"$unwind": {"path": "$resource_details", "preserveNullAndEmptyArrays": True}}, 
                 {"$addFields": {
-                    "resources.name": {"$ifNull": ["$resource_details.name", "$resources.name"]},  # Preserve original name if no lookup
-                    "resources.link": {"$ifNull": ["$resource_details.link", "$resources.link"]}   # Preserve original link if no lookup
+                    "resources.name": {"$ifNull": ["$resource_details.name", "$resources.name"]},
+                    "resources.link": {"$ifNull": ["$resource_details.link", "$resources.link"]} 
                 }},
                 {"$group": {
                     "_id": "$_id",
-                    "resources": {"$push": {"$mergeObjects": ["$$ROOT.resources"]}},  # Preserve original structure
-                    "lastSaved": {"$first": "$lastSaved"}  # Keep the lastSaved field
+                    "resources": {"$push": {"$mergeObjects": ["$$ROOT.resources"]}},  
+                    "lastSaved": {"$first": "$lastSaved"}  
                 }},
                 {"$project": {
-                    "resource_details": 0  # Exclude the temporary resource_details field
+                    "resource_details": 0  
                 }},
-                {"$sort": {"resources.seq": 1}}  # Sort resources by original sequence (assuming seq field exists)
+                {"$sort": {"resources.seq": 1}}  
             ]
 
             # Execute the pipeline and get the single curriculum returned.
