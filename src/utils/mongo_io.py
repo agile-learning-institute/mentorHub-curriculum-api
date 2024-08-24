@@ -1,5 +1,7 @@
 import logging
 import sys
+from datetime import datetime
+from bson import ObjectId 
 from pymongo import MongoClient
 from src.config.config import config
 
@@ -89,18 +91,39 @@ class MongoIO:
             logger.fatal(f"Failed to get or load enumerators: {e} - exiting")
             sys.exit(1)
 
+    def _stringify_mongo_types(self, document):
+        """Recursively convert ObjectId and datetime values to strings in a dictionary."""
+        if isinstance(document, dict):
+            return {
+                key: self._stringify_mongo_types(value) for key, value in document.items()
+            }
+        elif isinstance(document, list):
+            return [self._stringify_mongo_types(item) for item in document]
+        elif isinstance(document, ObjectId):
+            return str(document)
+        elif isinstance(document, datetime):
+            return document.isoformat()
+        else:
+            return document        
+    
     def get_curriculum(self, curriculum_id):
         """Retrieve a curriculum by ID."""
-        if not self.connected: return None
+        if not self.connected:
+            return None
 
         try:
+            # Query Curriculum
+            curriculum_object_id = ObjectId(curriculum_id)
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
-            curriculum = curriculum_collection.find_one({"curriculum_id": curriculum_id})
+            curriculum = curriculum_collection.find_one({"_id": curriculum_object_id})
+            
+            # Stringify Object ID's and Dates
+            curriculum = self._stringify_mongo_types(curriculum)
             return curriculum
         except Exception as e:
             logger.error(f"Failed to get curriculum: {e}")
             raise
-
+    
     def create_curriculum(self, curriculum_id, curriculum_data):
         """Create a curriculum by ID."""
         if not self.connected: return None
@@ -113,7 +136,7 @@ class MongoIO:
             logger.error(f"Failed to create curriculum: {e}")
             raise
 
-    def _add_resource_to_curriculum(self, curriculum_id, resource_data):
+    def add_resource_to_curriculum(self, curriculum_id, resource_data):
         """Add a new resource to the curriculum."""
         if not self.connected: return None
 
@@ -128,7 +151,7 @@ class MongoIO:
             logger.error(f"Failed to add resource to curriculum: {e}")
             raise
 
-    def _update_curriculum(self, curriculum_id, seq, resource_data):
+    def update_curriculum(self, curriculum_id, seq, resource_data):
         """Update a specific resource in the curriculum."""
         if not self.connected: return None
 
@@ -143,7 +166,7 @@ class MongoIO:
             logger.error(f"Failed to update resource in curriculum: {e}")
             raise
 
-    def _delete_resource_from_curriculum(self, curriculum_id, seq):
+    def delete_resource_from_curriculum(self, curriculum_id, seq):
         """Delete a specific resource from the curriculum."""
         if not self.connected: return None
 
