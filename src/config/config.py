@@ -24,6 +24,7 @@ class Config:
             self._db_name = ""
             self._curriculum_collection_name = ""
             self._topics_collection_name = ""
+            self._resources_collection_name = ""
             self._paths_collection_name = ""
             self._version_collection_name = ""
             self._enumerators_collection_name = ""
@@ -43,6 +44,7 @@ class Config:
         self._db_name = self._get_config_value("DB_NAME", "mentorHub", False)
         self._curriculum_collection_name = self._get_config_value("CURRICULUM_COLLECTION", "curriculum", False)
         self._topics_collection_name = self._get_config_value("TOPICS_COLLECTION", "topics", False)
+        self._resources_collection_name = self._get_config_value("RESOURCES_COLLECTION", "resources", False)
         self._paths_collection_name = self._get_config_value("PATHS_COLLECTION", "paths", False)
         self._version_collection_name = self._get_config_value("VERSION_COLLECTION", "msmCurrentVersions", False)
         self._enumerators_collection_name = self._get_config_value("ENUMERATORS_COLLECTION", "enumerators", False)
@@ -81,6 +83,9 @@ class Config:
 
     def get_topics_collection_name(self):
         return self._topics_collection_name
+
+    def get_resources_collection_name(self):
+        return self._resources_collection_name
 
     def get_paths_collection_name(self):
         return self._paths_collection_name
