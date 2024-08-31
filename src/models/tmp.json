@@ -1,0 +1,21 @@
+pymongo.errors.WriteError: 
+Document failed validation, full error: {'index': 0, 'code': 121, 'errmsg': 'Document failed validation', 'errInfo': {'failingDocumentId': ObjectId('aaaa00000000000000000002'), 'details': {'operatorName': '$jsonSchema', 'description': 'A personalized roadmap for learning', 'schemaRulesNotSatisfied': [
+                {'operatorName': 'properties', 'propertiesNotSatisfied': [
+                        {'propertyName': 'lastSaved', 'description': 'Last Updated breadcrumb', 'details': [
+                                {'operatorName': 'properties', 'propertiesNotSatisfied': [
+                                        {'propertyName': 'atTime', 'description': 'The date-time when last updated', 'details': [
+                                                {'operatorName': 'bsonType', 'specifiedAs': {'bsonType': 'date'
+                                                    }, 'reason': 'type did not match', 'consideredValue': '2024-01-23T12: 34: 56', 'consideredType': 'string'
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

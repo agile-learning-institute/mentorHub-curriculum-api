@@ -37,7 +37,7 @@ class TestCurriculumService(unittest.TestCase):
         mock_instance.add_resource_to_curriculum.return_value = {"id": "AAAA00000000000000000001", "resource": "New Resource"}
 
         resource_data = {"resource": "New Resource"}
-        resource = CurriculumService.add_resource_to_curriculum("AAAA00000000000000000001", resource_data)
+        resource = CurriculumService.add_resource_to_curriculum("AAAA00000000000000000001", resource_data, {})
         self.assertEqual(resource["id"], "AAAA00000000000000000001")
         self.assertEqual(resource["resource"], "New Resource")
         mock_instance.add_resource_to_curriculum.assert_called_once_with("AAAA00000000000000000001", resource_data)

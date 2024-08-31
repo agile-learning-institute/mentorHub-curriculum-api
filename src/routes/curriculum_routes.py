@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
 from src.services.curriculum_services import CurriculumService
+from src.models.breadcrumb import create_breadcrumb
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -22,7 +24,8 @@ def create_curriculum_routes():
     def add_resource_to_curriculum(id):
         try:
             resource_data = request.get_json()
-            resource = CurriculumService.add_resource_to_curriculum(id, resource_data)
+            breadcrumb = create_breadcrumb()
+            resource = CurriculumService.add_resource_to_curriculum(id, resource_data, breadcrumb)
             return jsonify(resource), 200
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")
@@ -33,7 +36,8 @@ def create_curriculum_routes():
     def update_curriculum(id, seq):
         try:
             resource_data = request.get_json()
-            updated_resource = CurriculumService.update_curriculum(id, seq, resource_data)
+            breadcrumb = create_breadcrumb()
+            updated_resource = CurriculumService.update_curriculum(id, seq, resource_data, breadcrumb)
             return jsonify(updated_resource), 200
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")
@@ -43,7 +47,8 @@ def create_curriculum_routes():
     @curriculum_routes.route('/<string:id>/<int:seq>/', methods=['DELETE'])
     def delete_resource_from_curriculum(id, seq):
         try:
-            CurriculumService.delete_resource_from_curriculum(id, seq)
+            breadcrumb = create_breadcrumb()
+            CurriculumService.delete_resource_from_curriculum(id, seq, breadcrumb)
             return '', 204  # No content response
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")
