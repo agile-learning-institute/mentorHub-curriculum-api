@@ -182,9 +182,13 @@ class MongoIO:
 
         try:
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
+            curriculum_objecct_id = ObjectId(curriculum_id)
             result = curriculum_collection.update_one(
-                {"curriculum_id": curriculum_id},
-                {"$push": {"resources": resource_data}}
+                {"_id": curriculum_objecct_id},
+                {
+                    "$push": {"resources": resource_data},
+                    "$set": {"lastSaved": breadcrumb}
+                }
             )
             return result.modified_count
         except Exception as e:
@@ -197,14 +201,23 @@ class MongoIO:
 
         try:
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
-            result = curriculum_collection.update_one(
-                {"curriculum_id": curriculum_id, "resources.seq": seq},
-                {"$set": {"resources.$": resource_data}}
-            )
-            return result.modified_count
+            curriculum_object_id = ObjectId(curriculum_id)
+ 
+            update_fields = {f"resources.$.{key}": value for key, value in resource_data.items()}
+            update_fields["lastSaved"] = breadcrumb  
+            match = {
+                "_id": curriculum_object_id,  
+                "resources.sequence": seq
+            }
+            pipeline = {
+                "$set": update_fields
+            }            
+            result = curriculum_collection.update_one(match, pipeline)
         except Exception as e:
             logger.error(f"Failed to update resource in curriculum: {e}")
             raise
+        
+        return result.modified_count
 
     def delete_resource_from_curriculum(self, curriculum_id, seq, breadcrumb):
         """Delete a specific resource from the curriculum."""
@@ -212,10 +225,15 @@ class MongoIO:
 
         try:
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
-            result = curriculum_collection.update_one(
-                {"curriculum_id": curriculum_id},
-                {"$pull": {"resources": {"seq": seq}}}
-            )
+            curriculum_object_id = ObjectId(curriculum_id)
+            match = {
+                "_id": curriculum_object_id
+            }
+            pipeline = {
+                "$pull": {"resources": {"sequence": seq}},  # Pull the resource with matching sequence
+                "$set": {"lastSaved": breadcrumb}  # Optionally update the lastSaved field
+            }
+            result = curriculum_collection.update_one(match, pipeline)
             return result.modified_count
         except Exception as e:
             logger.error(f"Failed to delete resource from curriculum: {e}")

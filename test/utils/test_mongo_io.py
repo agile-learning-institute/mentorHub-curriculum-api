@@ -103,7 +103,7 @@ class TestMongoIO(unittest.TestCase):
         curriculum = mongo_io.get_curriculum("aaaa00000000000000000012")
         self.assertEqual(curriculum, expected)
         
-    def delete_resource_from_curriculum(self):
+    def test_delete_resource_from_curriculum(self):
         mongo_io = MongoIO.get_instance()
         breadcrumb = {"atTime": datetime.fromisoformat("2024-01-01T12:00:00"), "byUser": ObjectId("aaaa00000000000000000001"),"fromIp": "127.0.0.1", "correlationId": "aaaa-aaaa-aaaa-aaaa"}
         mongo_io.create_curriculum("aaaa00000000000000000012", breadcrumb)
@@ -118,4 +118,6 @@ class TestMongoIO(unittest.TestCase):
         expected = {"_id": ObjectId("aaaa00000000000000000012"), "resources": [], "lastSaved": breadcrumb}
         curriculum = mongo_io.get_curriculum("aaaa00000000000000000012")
         self.assertEqual(curriculum, expected)
+        
+
 
