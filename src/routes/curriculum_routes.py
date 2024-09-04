@@ -13,7 +13,8 @@ def create_curriculum_routes():
     @curriculum_routes.route('/<string:id>/', methods=['GET'])
     def get_or_create_curriculum(id):
         try:
-            curriculum = CurriculumService.get_or_create_curriculum(id)
+            breadcrumb = create_breadcrumb()
+            curriculum = CurriculumService.get_or_create_curriculum(id, breadcrumb)
             return jsonify(curriculum), 200
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")

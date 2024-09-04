@@ -20,4 +20,4 @@ def create_config_routes():
             return jsonify({"error": "A processing error occurred"}), 500
         
     # Ensure the Blueprint is returned correctly
-    return config_routes        
+    return config_routes

@@ -8,7 +8,7 @@ import signal
 from flask import Flask
 from prometheus_flask_exporter import PrometheusMetrics
 from src.config.config import config
-from src.utils.mongo_io import mongoIO
+from src.utils.mongo_io import MongoIO, mongoIO
 from src.routes.curriculum_routes import create_curriculum_routes
 from src.routes.config_routes import create_config_routes
 
@@ -16,8 +16,8 @@ from src.routes.config_routes import create_config_routes
 app = Flask(__name__)
 
 # Initialize Database Connection, and load one-time data
-mongo = mongoIO
-mongo.initilize() 
+mongo = MongoIO()
+mongo.initialize()
 
 # Apply Prometheus monitoring middleware
 metrics = PrometheusMetrics(app, path='/api/health/')

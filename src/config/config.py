@@ -1,6 +1,9 @@
+from datetime import datetime
 from pathlib import Path
 import os
 import logging
+
+from bson import ObjectId
 logger = logging.getLogger(__name__)
 
 class Config:
@@ -111,9 +114,23 @@ class Config:
         return {
             "api_version": self.api_version,
             "config_items": self.config_items,
-            "versions": self.versions,
-            "enumerators": self.enumerators
+            "versions": Config._decode_mongo_types(self.versions),
+            "enumerators": Config._decode_mongo_types(self.enumerators)
         }    
+
+    @staticmethod
+    def _decode_mongo_types(document):
+        """Convert all ObjectId and datetime values to strings"""
+        if isinstance(document, dict):
+            return {key: Config._decode_mongo_types(value) for key, value in document.items()}
+        elif isinstance(document, list):
+            return [Config._decode_mongo_types(item) for item in document]
+        elif isinstance(document, ObjectId):
+            return str(document)
+        elif isinstance(document, datetime):
+            return document.isoformat()
+        else:
+            return document
 
     # Singleton Getter
     @staticmethod
