@@ -91,6 +91,22 @@ class MongoIO:
             logger.fatal(f"Failed to get or load enumerators: {e} - exiting")
             sys.exit(1)
 
+    def get_mentor(self, person_id):
+        if not self.connected:
+            return None
+        
+        try:
+            people = self.db.get_collection(config.get_person_collection())
+            pipeline = [
+                # match _id = ObjectId(person_id)
+                # project str of mentor_id or ""
+            ]
+            mentor_id = list(people.aggregate(pipeline))[0]            
+            return mentor_id
+        except Exception as e:
+            logger.error(f"Failed to get person-mentor_id: {e}")
+            raise
+
     def get_curriculum(self, curriculum_id):
         """Retrieve a curriculum by ID."""
         if not self.connected:
@@ -101,35 +117,43 @@ class MongoIO:
             curriculum_object_id = ObjectId(curriculum_id)
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
             pipeline = [
-                {"$match": {"_id": curriculum_object_id}},
-                {"$unwind": {"path": "$resources", "preserveNullAndEmptyArrays": True}}, 
-                {"$lookup": {
-                    "from": "resources",
-                    "let": {"resource_id": "$resources.resource_id"},
-                    "pipeline": [
-                        {"$match": {"$expr": {"$eq": ["$_id", "$$resource_id"]}}},
-                        {"$project": {"name": 1, "link": 1}}
-                    ],
-                    "as": "resource_details"
-                }},
-                {"$unwind": {"path": "$resource_details", "preserveNullAndEmptyArrays": True}}, 
-                {"$addFields": {
-                    "resources.name": {"$ifNull": ["$resource_details.name", "$resources.name"]},
-                    "resources.link": {"$ifNull": ["$resource_details.link", "$resources.link"]} 
-                }},
-                {"$group": {
-                    "_id": "$_id",
-                    "resources": {"$push": {"$mergeObjects": ["$$ROOT.resources"]}},  
-                    "lastSaved": {"$first": "$lastSaved"}  
-                }},
-                {"$project": {
-                    "resource_details": 0  
-                }},
-                {"$sort": {"resources.seq": 1}}  
+                {
+                    "$match": {"_id": curriculum_object_id } 
+                },
+                {
+                    "$unwind": { 
+                        "path": "$resources",               
+                        "preserveNullAndEmptyArrays": True  
+                    }
+                },
+                {
+                    "$lookup": { 
+                        "from": "resources",          
+                        "localField": "resources.resource_id",
+                        "foreignField": "_id",              
+                        "as": "resource_info"               
+                    }
+                },
+                {
+                    "$addFields": { # Add 'name' and 'link' from resource_info
+                        "resources.name": {"$arrayElemAt": ["$resource_info.name", 0] }, 
+                        "resources.link": {"$arrayElemAt": ["$resource_info.link", 0] }  
+                    }
+                },
+                {
+                    "$group": { # Group back by curriculum ID
+                        "_id": "$_id",                      
+                        "resources": {"$push": "$resources"},
+                        "lastSaved": { "$first": "$lastSaved" }  # Preserve other fields like lastSaved
+                    }
+                }
             ]
 
             # Execute the pipeline and get the single curriculum returned.
-            curriculum = list(curriculum_collection.aggregate(pipeline))[0]            
+            curriculum = list(curriculum_collection.aggregate(pipeline))[0]
+            # Handle empty resources list here, rather than complicate the query
+            if curriculum["resources"] == [{}]: curriculum["resources"] = []
+            
             return curriculum
         except Exception as e:
             logger.error(f"Failed to get curriculum: {e}")
@@ -196,6 +220,17 @@ class MongoIO:
         except Exception as e:
             logger.error(f"Failed to delete resource from curriculum: {e}")
             raise
+
+    def delete_curriculum(self, curriculum_id):
+        """Delete a specific curriculum."""
+        if not self.connected: return None
+
+        try:
+            curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
+            curriculum_collection.delete_one({"_id": ObjectId(curriculum_id)})
+            logger.info(f"Curriculum {curriculum_id} deleted")
+        except Exception as e:
+            logger.error(f"Failed to delete curriculum: {e}")
 
     # Singleton Getter
     @staticmethod
