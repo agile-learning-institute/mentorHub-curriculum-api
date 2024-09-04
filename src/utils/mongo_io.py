@@ -183,13 +183,15 @@ class MongoIO:
         try:
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
             curriculum_objecct_id = ObjectId(curriculum_id)
-            result = curriculum_collection.update_one(
-                {"_id": curriculum_objecct_id},
-                {
-                    "$push": {"resources": resource_data},
-                    "$set": {"lastSaved": breadcrumb}
-                }
-            )
+            match = {
+                "_id": curriculum_objecct_id
+            }
+            pipeline = {
+                "$push": {"resources": resource_data},
+                "$set": {"lastSaved": breadcrumb}
+            }
+
+            result = curriculum_collection.update_one(match, pipeline)
             return result.modified_count
         except Exception as e:
             logger.error(f"Failed to add resource to curriculum: {e}")
