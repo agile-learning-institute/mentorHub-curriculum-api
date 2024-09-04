@@ -41,7 +41,7 @@ class TestCurriculumService(unittest.TestCase):
         # Mock the MongoIO methods
         mock_instance = mock_mongo_io.return_value
         mock_instance.get_curriculum.return_value = self.mongoTestData
-        mock_instance.getMentor.return_value = "aaaa00000000000000000012"
+        mock_instance.get_mentor.return_value = "aaaa00000000000000000012"
 
         for token in self.goodTokens:
             curriculum = CurriculumService.get_or_create_curriculum("aaaa00000000000000000001", token, self.mongoBreadcrumb)
@@ -54,7 +54,7 @@ class TestCurriculumService(unittest.TestCase):
         # Mock the MongoIO methods
         mock_instance = mock_mongo_io.return_value
         mock_instance.get_curriculum.return_value = self.mongoTestData
-        mock_instance.getMentor.return_value = "aaaa00000000000000000012"
+        mock_instance.get_mentor.return_value = "aaaa00000000000000000012"
 
         # Test with failing tokens
         for token in self.rejectTokens:
@@ -68,7 +68,7 @@ class TestCurriculumService(unittest.TestCase):
         mock_instance = mock_mongo_io.return_value
         mock_instance.get_curriculum.return_value = None
         mock_instance.create_curriculum.return_value = self.mongoEmptyCurriculum
-        mock_instance.getMentor.return_value = "aaaa00000000000000000012"
+        mock_instance.get_mentor.return_value = "aaaa00000000000000000012"
 
         # Test with passing tokens
         for token in self.goodTokens:
@@ -84,7 +84,7 @@ class TestCurriculumService(unittest.TestCase):
         mock_instance = mock_mongo_io.return_value
         mock_instance.get_curriculum.return_value = None
         mock_instance.create_curriculum.return_value = self.mongoEmptyCurriculum
-        mock_instance.getMentor.return_value = "aaaa00000000000000000012"
+        mock_instance.get_mentor.return_value = "aaaa00000000000000000012"
 
         # Test with failing tokens
         for token in self.rejectTokens:
@@ -98,7 +98,7 @@ class TestCurriculumService(unittest.TestCase):
         mock_instance = mock_mongo_io.return_value
         mock_instance.add_resource_to_curriculum.return_value = True
         mock_instance.get_curriculum.return_value = self.mongoTestData
-        mock_instance.getMentor.return_value = "aaaa00000000000000000012"
+        mock_instance.get_mentor.return_value = "aaaa00000000000000000012"
 
         print(f"STARTING TEST_STRING {self.stringTestData}")
 
@@ -125,7 +125,7 @@ class TestCurriculumService(unittest.TestCase):
         mock_instance = mock_mongo_io.return_value
         mock_instance.add_resource_to_curriculum.return_value = True
         mock_instance.get_curriculum.return_value = self.mongoTestData
-        mock_instance.getMentor.return_value = "aaaa00000000000000000012"
+        mock_instance.get_mentor.return_value = "aaaa00000000000000000012"
 
         # Test with failing tokens
         for token in self.rejectTokens:
@@ -144,7 +144,7 @@ class TestCurriculumService(unittest.TestCase):
         mock_instance = mock_mongo_io.return_value
         mock_instance.update_curriculum.return_value = True
         mock_instance.get_curriculum.return_value = self.mongoTestData
-        mock_instance.getMentor.return_value = "aaaa00000000000000000012"
+        mock_instance.get_mentor.return_value = "aaaa00000000000000000012"
 
         # Test with passing tokens
         for token in self.goodTokens:
@@ -171,7 +171,7 @@ class TestCurriculumService(unittest.TestCase):
         mock_instance = mock_mongo_io.return_value
         mock_instance.update_curriculum.return_value = True
         mock_instance.get_curriculum.return_value = self.mongoTestData
-        mock_instance.getMentor.return_value = "aaaa00000000000000000012"
+        mock_instance.get_mentor.return_value = "aaaa00000000000000000012"
 
         # Test with failing tokens
         for token in self.rejectTokens:
@@ -191,7 +191,7 @@ class TestCurriculumService(unittest.TestCase):
         mock_instance = mock_mongo_io.return_value
         mock_instance.delete_resource_from_curriculum.return_value = True
         mock_instance.get_curriculum.return_value = self.mongoTestData
-        mock_instance.getMentor.return_value = "aaaa00000000000000000012"
+        mock_instance.get_mentor.return_value = "aaaa00000000000000000012"
 
         # Test with passing tokens
         for token in self.goodTokens:
@@ -216,7 +216,7 @@ class TestCurriculumService(unittest.TestCase):
         mock_instance = mock_mongo_io.return_value
         mock_instance.delete_resource_from_curriculum.return_value = True
         mock_instance.get_curriculum.return_value = self.mongoTestData
-        mock_instance.getMentor.return_value = "aaaa00000000000000000012"
+        mock_instance.get_mentor.return_value = "aaaa00000000000000000012"
 
         # Test with failing tokens
         for token in self.rejectTokens:
