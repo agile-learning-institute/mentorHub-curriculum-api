@@ -64,7 +64,7 @@ pipenv run load
 
 # Project Layout
 - ``/src`` this folder contains all source code
-- ``/src/server.py`` is the main entrypoint, which initilizes the configuration and registers routes with Flask
+- ``/src/server.py`` is the main entrypoint, which initializes the configuration and registers routes with Flask
 - ``/src/config/config/py`` is the singleton config object that manages configuration values and acts as a cache for enumerators and other low volatility data values.
 - ``/src/models`` contains helpers related to creating transactional data objects such as breadcrumbs or RBAC tokens
 - ``/src/routes`` contains Flask http request/response handlers
