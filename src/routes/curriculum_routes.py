@@ -66,7 +66,7 @@ def create_curriculum_routes():
         try:
             token = create_token()
             CurriculumService.delete_curriculum(id, token)
-            return 'Success', 200
+            return jsonify({"result": "Success"}), 200
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500
