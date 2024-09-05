@@ -62,6 +62,16 @@ NOTE: Assumes the API is running at localhost:8088
 pipenv run load
 ```
 
+# Project Layout
+- ``/src`` this folder contains all source code
+- ``/src/server.py`` is the main entrypoint, which initializes the configuration and registers routes with Flask
+- ``/src/config/config.py`` is the singleton config object that manages configuration values and acts as a cache for enumerators and other low volatility data values.
+- ``/src/models`` contains helpers related to creating transactional data objects such as breadcrumbs or RBAC tokens
+- ``/src/routes`` contains Flask http request/response handlers
+- ``/src/services`` service interface that wraps databse calls with RBAC, encode/decode, and other business logic
+- ``/src/utils/mongo_io.py`` is a singleton that manages the mongodb connection, and provides databse io functions to the service layer. 
+- ``/test`` this folder contains unit testing, and testing artifacts. The sub-folder structure mimics the ``/src`` folder
+
 # API Testing with CURL
 
 If you want to do more manual testing, here are the curl commands to use

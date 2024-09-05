@@ -1,5 +1,8 @@
 from flask import Blueprint, request, jsonify
+from src.models.token import create_token
 from src.services.curriculum_services import CurriculumService
+from src.models.breadcrumb import create_breadcrumb
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -11,7 +14,9 @@ def create_curriculum_routes():
     @curriculum_routes.route('/<string:id>/', methods=['GET'])
     def get_or_create_curriculum(id):
         try:
-            curriculum = CurriculumService.get_or_create_curriculum(id)
+            breadcrumb = create_breadcrumb()
+            token = create_token()
+            curriculum = CurriculumService.get_or_create_curriculum(id, token, breadcrumb)
             return jsonify(curriculum), 200
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")
@@ -22,8 +27,10 @@ def create_curriculum_routes():
     def add_resource_to_curriculum(id):
         try:
             resource_data = request.get_json()
-            resource = CurriculumService.add_resource_to_curriculum(id, resource_data)
-            return jsonify(resource), 200
+            breadcrumb = create_breadcrumb()
+            token = create_token()
+            curriculum = CurriculumService.add_resource_to_curriculum(id, resource_data, token, breadcrumb)
+            return jsonify(curriculum), 200
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500
@@ -33,8 +40,10 @@ def create_curriculum_routes():
     def update_curriculum(id, seq):
         try:
             resource_data = request.get_json()
-            updated_resource = CurriculumService.update_curriculum(id, seq, resource_data)
-            return jsonify(updated_resource), 200
+            breadcrumb = create_breadcrumb()
+            token = create_token()            
+            curriculum = CurriculumService.update_curriculum(id, seq, resource_data, token, breadcrumb)
+            return jsonify(curriculum), 200
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500
@@ -43,8 +52,21 @@ def create_curriculum_routes():
     @curriculum_routes.route('/<string:id>/<int:seq>/', methods=['DELETE'])
     def delete_resource_from_curriculum(id, seq):
         try:
-            CurriculumService.delete_resource_from_curriculum(id, seq)
-            return '', 204  # No content response
+            breadcrumb = create_breadcrumb()
+            token = create_token()
+            curriculum = CurriculumService.delete_resource_from_curriculum(id, seq, token, breadcrumb)
+            return jsonify(curriculum), 200
+        except Exception as e:
+            logger.warn(f"A processing error occurred {e}")
+            return jsonify({"error": "A processing error occurred"}), 500
+        
+    # DELETE /api/curriculum/{id} - Delete a curriculum
+    @curriculum_routes.route('/<string:id>/', methods=['DELETE'])
+    def delete_curriculum(id):
+        try:
+            token = create_token()
+            CurriculumService.delete_curriculum(id, token)
+            return jsonify({"result": "Success"}), 200
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500

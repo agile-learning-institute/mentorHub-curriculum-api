@@ -42,73 +42,12 @@ tests:
           check:
             status: /200/
 
-  curriculum_stubs:
-    name: Test get curriculum Stubs
+  curriculum:
+    name: Test get curriculum 
     steps:
       - name: GET an existing curriculum
         http:
-          url: http://${{env.host}}/api/curriculum/AAAA00000000000000000001/
-          method: GET
-          headers:
-            Content-Type: application/json          
-          check:
-            status: /200/
-            schema:
-              type: object
-              properties:
-                method:
-                  type: string
-                  value: get_curriculum
-
-      - name: Add a Resource to a Curriculum
-        http:
-          url: http://${{env.host}}/api/curriculum/AAAA00000000000000000001/
-          method: POST
-          headers:
-            Content-Type: application/json
-          json: 
-            path: Test Path
-          check:
-            status: /200/
-            schema:
-              type: object
-              properties:
-                method:
-                  type: string
-                  value: create_curriculum
-
-      - name: Update a Resource to a Curriculum
-        http:
-          url: http://${{env.host}}/api/curriculum/AAAA00000000000000000001/100/
-          method: PATCH
-          headers:
-            Content-Type: application/json
-          json: 
-            path: Test Path
-          check:
-            status: /200/
-            schema:
-              type: object
-              properties:
-                method:
-                  type: string
-                  value: update_curriculum
-
-      - name: Remove a Resource from a Curriculum
-        http:
-          url: http://${{env.host}}/api/curriculum/AAAA00000000000000000001/100/
-          method: DELETE
-          headers:
-            Content-Type: application/json          
-          check:
-            status: /204/
-
-  curriculum_test_data:
-    name: Test get curriculum data
-    steps:
-      - name: GET an existing curriculum
-        http:
-          url: http://${{env.host}}/api/curriculum/AAAA00000000000000000001/
+          url: http://${{env.host}}/api/curriculum/aaaa00000000000000000001/
           method: GET
           headers:
             Content-Type: application/json          
@@ -119,7 +58,7 @@ tests:
               properties:
                 _id:
                   type: string
-                  value: AAAA00000000000000000001
+                  value: aaaa00000000000000000001
                 last_saved:
                   type: object
                   properties:
@@ -167,9 +106,9 @@ tests:
                       review:
                         type: string
 
-      - name: Create a new Curriculum
+      - name: GET an new curriculum
         http:
-          url: http://${{env.host}}/api/curriculum/AAAA00000000000000000111/
+          url: http://${{env.host}}/api/curriculum/aaaa00000000000000000002/
           method: GET
           headers:
             Content-Type: application/json          
@@ -180,100 +119,132 @@ tests:
               properties:
                 _id:
                   type: string
-                last_saved: 
+                  value: aaaa00000000000000000002
+                last_saved:
                   type: object
-                resources:  
+                  properties:
+                    atTime:
+                      type: string
+                    byUser:
+                      type: string
+                    fromIp:
+                      type: string
+                    correlationId:
+                      type: string
+                resources: 
                   type: array
-                  minItems: 0
-                  maxItems: 0
-              required:
-                _id
-                last_saved
-                resources
+                  value: []
 
       - name: Add a Resource to a Curriculum
         http:
-          url: http://${{env.host}}/api/curriculum/AAAA00000000000000000111/
+          url: http://${{env.host}}/api/curriculum/aaaa00000000000000000002/
           method: POST
-          body:
-            sequence: 100
-            roadmap: Now
           headers:
             Content-Type: application/json
           json: 
-            path: Test Path
+            sequence: 1
           check:
             status: /200/
             schema:
               type: object
               properties:
-                sequence:
-                  type: number
-                  value: 100
-                roadmap:
+                _id:
                   type: string
-                  value: Now
-              required:
-                sequence
-                roadmap 
+                  value: aaaa00000000000000000002
+                last_saved:
+                  type: object
+                  properties:
+                    atTime:
+                      type: string
+                    byUser:
+                      type: string
+                    fromIp:
+                      type: string
+                    correlationId:
+                      type: string
+                resources: 
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      sequence:
+                        type: number
+                        value: 1
 
-      - name: Update a Resource to a Curriculum
+      - name: Update a Resource in a Curriculum
         http:
-          url: http://${{env.host}}/api/curriculum/AAAA00000000000000000111/100/
+          url: http://${{env.host}}/api/curriculum/aaaa00000000000000000002/1/
           method: PATCH
-          body:
-            roadmap: Next
-            path: Some Fancy Path
           headers:
             Content-Type: application/json
           json: 
-            path: Test Path
+            type: Adhoc
           check:
             status: /200/
             schema:
               type: object
               properties:
-                sequence:
-                  type: number
-                  value: 100
-                roadmap:
+                _id:
                   type: string
-                  value: Next
-                path:
-                  type: string
-                  value: Some Fancy Path
-              required:
-                sequence
-                roadmap 
-                path
+                  value: aaaa00000000000000000002
+                last_saved:
+                  type: object
+                  properties:
+                    atTime:
+                      type: string
+                    byUser:
+                      type: string
+                    fromIp:
+                      type: string
+                    correlationId:
+                      type: string
+                resources: 
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      sequence:
+                        type: number
+                        value: 1
+                      type:
+                        type: string
+                        value: Adhoc
 
       - name: Remove a Resource from a Curriculum
         http:
-          url: http://${{env.host}}/api/curriculum/AAAA00000000000000000111/100/
+          url: http://${{env.host}}/api/curriculum/aaaa00000000000000000002/1/
           method: DELETE
           headers:
             Content-Type: application/json          
           check:
-            status: /204/
-
-      - name: Verify Resource Removed
-        http:
-          url: http://${{env.host}}/api/curriculum/AAAA00000000000000000111/
-          method: GET
-          headers:
-            Content-Type: application/json          
-          check:
             status: /200/
             schema:
               type: object
               properties:
                 _id:
                   type: string
-                  value: AAAA00000000000000000111
+                  value: aaaa00000000000000000002
+                last_saved:
+                  type: object
+                  properties:
+                    atTime:
+                      type: string
+                    byUser:
+                      type: string
+                    fromIp:
+                      type: string
+                    correlationId:
+                      type: string
                 resources: 
                   type: array
-                  minItems: 0
-                  maxItems: 0
-              required:
-                _id
-                resources 
+                  value: []
+
+      - name: Remove testing Curriculum
+        http:
+          url: http://${{env.host}}/api/curriculum/aaaa00000000000000000002/
+          method: DELETE
+          headers:
+            Content-Type: application/json          
+          check:
+            status: /200/
+    
