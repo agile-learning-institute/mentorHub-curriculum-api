@@ -22,9 +22,9 @@ class TestServer(unittest.TestCase):
 
     def test_curriculum_routes_registered(self):
         # Test if curriculum routes are registered
-        response = self.client.get('/api/curriculum/some_id/')
+        response = self.client.get('/api/curriculum/aaaa00000000000000000001/')
         self.assertIn(response.status_code, [200, 404])  # 200 if exists, 404 if not found
-
+        
     def test_config_routes_registered(self):
         # Test if config routes are registered
         response = self.client.get('/api/config/')

@@ -150,11 +150,14 @@ class MongoIO:
             ]
 
             # Execute the pipeline and get the single curriculum returned.
-            curriculum = list(curriculum_collection.aggregate(pipeline))[0]
-            # Handle empty resources list here, rather than complicate the query
-            if curriculum["resources"] == [{}]: curriculum["resources"] = []
-            
-            return curriculum
+            results = list(curriculum_collection.aggregate(pipeline))
+            if not results:
+                return None
+            else:
+                curriculum = results[0]
+                # Cleanup empty resources here instead of complicating the pipeline
+                if curriculum["resources"] == [{}]: curriculum["resources"] = []
+                return curriculum
         except Exception as e:
             logger.error(f"Failed to get curriculum: {e}")
             raise

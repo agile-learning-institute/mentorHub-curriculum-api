@@ -82,7 +82,8 @@ class CurriculumService:
         mongo_io = MongoIO()
         curriculum = mongo_io.get_curriculum(curriculum_id)
         if curriculum == None:
-            curriculum = mongo_io.create_curriculum(curriculum_id, breadcrumb)
+            mongo_io.create_curriculum(curriculum_id, breadcrumb)
+            curriculum = mongo_io.get_curriculum(curriculum_id)
         return CurriculumService._decode_mongo_types(curriculum)
 
     @staticmethod
@@ -122,3 +123,13 @@ class CurriculumService:
 
         curriculum = mongo_io.get_curriculum(curriculum_id)
         return CurriculumService._decode_mongo_types(curriculum)
+
+    @staticmethod
+    def delete_curriculum(curriculum_id, token):
+        """Remove a resource from the curriculum"""
+        CurriculumService._check_user_access(curriculum_id, token)
+
+        mongo_io = MongoIO()
+        mongo_io.delete_curriculum(curriculum_id)
+
+        return 
