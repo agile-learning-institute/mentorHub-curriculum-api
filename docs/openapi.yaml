@@ -1,6 +1,7 @@
 openapi: 3.0.3
 info:
   title: Curriculum API
+  version: 2.0.0
   description: |
     This API manages the curriculum for apprentices, providing endpoints to add, update, and retrieve learning resources.
   contact:
@@ -8,7 +9,6 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 1.0.0
 paths:
   /api/curriculum/{id}:
     get:
@@ -33,41 +33,11 @@ paths:
                 $ref: '#/components/schemas/Curriculum'
         '500':
           description: A Processing Error occured
-    post:
-      summary: Add a Resource to a curriculum
-      description: |
-        Adds a new Respirce to the curriculum with the provided ID.
-      operationId: addResourceToCurriculum
-      parameters:
-        - name: id
-          in: path
-          description: ID of the curriculum
-          required: true
-          schema:
-            type: string
-            format: GUID
-      requestBody:
-        description: Resource details to add to the curriculum
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Resource'
-        required: true
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Resource'
-        '500':
-          description: A processing error has occured
-
-  /api/curriculum/{id}/{seq}:
     patch:
-      summary: Update an existing curriculum
-      description: |
-        Updates an existing curriculum with the provided ID. If the curriculum does not exist, a new one will not be created.
+      summary: Update a curriculum
+      description: 
+        Update the curriculum with the values provided. Note that you are updating only the root level items, 
+        and when updating a list you must provide the complete new list.
       operationId: updateCurriculum
       parameters:
         - name: id
@@ -77,18 +47,12 @@ paths:
           schema:
             type: string
             format: GUID
-        - name: seq
-          in: path
-          description: Sequence of Resource to update
-          required: true
-          schema:
-            type: number
       requestBody:
-        description: Updated Resource details
+        description: Curriculum
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Resource'
+              $ref: '#/components/schemas/CurriculumUpdate'
         required: true
       responses:
         '200':
@@ -96,14 +60,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Resource'
+                $ref: '#/components/schemas/Curriculum'
         '500':
-          description: A processing error has occured
+          description: A Processing Error occured
     delete:
-      summary: Delete a Resource from a curriculum
-      description: |
-        Deletes the Resource with the provided Sequence from the curriculum.
-      operationId: deleteResourceFromCurriculum
+      summary: Delete a curriculum!
+      description: This is a live - hard delete function that removes the curriculum!
+      operationId: deleteCurriculum
       parameters:
         - name: id
           in: path
@@ -112,17 +75,187 @@ paths:
           schema:
             type: string
             format: GUID
-        - name: seq
+      responses:
+        '200':
+          description: Successful operation
+        '500':
+          description: A Processing Error occured
+
+  /api/curriculum/assign/{link}:
+    patch:
+      summary: Move a resource from Next to Now
+      description: 
+        This will move the resource with the provided link from the Next list to the Now list. 
+        If this results in an empty container (topic, segment, path) that container will also be removed.
+      operationId: updateCurriculum
+      parameters:
+        - name: id
           in: path
-          description: Sequence of Resource to update
+          description: ID of curriculum to update
           required: true
           schema:
-            type: number
+            type: string
+            format: GUID
       responses:
-        '204':
-          description: Resource successfully deleted
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Curriculum'
         '500':
-          description: A processing error has occured
+          description: A Processing Error occured
+
+  /api/curriculum/complete/{link}:
+    patch:
+      summary: Move a resource from Now to Completed
+      description: 
+        This will move the resource with the provided link from the Now list to the Completed list. 
+        The completed time is set to now(). You can optionally include a rating and review.
+      operationId: updateCurriculum
+      parameters:
+        - name: id
+          in: path
+          description: ID of curriculum to update
+          required: true
+          schema:
+            type: string
+            format: GUID
+      requestBody:
+        description: Rating and Review
+        content:
+          application/json:
+            schema:
+              type: object
+              description: A personalized roadmap for learning
+              properties:
+                rating:
+                  description: Rating
+                  type: number
+                  minimum: 1
+                  maximum: 5
+                review:
+                  description: A brief review
+                  type: string
+                  pattern: ^[ -~]{0,256}$
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Curriculum'
+        '500':
+          description: A Processing Error occured
+
+  /api/curriculum/{curriculum_id}/path/{path_id}:
+    post:
+      summary: Add a path to the next Array
+      description: Dysfunction will add a path with all of its resources to the next array of the curriculum
+      operationId: addPath
+      parameters:
+        - name: curriculum_id
+          in: path
+          description: ID of curriculum to update
+          required: true
+          schema:
+            type: string
+            format: GUID
+        - name: path_id
+          in: path
+          description: ID of path to add
+          required: true
+          schema:
+            type: string
+            format: GUID
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Curriculum'
+        '500':
+          description: A Processing Error occured
+
+  /api/path/:
+    get:
+      summary: Get a list of paths
+      description: Find paths That fuzzy match the name provided. If no name is provided, all paths are returned.
+      operationId: getPaths
+      parameters:
+        - name: querystring
+          in: query
+          description: String to search for
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      description: Path _id
+                      type: string
+                    name:
+                      description: Path name
+                      type: string
+
+  /api/topic/:
+    get:
+      summary: Get a list of Topics
+      description: Find topics that fuzzy match the name provided. If no name is provided, all topics are returned.
+      operationId: getTopics
+      parameters:
+        - name: querystring
+          in: query
+          description: String to search for
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      description: Topic _id
+                      type: string
+                    name:
+                      description: Path name
+                      type: string
+
+  /api/topic/{id}:
+    get:
+      summary: Get a Topic 
+      description: Get the topic name, and list of resources
+      operationId: getTopic
+      parameters:
+        - name: id
+          in: path
+          description: ID of topic or retrieve
+          required: true
+          schema:
+            type: string
+            format: GUID
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+        '500':
+          description: A Processing Error occured
 
   /api/config/:
     get:
@@ -150,85 +283,175 @@ paths:
 
 components:
   schemas:
-    Curriculum:
+    Resource:
+      description: A learning resource
       type: object
       properties:
-        _id:
-          description: The unique identifier for a curriculum
+        name:
+          description: resource name
           type: string
-          format: UUID
+          pattern: ^[ -~]{0,256}$
+        link:
+          description: resource link
+          type: string
+          pattern: >-
+            ^(https?:\/\/)([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z-]{2,24}(:[0-9]{1,5})?(\/(([\w\-\.~]|%[a-fA-F0-9]{2}|[!\$&'\(\)\*\+,;=:@])*\/?)*)?
+        started:
+          description: When did they start this resource
+          type: string
+          format: date-time
+        completed:
+          description: When was the resource completed
+          type: string
+          format: date-time
+        rating:
+          description: Resource Rating 1-4
+          type: number
+        review:
+          description: resource short review
+          type: string
+          pattern: ^[ -~]{0,256}$
+      additionalProperties: false
+
+    Topic:
+      description: A topic (group of resources)
+      type: object
+      properties:
+        topic:
+          description: A topic name
+          type: string
+          pattern: ^[ -~]{0,256}$
         resources:
-          description: An array of resources within the curriculum
+          description: List of learning resources
           type: array
           items:
             $ref: '#/components/schemas/Resource'
       additionalProperties: false
 
-    Resource:
+    Segment:
+      description: A learning segment
       type: object
       properties:
-        sequence:
-          description: Sequence for ordering
-          type: number
-        roadmap:
-          description: roadmap status - now/next/later/celebrated
-          enum:
-            - Completed
-            - Now
-            - Next
-            - Later
-          type: string
-        path:
-          description: A path to group segments
-          pattern: ^[ -~]{0,256}$
-          type: string
         segment:
-          description: A segment to group topics
+          description: The segment name
+          type: string
           pattern: ^[ -~]{0,256}$
+        topics:
+          description: List of topics in the segment
+          type: array
+          items:
+            $ref: '#/components/schemas/Topic'
+      additionalProperties: false
+
+    Path:
+      description: A learning path
+      type: object
+      properties:
+        path:
+          description: A learning path
           type: string
-        topic:
-          description: A topic to group resources
           pattern: ^[ -~]{0,256}$
+        segments:
+          description: The list of segments in the path
+          type: array
+          items:
+            $ref: '#/components/schemas/Segment'
+      additionalProperties: false
+
+    LaterPath:
+      description: A path for strategic goals
+      type: object
+      properties:
+        _id:
+          description: The Path ID
           type: string
-        type:
-          description: resource type - Resource or Adhoc
-          enum:
-            - Resource
-            - Adhoc
+        name:
+          description: The Path Name
           type: string
-        resource_id:
-          description: resource id for topic resources
-          type: string
-        resource_name:
-          description: resource name for adHoc resources
           pattern: ^[ -~]{0,256}$
+      additionalProperties: false
+
+    LastSaved:
+      description: Last Updated breadcrumb
+      type: object
+      properties:
+        fromIp:
+          description: Http Request remote IP address
           type: string
-        resource_url:
-          description: resource link for adHoc resources
-          pattern: >-
-            ^(https?:\/\/)([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z-]{2,24}(:[0-9]{1,5})?(\/(([\w\-\.~]|%[a-fA-F0-9]{2}|[!\$&'\(\)\*\+,;=:@])*\/?)*)?
+        byUser:
+          description: UUID Of User
           type: string
-        started:
-          description: When did they start this resource
+        atTime:
+          description: The date-time when last updated
+          type: string
+        correlationId:
+          description: The logging correlation ID of the update transaction
+          type: string
+      additionalProperties: false
+
+    Curriculum:
+      description: A personalized roadmap for learning
+      type: object
+      properties:
+        _id:
+          description: Curriculum _id values are === the person _id
           type: string
         completed:
-          description: resource short name
-          type: string
-        rating:
-          description: resource short name
-          type: number
-        review:
-          description: resource short name
-          pattern: ^[ -~]{0,256}$
-          type: string
+          description: List of Completed Resources
+          type: array
+          items:
+            $ref: '#/components/schemas/Resource'
+        now:
+          description: List of Resources to work on NOW
+          type: array
+          items:
+            $ref: '#/components/schemas/Resource'
+        next:
+          description: List of Learning Paths
+          type: array
+          items:
+            $ref: '#/components/schemas/Path'
+        later:
+          description: List of paths for strategic goals
+          type: array
+          items:
+            $ref: '#/components/schemas/LaterPath'
+        lastSaved:
+          $ref: '#/components/schemas/LastSaved'
+      additionalProperties: false
+
+    CurriculumUpdate:
+      description: Up version of the Curriculum
+      type: object
+      properties:
+        completed:
+          description: List of Completed Resources
+          type: array
+          items:
+            $ref: '#/components/schemas/Resource'
+        now:
+          description: List of Resources to work on NOW
+          type: array
+          items:
+            $ref: '#/components/schemas/Resource'
+        next:
+          description: List of Learning Paths
+          type: array
+          items:
+            $ref: '#/components/schemas/Path'
+        later:
+          description: List of paths for strategic goals (now as just list of ids)
+          type: array
+          items:
+            type: string  # Just the _id
       additionalProperties: false
 
     Config:
       type: object
       properties:
         apiVersion:
-          type: string
           description: Semantic Version Number
+          type: string
         configItems:
           type: array
           items:
