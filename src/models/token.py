@@ -3,6 +3,7 @@ from flask import request
 def create_token():
     """Create a access token from the JWT."""
     return {
-        "user_id": request.headers.get('X-User-Id'),
-        "roles": request.headers.get('X-User-Roles')
+        # TODO: Get Values from JWT
+        "user_id": "aaaa00000000000000000001",
+        "roles": ["Staff"]
     }
