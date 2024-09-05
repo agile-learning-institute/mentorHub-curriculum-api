@@ -69,7 +69,7 @@ pipenv run load
 - ``/src/models`` contains helpers related to creating transactional data objects such as breadcrumbs or RBAC tokens
 - ``/src/routes`` contains Flask http request/response handlers
 - ``/src/services`` service interface that wraps databse calls with RBAC, encode/decode, and other business logic
-- ``/src/utils/mongo_io`` is a singleton that manages the mongodb connection, and provides databse io functions to the service layer. 
+- ``/src/utils/mongo_io.py`` is a singleton that manages the mongodb connection, and provides databse io functions to the service layer. 
 - ``/test`` this folder contains unit testing, and testing artifacts. The sub-folder structure mimics the ``/src`` folder
 
 # API Testing with CURL
