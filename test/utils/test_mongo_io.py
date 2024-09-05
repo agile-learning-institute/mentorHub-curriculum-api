@@ -37,6 +37,11 @@ class TestMongoIO(unittest.TestCase):
         self.assertEqual(roadmaps.get("Next"), "Resources we think we may do next")
         self.assertEqual(roadmaps.get("Later"), "Resources that might come later")
 
+    def test_get_mentor(self):
+        mongo_io = MongoIO.get_instance()
+        mentor = mongo_io.get_mentor("aaaa00000000000000000001")
+        self.assertEqual(mentor, "aaaa00000000000000000007")
+
     def test_get_curriculum(self):
         # Test Data - Matches test data from database
         breadcrumb = {"atTime": datetime.fromisoformat("2024-02-27T18:17:58"),"byUser": ObjectId("aaaa00000000000000000001"),"fromIp": "192.168.1.3", "correlationId": "ae078031-7de2-4519-bcbe-fbd5e72b69d3"}
@@ -118,6 +123,4 @@ class TestMongoIO(unittest.TestCase):
         expected = {"_id": ObjectId("aaaa00000000000000000012"), "resources": [], "lastSaved": breadcrumb}
         curriculum = mongo_io.get_curriculum("aaaa00000000000000000012")
         self.assertEqual(curriculum, expected)
-        
-
 

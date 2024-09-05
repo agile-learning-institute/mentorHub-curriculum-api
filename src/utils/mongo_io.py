@@ -92,21 +92,22 @@ class MongoIO:
             sys.exit(1)
 
     def get_mentor(self, person_id):
+        """Get a person's mentor ID as a string"""
         if not self.connected:
             return None
         
         try:
-            people = self.db.get_collection(config.get_person_collection())
-            pipeline = [
-                # match _id = ObjectId(person_id)
-                # project str of mentor_id or ""
-            ]
-            mentor_id = list(people.aggregate(pipeline))[0]            
-            return mentor_id
+            people = self.db.get_collection(config.get_people_collection_name())
+            person_object_id = ObjectId(person_id)
+            person = people.find_one({ "_id": person_object_id })
+
+            # Return the mentor_id or an empty string if not found
+            mentor_id = person.get("mentorId", "") if person else ""
+            return str(mentor_id)
         except Exception as e:
             logger.error(f"Failed to get person-mentor_id: {e}")
             raise
-
+    
     def get_curriculum(self, curriculum_id):
         """Retrieve a curriculum by ID."""
         if not self.connected:

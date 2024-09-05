@@ -8,9 +8,10 @@ class TestConfigEnvironment(unittest.TestCase):
     def setUpClass(cls):
         """Class-level setup: Initialize configuration items"""
         cls.config_items = [
-            "BUILT_AT", "CONFIG_FOLDER", "DB_NAME", 
-            "CURRICULUM_COLLECTION", "TOPICS_COLLECTION", "PATHS_COLLECTION", 
-            "RESOURCES_COLLECTION", "VERSION_COLLECTION", "ENUMERATORS_COLLECTION"
+            "BUILT_AT", "CONFIG_FOLDER", "DB_NAME", "CURRICULUM_COLLECTION", 
+            "PEOPLE_COLLECTION", "TOPICS_COLLECTION", "PATHS_COLLECTION", 
+            "RESOURCES_COLLECTION", "VERSION_COLLECTION", "ENUMERATORS_COLLECTION",
+            "TOPIC_HOST"
         ]
         
     def setUp(self):
