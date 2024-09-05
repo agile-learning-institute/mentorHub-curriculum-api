@@ -125,6 +125,6 @@ curl -X DELETE http://localhost:8088/api/curriculum/AAAA00000000000000000001/100
 
 The ```api/config/``` endpoint will return a list of configuration values. These values are either "defaults" or loaded from a singleton configuration file, or an Environment Variable of the same name. Configuration files take precidence over environment variables. The environment variable "CONFIG_FOLDER" will change the location of configuration files from the default of ```./```
 
-The ```api/health/``` endpoint is a Promethius Healthcheck endpoint.
+The ```api/health/``` endpoint is a [Promethius](https://prometheus.io) Healthcheck endpoint.
 
 The [Dockerfile](./Dockerfile) uses a 2-stage build, and supports both amd64 and arm64 architectures. 
