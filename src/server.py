@@ -1,5 +1,7 @@
 # Initilize Logging
 import logging
+
+from src.routes.path_routes import create_path_routes
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -26,9 +28,11 @@ metrics.info('app_info', 'Application info', version=config.api_version)
 # Initialize Route Handlers
 config_handler = create_config_routes()
 curriculum_handler = create_curriculum_routes()
+path_handler = create_path_routes()
 
 # Register routes
 app.register_blueprint(curriculum_handler, url_prefix='/api/curriculum')
+app.register_blueprint(path_handler, url_prefix='/api/path')
 app.register_blueprint(config_handler, url_prefix='/api/config')
 
 # Define a signal handler for SIGTERM and SIGINT

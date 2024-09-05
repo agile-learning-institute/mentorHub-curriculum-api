@@ -1,7 +1,7 @@
 import copy
 from datetime import datetime, timezone
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from bson import ObjectId
 from src.services.curriculum_services import CurriculumService

@@ -124,3 +124,20 @@ class TestMongoIO(unittest.TestCase):
         curriculum = mongo_io.get_curriculum("aaaa00000000000000000012")
         self.assertEqual(curriculum, expected)
 
+    def test_get_all_paths(self):
+        mongo_io = MongoIO.get_instance()
+        paths = mongo_io.get_paths("")
+        expected = [{"_id":"999900000000000000000000","name":"The Odin Project"},{"_id":"999900000000000000000001","name":"EngineerKit"},{"_id":"999900000000000000000002","name":"Salesforce"},{"_id":"999900000000000000000003","name":"Cantrillo"},{"_id":"999900000000000000000004","name":"SRE Speciality"}]
+        self.assertEqual(paths, expected)
+
+    def test_get_SRE_paths(self):
+        mongo_io = MongoIO.get_instance()
+        paths = mongo_io.get_paths("SRE")
+        expected = [{"_id":"999900000000000000000004","name":"SRE Speciality"}]
+        self.assertEqual(paths, expected)
+
+    def test_get_some_paths(self):
+        mongo_io = MongoIO.get_instance()
+        paths = mongo_io.get_paths("l")
+        expected = [{"_id":"999900000000000000000002","name":"Salesforce"},{"_id":"999900000000000000000003","name":"Cantrillo"},{"_id":"999900000000000000000004","name":"SRE Speciality"}]
+        self.assertEqual(paths, expected)

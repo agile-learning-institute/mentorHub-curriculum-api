@@ -108,6 +108,27 @@ class MongoIO:
             logger.error(f"Failed to get person-mentor_id: {e}")
             raise
     
+    def get_paths(self, query):
+        """Get a list of paths"""
+        if not self.connected:
+            return None
+        
+        try:
+            paths_collection = self.db.get_collection(config.get_paths_collection_name())
+            pipeline = [
+                {"$match": { "name": { "$regex": query, "$options": "i" }}},
+                {"$project": {
+                        "_id": { "$toString": "$_id" },
+                        "name": 1  
+                    }
+                }
+            ]
+            results = list(paths_collection.aggregate(pipeline))
+            return results
+        except Exception as e:
+            logger.error(f"Failed to get paths: {e}")
+            raise
+    
     def get_curriculum(self, curriculum_id):
         """Retrieve a curriculum by ID."""
         if not self.connected:
