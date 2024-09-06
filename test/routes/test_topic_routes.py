@@ -3,11 +3,14 @@ from flask import Flask
 from src.routes.topic_routes import create_topic_routes
 from unittest.mock import patch
 
+from src.utils.ejson_encoder import MongoJSONEncoder
+
 class TestConfigRoutes(unittest.TestCase):
 
     def setUp(self):
         # Set up the Flask test app and register the blueprint
         self.app = Flask(__name__)
+        self.app.json = MongoJSONEncoder(self.app)
         topic_routes = create_topic_routes()
         self.app.register_blueprint(topic_routes, url_prefix='/api/topic')
         self.client = self.app.test_client()
