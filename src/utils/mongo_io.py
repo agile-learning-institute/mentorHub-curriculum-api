@@ -130,6 +130,10 @@ class MongoIO:
             logger.error(f"Failed to get paths: {e}")
             raise
     
+    def get_path(self, path_id):
+        # TODO: Get Path, with Topics, with Resources
+        return {}
+    
     def get_topics(self, query):
         """Get a list of topics"""
         if not self.connected:
@@ -275,70 +279,22 @@ class MongoIO:
             logger.error(f"Failed to create curriculum: {e}")
             raise
 
-    def add_resource_to_curriculum(self, curriculum_id, resource_data, breadcrumb):
-        """Add a new resource to the curriculum."""
-        if not self.connected: return None
-
-        try:
-            curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
-            curriculum_objecct_id = ObjectId(curriculum_id)
-            match = {
-                "_id": curriculum_objecct_id
-            }
-            pipeline = {
-                "$push": {"resources": resource_data},
-                "$set": {"lastSaved": breadcrumb}
-            }
-
-            result = curriculum_collection.update_one(match, pipeline)
-            return result.modified_count
-        except Exception as e:
-            logger.error(f"Failed to add resource to curriculum: {e}")
-            raise
-
-    def update_curriculum(self, curriculum_id, seq, resource_data, breadcrumb):
-        """Update a specific resource in the curriculum."""
+    def update_curriculum(self, curriculum_id, data):
+        """Update a curriculum."""
         if not self.connected: return None
 
         try:
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
             curriculum_object_id = ObjectId(curriculum_id)
- 
-            update_fields = {f"resources.$.{key}": value for key, value in resource_data.items()}
-            update_fields["lastSaved"] = breadcrumb  
-            match = {
-                "_id": curriculum_object_id,  
-                "resources.sequence": seq
-            }
-            pipeline = {
-                "$set": update_fields
-            }            
+            
+            match = {"_id": curriculum_object_id}
+            pipeline = {"$set": data}            
             result = curriculum_collection.update_one(match, pipeline)
         except Exception as e:
             logger.error(f"Failed to update resource in curriculum: {e}")
             raise
-        
+
         return result.modified_count
-
-    def delete_resource_from_curriculum(self, curriculum_id, seq, breadcrumb):
-        """Delete a specific resource from the curriculum."""
-        if not self.connected: return None
-
-        try:
-            curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
-            curriculum_object_id = ObjectId(curriculum_id)
-            match = {
-                "_id": curriculum_object_id
-            }
-            pipeline = {
-                "$pull": {"resources": {"sequence": seq}},  # Pull the resource with matching sequence
-                "$set": {"lastSaved": breadcrumb}  # Optionally update the lastSaved field
-            }
-            result = curriculum_collection.update_one(match, pipeline)
-            return result.modified_count
-        except Exception as e:
-            logger.error(f"Failed to delete resource from curriculum: {e}")
-            raise
 
     def delete_curriculum(self, curriculum_id):
         """Delete a specific curriculum."""
