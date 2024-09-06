@@ -11,7 +11,7 @@ def create_curriculum_routes():
     curriculum_routes = Blueprint('curriculum_routes', __name__)
 
     # GET /api/curriculum/{id}/ - Get or create a curriculum
-    @curriculum_routes.route('/<string:id>/', methods=['GET'])
+    @curriculum_routes.route('/<string:id>', methods=['GET'])
     def get_or_create_curriculum(id):
         try:
             breadcrumb = create_breadcrumb()
@@ -22,51 +22,63 @@ def create_curriculum_routes():
             logger.warn(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500
 
-    # POST /api/curriculum/{id}/ - Add a Resource to a curriculum
-    @curriculum_routes.route('/<string:id>/', methods=['POST'])
-    def add_resource_to_curriculum(id):
+    # PATCH /api/curriculum/{id} - Update a curriculum
+    @curriculum_routes.route('/<string:id>', methods=['PATCH'])
+    def update_curriculum(id):
         try:
-            resource_data = request.get_json()
-            breadcrumb = create_breadcrumb()
             token = create_token()
-            curriculum = CurriculumService.add_resource_to_curriculum(id, resource_data, token, breadcrumb)
-            return jsonify(curriculum), 200
-        except Exception as e:
-            logger.warn(f"A processing error occurred {e}")
-            return jsonify({"error": "A processing error occurred"}), 500
-
-    # PATCH /api/curriculum/{id}/{seq}/ - Update an existing curriculum
-    @curriculum_routes.route('/<string:id>/<int:seq>/', methods=['PATCH'])
-    def update_curriculum(id, seq):
-        try:
-            resource_data = request.get_json()
             breadcrumb = create_breadcrumb()
-            token = create_token()            
-            curriculum = CurriculumService.update_curriculum(id, seq, resource_data, token, breadcrumb)
-            return jsonify(curriculum), 200
-        except Exception as e:
-            logger.warn(f"A processing error occurred {e}")
-            return jsonify({"error": "A processing error occurred"}), 500
-
-    # DELETE /api/curriculum/{id}/{seq}/ - Delete a Resource from a curriculum
-    @curriculum_routes.route('/<string:id>/<int:seq>/', methods=['DELETE'])
-    def delete_resource_from_curriculum(id, seq):
-        try:
-            breadcrumb = create_breadcrumb()
-            token = create_token()
-            curriculum = CurriculumService.delete_resource_from_curriculum(id, seq, token, breadcrumb)
+            patch_data = request.get_json()
+            curriculum = CurriculumService.update_curriculum(id, patch_data, token, breadcrumb)
             return jsonify(curriculum), 200
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500
         
     # DELETE /api/curriculum/{id} - Delete a curriculum
-    @curriculum_routes.route('/<string:id>/', methods=['DELETE'])
+    @curriculum_routes.route('/<string:id>', methods=['DELETE'])
     def delete_curriculum(id):
         try:
             token = create_token()
             CurriculumService.delete_curriculum(id, token)
             return jsonify({"result": "Success"}), 200
+        except Exception as e:
+            logger.warn(f"A processing error occurred {e}")
+            return jsonify({"error": "A processing error occurred"}), 500
+        
+    # PATCH /api/curriculum/{id}/assign/{link} - Move a resource from Next to Now
+    @curriculum_routes.route('/<string:id>/assign/<string:link>', methods=['PATCH'])
+    def assign_resource(id, link):
+        try:
+            token = create_token()
+            breadcrumb = create_breadcrumb()
+            curriculum = CurriculumService.assign_resource(id, link, token, breadcrumb)
+            return jsonify(curriculum), 200
+        except Exception as e:
+            logger.warn(f"A processing error occurred {e}")
+            return jsonify({"error": "A processing error occurred"}), 500
+        
+    # PATCH /api/curriculum/{id}/complete/{link} - Move a resource from Now to Complete
+    @curriculum_routes.route('/<string:id>/complete/<string:link>', methods=['PATCH'])
+    def complete_resource(id, link):
+        try:
+            token = create_token()
+            breadcrumb = create_breadcrumb()
+            review = request.get_json(silent=True) or {}
+            curriculum = CurriculumService.complete_resource(id, link, review, token, breadcrumb)
+            return jsonify(curriculum), 200
+        except Exception as e:
+            logger.warn(f"A processing error occurred {e}")
+            return jsonify({"error": "A processing error occurred"}), 500
+        
+    # POST /api/curriculum/{curriculum_id}/path/{path_id} - Add a path to Next
+    @curriculum_routes.route('/<string:curriculum_id>/path/<string:path_id>', methods=['POST'])
+    def add_path(curriculum_id, path_id):
+        try:
+            token = create_token()
+            breadcrumb = create_breadcrumb()
+            curriculum = CurriculumService.add_path(curriculum_id, path_id, token, breadcrumb)
+            return jsonify(curriculum), 200
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500
