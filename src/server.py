@@ -3,6 +3,7 @@ import logging
 
 from src.routes.path_routes import create_path_routes
 from src.routes.topic_routes import create_topic_routes
+from src.utils.ejson_encoder import MongoJSONEncoder
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,7 @@ from src.routes.config_routes import create_config_routes
 
 # Initilize Flask App
 app = Flask(__name__)
+app.json = MongoJSONEncoder(app)
 
 # Initialize Database Connection, and load one-time data
 mongo = MongoIO()
