@@ -42,7 +42,7 @@ tests:
           check:
             status: /200/
 
-  Paths:
+  paths:
     name: Test Path endpoints
     steps:
       - name: Get All Paths
@@ -103,42 +103,92 @@ tests:
           check:
             status: /200/
             json.equals:
-              - _id: "999900000000000000000000"
-                name: The Odin Project
-              - _id: "999900000000000000000001"
-                name: EngineerKit
-              - _id: "999900000000000000000002"
-                name: Salesforce
-              - _id: "999900000000000000000003"
-                name: Cantrillo
-              - _id: "999900000000000000000004"
-                name: SRE Speciality
-      - name: Get a Path
+              - _id: aaaa00000000000000000009
+                name: Data Manipulation
+              - _id: aaaa00000000000000000008
+                name: Data Storage
+              - _id: aaaa00000000000000000010
+                name: Data Wrangling
+              - _id: aaaa00000000000000000014
+                name: GitBasics
+              - _id: aaaa00000000000000000003
+                name: Hardware
+              - _id: aaaa00000000000000000002
+                name: History of Computing
+              - _id: aaaa00000000000000000016
+                name: Intermediate CSS
+              - _id: aaaa00000000000000000015
+                name: Intermediate HTML
+              - _id: aaaa00000000000000000011
+                name: Managing State
+              - _id: aaaa00000000000000000012
+                name: OdinIntro
+              - _id: aaaa00000000000000000004
+                name: Operating Systems
+              - _id: aaaa00000000000000000005
+                name: Runtimes
+              - _id: aaaa00000000000000000006
+                name: Spectrum of Platforms
+              - _id: aaaa00000000000000000007
+                name: Types of Data
+              - _id: aaaa00000000000000000013
+                name: WebDevSetup
+      - name: Get some Topics
         http:
-          url: http://${{env.host}}/api/path?query=SRE
+          url: http://${{env.host}}/api/topic?query=data
           method: GET
           headers:
             Content-Type: application/json          
           check:
             status: /200/
             json.equals:
-              - _id: "999900000000000000000004"
-                name: SRE Speciality
-      - name: Get some Paths
+              - _id: aaaa00000000000000000009
+                name: Data Manipulation
+              - _id: aaaa00000000000000000008
+                name: Data Storage
+              - _id: aaaa00000000000000000010
+                name: Data Wrangling
+              - _id: aaaa00000000000000000007
+                name: Types of Data
+      - name: Get a Topic
         http:
-          url: http://${{env.host}}/api/path?query=l
+          url: http://${{env.host}}/api/topic/aaaa00000000000000000002
           method: GET
           headers:
             Content-Type: application/json          
           check:
             status: /200/
             json.equals:
-              - _id: "999900000000000000000002"
-                name: Salesforce
-              - _id: "999900000000000000000003"
-                name: Cantrillo
-              - _id: "999900000000000000000004"
-                name: SRE Speciality
+              - _id: aaaa00000000000000000009
+                name: Data Manipulation
+              - _id: aaaa00000000000000000008
+                name: Data Storage
+              - _id: aaaa00000000000000000010
+                name: Data Wrangling
+              - _id: aaaa00000000000000000014
+                name: GitBasics
+              - _id: aaaa00000000000000000003
+                name: Hardware
+              - _id: aaaa00000000000000000002
+                name: History of Computing
+              - _id: aaaa00000000000000000016
+                name: Intermediate CSS
+              - _id: aaaa00000000000000000015
+                name: Intermediate HTML
+              - _id: aaaa00000000000000000011
+                name: Managing State
+              - _id: aaaa00000000000000000012
+                name: OdinIntro
+              - _id: aaaa00000000000000000004
+                name: Operating Systems
+              - _id: aaaa00000000000000000005
+                name: Runtimes
+              - _id: aaaa00000000000000000006
+                name: Spectrum of Platforms
+              - _id: aaaa00000000000000000007
+                name: Types of Data
+              - _id: aaaa00000000000000000013
+                name: WebDevSetup
 
   curriculum:
     name: Test get curriculum 
