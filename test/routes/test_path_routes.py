@@ -13,7 +13,7 @@ class TestConfigRoutes(unittest.TestCase):
         self.client = self.app.test_client()
 
     @patch('src.routes.path_routes.MongoIO')
-    def test_get_config_success(self, mock_mongo_io):
+    def test_get_paths_success(self, mock_mongo_io):
         # Mock the MongoIO methods
         mock_instance = mock_mongo_io.return_value
         mock_instance.get_paths.return_value = []
