@@ -141,3 +141,22 @@ class TestMongoIO(unittest.TestCase):
         paths = mongo_io.get_paths("l")
         expected = [{"_id":"999900000000000000000002","name":"Salesforce"},{"_id":"999900000000000000000003","name":"Cantrillo"},{"_id":"999900000000000000000004","name":"SRE Speciality"}]
         self.assertEqual(paths, expected)
+
+    def test_get_all_topics(self):
+        mongo_io = MongoIO.get_instance()
+        toipcs = mongo_io.get_topics("")
+        expected = [{"_id":"aaaa00000000000000000009","name":"Data Manipulation"},{"_id":"aaaa00000000000000000008","name":"Data Storage"},{"_id":"aaaa00000000000000000010","name":"Data Wrangling"},{"_id":"aaaa00000000000000000014","name":"GitBasics"},{"_id":"aaaa00000000000000000003","name":"Hardware"},{"_id":"aaaa00000000000000000002","name":"History of Computing"},{"_id":"aaaa00000000000000000016","name":"Intermediate CSS"},{"_id":"aaaa00000000000000000015","name":"Intermediate HTML"},{"_id":"aaaa00000000000000000011","name":"Managing State"},{"_id":"aaaa00000000000000000012","name":"OdinIntro"},{"_id":"aaaa00000000000000000004","name":"Operating Systems"},{"_id":"aaaa00000000000000000005","name":"Runtimes"},{"_id":"aaaa00000000000000000006","name":"Spectrum of Platforms"},{"_id":"aaaa00000000000000000007","name":"Types of Data"},{"_id":"aaaa00000000000000000013","name":"WebDevSetup"}]
+        self.assertEqual(toipcs, expected)
+
+    def test_get_some_topiocs(self):
+        mongo_io = MongoIO.get_instance()
+        toipcs = mongo_io.get_topics("data")
+        self.assertEqual(len(toipcs), 4)
+
+    def test_get_a_topic(self):
+        mongo_io = MongoIO.get_instance()
+        topic = mongo_io.get_topic("aaaa00000000000000000002")
+        expected = {"_id":ObjectId("aaaa00000000000000000002"),"name":"History of Computing","resources":[{"name":"Apple1984SuperBowlCommer","link":"https://somevalidlink05.com"},{"name":"AwesomeComputerHistoryRe","link":"https://somevalidlink07.com"},{"name":"BretVictorTheFutureofPro","link":"https://somevalidlink06.com"},{"name":"ComputerHistoryTimelineA","link":"https://somevalidlink02.com"},{"name":"HistoryofComputingArticl","link":"https://somevalidlink03.com"},{"name":"JeanBartikandtheENIACWom","link":"https://somevalidlink08.com"},{"name":"PiratesofSiliconValleyFi","link":"https://somevalidlink04.com"}]}
+        print(f"Topic: {topic}")
+        print(f"Expected: {expected}")
+        self.assertEqual(topic, expected)

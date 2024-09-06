@@ -91,6 +91,55 @@ tests:
               - _id: "999900000000000000000004"
                 name: SRE Speciality
 
+  topics:
+    name: Test topic endpoints
+    steps:
+      - name: Get All Topics
+        http:
+          url: http://${{env.host}}/api/topic
+          method: GET
+          headers:
+            Content-Type: application/json          
+          check:
+            status: /200/
+            json.equals:
+              - _id: "999900000000000000000000"
+                name: The Odin Project
+              - _id: "999900000000000000000001"
+                name: EngineerKit
+              - _id: "999900000000000000000002"
+                name: Salesforce
+              - _id: "999900000000000000000003"
+                name: Cantrillo
+              - _id: "999900000000000000000004"
+                name: SRE Speciality
+      - name: Get a Path
+        http:
+          url: http://${{env.host}}/api/path?query=SRE
+          method: GET
+          headers:
+            Content-Type: application/json          
+          check:
+            status: /200/
+            json.equals:
+              - _id: "999900000000000000000004"
+                name: SRE Speciality
+      - name: Get some Paths
+        http:
+          url: http://${{env.host}}/api/path?query=l
+          method: GET
+          headers:
+            Content-Type: application/json          
+          check:
+            status: /200/
+            json.equals:
+              - _id: "999900000000000000000002"
+                name: Salesforce
+              - _id: "999900000000000000000003"
+                name: Cantrillo
+              - _id: "999900000000000000000004"
+                name: SRE Speciality
+
   curriculum:
     name: Test get curriculum 
     steps:

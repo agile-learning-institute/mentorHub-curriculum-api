@@ -121,9 +121,83 @@ class MongoIO:
                         "_id": { "$toString": "$_id" },
                         "name": 1  
                     }
-                }
+                },
+                {"$sort": { "name": 1}}
             ]
             results = list(paths_collection.aggregate(pipeline))
+            return results
+        except Exception as e:
+            logger.error(f"Failed to get paths: {e}")
+            raise
+    
+    def get_topics(self, query):
+        """Get a list of topics"""
+        if not self.connected:
+            return None
+        
+        try:
+            topics_collection = self.db.get_collection(config.get_topics_collection_name())
+            pipeline = [
+                {"$match": { "name": { "$regex": query, "$options": "i" }}},
+                {"$project": {
+                        "_id": { "$toString": "$_id" },
+                        "name": 1  
+                    }
+                },
+                {"$sort": { "name": 1}}
+            ]
+            results = list(topics_collection.aggregate(pipeline))
+            return results
+        except Exception as e:
+            logger.error(f"Failed to get paths: {e}")
+            raise
+    
+    def get_topic(self, topic_id):
+        """Get a list of topics"""
+        if not self.connected:
+            return None
+        
+        try:
+            topics_collection = self.db.get_collection(config.get_topics_collection_name())
+            resources_collection_name = config.get_resources_collection_name()
+            topic_object_id = ObjectId(topic_id)
+            pipeline = [
+                {
+                    "$match": {
+                        "_id": topic_object_id  # Match the topic by its _id
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": resources_collection_name,  # Lookup the resources from the resource collection
+                        "localField": "resources",  # The array of resource _id's in the topic
+                        "foreignField": "_id",  # The _id field in the resource collection
+                        "as": "resource_data"  # Store the joined data in the resource_data field
+                    }
+                },
+                {
+                    "$project": {
+                        "_id": 1,  # Include the topic _id
+                        "name": 1,  # Include the topic name
+                        "resources": {  # Replace the resources field with sorted resource data
+                            "$map": {
+                                "input": { 
+                                    "$sortArray": {  # Sort the resource_data array by the name field
+                                        "input": "$resource_data", 
+                                        "sortBy": { "name": 1 }  # Sort by name in ascending order
+                                    }
+                                },
+                                "as": "resource",
+                                "in": {
+                                    "name": "$$resource.name",  # Only include name
+                                    "link": "$$resource.link"  # Only include link
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+            results = list(topics_collection.aggregate(pipeline))[0]
             return results
         except Exception as e:
             logger.error(f"Failed to get paths: {e}")
