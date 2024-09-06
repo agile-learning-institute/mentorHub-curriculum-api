@@ -1,7 +1,6 @@
 import json
 import logging
 
-from src.utils.ejson_encoder import EJSONEncoder
 from src.utils.mongo_io import MongoIO
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,14 +20,10 @@ def create_path_routes():
             mongo_io = MongoIO()
             query = request.args.get('query') or ""
             paths = mongo_io.get_paths(query)
-            return Response(
-                json.dumps(paths, cls=EJSONEncoder), 
-                mimetype='application/json',
-                status=200
-            )
+            return jsonify(paths), 200
         except Exception as e:
             logger.warn(f"Get Config Error has occured: {e}")
-            return json.dumps({"error": "A processing error occurred"}), 500
+            return jsonify({"error": "A processing error occurred"}), 500
         
     # Ensure the Blueprint is returned correctly
     return path_routes
