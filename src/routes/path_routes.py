@@ -13,16 +13,14 @@ from src.config.config import config
 def create_path_routes():
     path_routes = Blueprint('path_routes', __name__)
 
-    # GET /api/path - Return the current configuration as JSON
+    # GET /api/path - Return a list of paths that match query
     @path_routes.route('', methods=['GET'])
     def get_path():
         try:
             # Get the paths
             mongo_io = MongoIO()
             query = request.args.get('query') or ""
-            logger.warn(f"Query: {query}")
             paths = mongo_io.get_paths(query)
-            # return jsonify(paths), 200
             return Response(
                 json.dumps(paths, cls=EJSONEncoder), 
                 mimetype='application/json',
