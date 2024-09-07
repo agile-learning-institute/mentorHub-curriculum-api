@@ -313,7 +313,6 @@ class MongoIO:
         try:
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
             curriculum_collection.delete_one({"_id": ObjectId(curriculum_id)})
-            logger.info(f"Curriculum {curriculum_id} deleted")
         except Exception as e:
             logger.error(f"Failed to delete curriculum: {e}")
 

@@ -20,9 +20,10 @@ def create_path_routes():
             mongo_io = MongoIO()
             query = request.args.get('query') or ""
             paths = mongo_io.get_paths(query)
+            logger.info(f"Get Path Success")
             return jsonify(paths), 200
         except Exception as e:
-            logger.warn(f"Get Config Error has occured: {e}")
+            logger.warn(f"Get Path Error has occured: {e}")
             return jsonify({"error": "A processing error occurred"}), 500
         
     # Ensure the Blueprint is returned correctly

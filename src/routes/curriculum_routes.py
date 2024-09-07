@@ -17,6 +17,7 @@ def create_curriculum_routes():
             breadcrumb = create_breadcrumb()
             token = create_token()
             curriculum = CurriculumService.get_or_create_curriculum(id, token, breadcrumb)
+            logger.info(f"Get Curriculum Successful {breadcrumb}")
             return jsonify(curriculum), 200
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")
@@ -30,6 +31,7 @@ def create_curriculum_routes():
             breadcrumb = create_breadcrumb()
             patch_data = request.get_json()
             curriculum = CurriculumService.update_curriculum(id, patch_data, token, breadcrumb)
+            logger.info(f"Update Curriculum Successful {breadcrumb}")
             return jsonify(curriculum), 200
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")
@@ -41,9 +43,10 @@ def create_curriculum_routes():
         try:
             token = create_token()
             CurriculumService.delete_curriculum(id, token)
+            logger.info(f"Delete Curriculum Successful")
             return jsonify({"result": "Success"}), 200
         except Exception as e:
-            logger.warn(f"A processing error occurred {e}")
+            logger.warn(f"Error during Delete {e}")
             return jsonify({"error": "A processing error occurred"}), 500
         
     # PATCH /api/curriculum/{id}/assign/{link} - Move a resource from Next to Now
@@ -53,6 +56,7 @@ def create_curriculum_routes():
             token = create_token()
             breadcrumb = create_breadcrumb()
             curriculum = CurriculumService.assign_resource(id, link, token, breadcrumb)
+            logger.info(f"Assign Resource Successful {breadcrumb}")
             return jsonify(curriculum), 200
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")
@@ -66,6 +70,7 @@ def create_curriculum_routes():
             breadcrumb = create_breadcrumb()
             review = request.get_json(silent=True) or {}
             curriculum = CurriculumService.complete_resource(id, link, review, token, breadcrumb)
+            logger.info(f"Complete Resource Successful {breadcrumb}")
             return jsonify(curriculum), 200
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")
@@ -78,6 +83,7 @@ def create_curriculum_routes():
             token = create_token()
             breadcrumb = create_breadcrumb()
             curriculum = CurriculumService.add_path(curriculum_id, path_id, token, breadcrumb)
+            logger.info(f"Add Path Successful {breadcrumb}")
             return jsonify(curriculum), 200
         except Exception as e:
             logger.warn(f"A processing error occurred {e}")
