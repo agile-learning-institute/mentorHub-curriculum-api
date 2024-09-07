@@ -91,11 +91,10 @@ class TestCurriculumService(unittest.TestCase):
         mock_instance.delete_curriculum.return_value = True
         mock_instance.get_mentor.return_value = "aaaa00000000000000000012"
 
-        # Test with passing tokens
-        for token in self.goodTokens:
-            CurriculumService.delete_curriculum("aaaa00000000000000000001", token)
-            mock_instance.delete_curriculum.assert_called_once_with("aaaa00000000000000000001")
-            mock_instance.reset_mock()
+        # Test with passing token (Staff Only)
+        goodToken = {"user_id":"000000000000000000000000", "roles":["Staff"]}
+        CurriculumService.delete_curriculum("aaaa00000000000000000001", goodToken)
+        mock_instance.delete_curriculum.assert_called_once_with("aaaa00000000000000000001")
 
     @patch('src.services.curriculum_services.MongoIO')
     def test_assign_resource_simple_success(self, mock_mongo_io):
@@ -222,6 +221,18 @@ class TestCurriculumService(unittest.TestCase):
                 CurriculumService.update_curriculum("", {}, {}, {})
             mock_instance.reset_mock()
 
+    @patch('src.services.curriculum_services.MongoIO')
+    def test_delete_curriculum_access_denied(self, mock_mongo_io):
+        # Mock the MongoIO methods
+        mock_instance = mock_mongo_io.return_value
+        mock_instance.delete_curriculum.return_value = True
+        mock_instance.get_mentor.return_value = "aaaa00000000000000000012"
+
+        # Test with failing token
+        badToken = {"user_id":"000000000000000000000000", "roles":["Member", "Mentor"]}
+        with self.assertRaises(Exception) as context:
+                CurriculumService.delete_curriculum("aaaa00000000000000000001", badToken)
+    
     @patch('src.services.curriculum_services.MongoIO')
     def test_assign_resource_access_denied(self, mock_mongo_io):
         # Mock the MongoIO methods

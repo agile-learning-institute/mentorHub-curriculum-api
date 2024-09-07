@@ -88,6 +88,10 @@ class CurriculumService:
     @staticmethod
     def delete_curriculum(curriculum_id, token):
         """Remove a resource from the curriculum"""
+        if not "Staff" in token["roles"]:
+            logger.warn(f"Delete Access Denied, Staff only: {token['roles']}")
+            raise Exception("Access Denied")
+    
         CurriculumService._check_user_access(curriculum_id, token)
 
         mongo_io = MongoIO()
