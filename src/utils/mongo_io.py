@@ -136,64 +136,24 @@ class MongoIO:
             return None
         
         try:
+            # Get the path document
             paths_collection = self.db.get_collection(config.get_paths_collection_name())
-            topics_collection_name = config.get_topics_collection_name()
-            resources_collection_name = config.get_resources_collection_name()
             path_object_id = ObjectId(path_id)
-            pipeline =  pipeline = [
-                {"$match": { "_id": path_object_id }},
-                {"$unwind": "$segments"  },
-                {"$unwind": "$segments.topics"},
-                {"$lookup": {
-                    "from": topics_collection_name,
-                    "localField": "segments.topics.topic_id", 
-                    "foreignField": "_id", 
-                    "as": "topic_data"
-                }},
-                {"$unwind": "$topic_data"},
-                {"$unwind": "$topic_data.resources"},
-                {"$lookup": {
-                    "from": resources_collection_name,
-                    "localField": "topic_data.resources",  
-                    "foreignField": "_id",
-                    "as": "resource_data"
-                }},
-                {"$unwind": "$resource_data"  },
-                {"$project": {  
-                    "name": 1, 
-                    "segments.name": 1,
-                    "segments.topics.name": "$topic_data.name",
-                    "segments.topics.resources": {  
-                        "name": "$resource_data.name",
-                        "link": "$resource_data.link"
-                    }
-                }},
-                {"$group": {  
-                    "_id": "$_id",
-                    "name": { "$first": "$name" },
-                    "segments": {
-                        "$push": {
-                            "name": "$segments.name",
-                            "topics": {
-                                "$push": {
-                                    "name": "$segments.topics.name",
-                                    "resources": { 
-                                        "$push": {
-                                            "name": "$segments.topics.resources.name",
-                                            "link": "$segments.topics.resources.link"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }}
-            ]
+            path = paths_collection.find_one({"_id": path_object_id})
+            if not path: return {}
 
-            results = list(paths_collection.aggregate(pipeline))
-            return results
+            # Could not get a 3-layer lookup to work, so doing it in 2 steps
+            for segment in path.get("segments", []):
+                for i, topic_id in enumerate(segment.get("topics", [])):
+                    topic_data = self.get_topic(str(topic_id))  
+                    segment["topics"][i] = topic_data  
+
+            # Housekeep un-wanted properties
+            del path["_id"]
+            del path["status"]
+            return path
         except Exception as e:
-            logger.error(f"Failed to get paths: {e}")
+            logger.error(f"Failed to get path: {e}")
             raise
     
     def get_topics(self, query):
@@ -239,27 +199,20 @@ class MongoIO:
                         "as": "resource_data"  
                     }
                 },
-                {
-                    "$project": {
-                        "_id": 0,
-                        "name": 1,
-                        "resources": {
-                            "$map": {
-                                "input": { 
-                                    "$sortArray": {  
-                                        "input": "$resource_data", 
-                                        "sortBy": { "name": 1 }  
-                                    }
-                                },
-                                "as": "resource",
-                                "in": {
-                                    "name": "$$resource.name",  
-                                    "link": "$$resource.link"  
-                                }
+                {"$project": {
+                    "_id": 0,
+                    "name": 1,
+                    "resources": {
+                        "$map": {
+                            "input": "$resource_data",  # No sorting, just map over the resource_data array
+                            "as": "resource",
+                            "in": {
+                                "name": "$$resource.name",
+                                "link": "$$resource.link"
                             }
                         }
                     }
-                }
+                }}
             ]
             results = list(topics_collection.aggregate(pipeline))[0]
             return results
