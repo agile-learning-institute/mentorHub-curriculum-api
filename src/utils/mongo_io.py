@@ -227,39 +227,35 @@ class MongoIO:
 
         try:
             # Query Curriculum - Lookup resource name/link by resource_id
-            curriculum_object_id = ObjectId(curriculum_id)
+            paths_collection_name =  config.get_paths_collection_name()
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
+            curriculum_object_id = ObjectId(curriculum_id)
+
             pipeline = [
-                {
-                    "$match": {"_id": curriculum_object_id } 
-                },
-                {
-                    "$unwind": { 
-                        "path": "$resources",               
-                        "preserveNullAndEmptyArrays": True  
-                    }
-                },
-                {
-                    "$lookup": { 
-                        "from": "resources",          
-                        "localField": "resources.resource_id",
-                        "foreignField": "_id",              
-                        "as": "resource_info"               
-                    }
-                },
-                {
-                    "$addFields": { # Add 'name' and 'link' from resource_info
-                        "resources.name": {"$arrayElemAt": ["$resource_info.name", 0] }, 
-                        "resources.link": {"$arrayElemAt": ["$resource_info.link", 0] }  
-                    }
-                },
-                {
-                    "$group": { # Group back by curriculum ID
-                        "_id": "$_id",                      
-                        "resources": {"$push": "$resources"},
-                        "lastSaved": { "$first": "$lastSaved" }  # Preserve other fields like lastSaved
-                    }
-                }
+                {"$match": { "_id": curriculum_object_id }},
+                {"$lookup": {  
+                        "from": config.get_paths_collection_name(),  
+                        "localField": "later",  
+                        "foreignField": "_id",  
+                        "as": "later_paths"  
+                }},
+                {"$project": {  
+                        "_id": 1,  
+                        "completed": 1,
+                        "now": 1,
+                        "next": 1,
+                        "lastSaved":1,
+                        "later": {  
+                            "$map": { 
+                                "input": "$later_paths",
+                                "as": "path",
+                                "in": {
+                                    "path_id": "$$path._id",
+                                    "name": "$$path.name" 
+                                }
+                            }
+                        }
+                }}
             ]
 
             # Execute the pipeline and get the single curriculum returned.
@@ -268,8 +264,6 @@ class MongoIO:
                 return None
             else:
                 curriculum = results[0]
-                # Cleanup empty resources here instead of complicating the pipeline
-                if curriculum["resources"] == [{}]: curriculum["resources"] = []
                 return curriculum
         except Exception as e:
             logger.error(f"Failed to get curriculum: {e}")
@@ -282,7 +276,10 @@ class MongoIO:
         try:
             curriculum_data = {
                 "_id": ObjectId(curriculum_id),
-                "resources": [],
+                "completed":[],
+                "now":[],
+                "next":[],
+                "later":[],
                 "lastSaved": breadcrumb
             }
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())

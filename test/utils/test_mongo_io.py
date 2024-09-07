@@ -85,30 +85,28 @@ class TestMongoIO(unittest.TestCase):
 
     def test_get_curriculum(self): # TODO
         # Test Data - Matches test data from database
+        completed = [{"name":"JeanBartikandtheENIACWom","link":"https://somevalidlink08.com","started":datetime.fromisoformat("2024-07-01T13:00:00"),"completed":datetime.fromisoformat("2024-07-01T14:30:00"),"rating":4,"review":"This was a great intro"},{"name":"Markdown Tutorial","link":"https://www.markdowntutorial.com/lesson/1/","started":datetime.fromisoformat("2024-07-02T13:00:00"),"completed":datetime.fromisoformat("2024-07-03T19:36:00"),"rating":3,"review":"I had to read this twice before it made sense"}]
+        now = [{"name":"AWSStorageResource","link":"https://somevalidlink.35.com","started":datetime.fromisoformat("2024-07-15T13:00:00")},{"name":"Some Unique Resource","url":"https://some.com/resource"}]
+        next = [{"path":"The Odin Project","segments":[{"segment":"Intermediate HTML and CSS","topics":[{"topic":"Intermediate HTML","resources":[{"name":"Howdocomputersreadcode?V","link":"https://somevalidlink.22.com"},{"name":"A one-off resource","link":"https://some.com/resource"}]}]}]}]
+        later = [{"path_id":ObjectId("999900000000000000000000"),"name":"The Odin Project"},{"path_id":ObjectId("999900000000000000000001"),"name":"EngineerKit"},{"path_id":ObjectId("999900000000000000000003"),"name":"Cantrillo"}]
         breadcrumb = {"atTime": datetime.fromisoformat("2024-02-27T18:17:58"),"byUser": ObjectId("aaaa00000000000000000001"),"fromIp": "192.168.1.3", "correlationId": "ae078031-7de2-4519-bcbe-fbd5e72b69d3"}
-        resource1 = {"sequence":1,"roadmap":"Completed","path":"The Odin Project","segment":"Foundations","topic":"OdinIntro","type":"Resource","resource_id":ObjectId("cccc00000000000000000008"), "name": "JeanBartikandtheENIACWom", "link": "https://somevalidlink08.com", "started":datetime.fromisoformat("2024-07-01T13:00:00"),"completed":datetime.fromisoformat("2024-07-01T14:30:00"),"rating":4,"review":"This was a great intro"}
-        resource2 = {"sequence":2,"roadmap":"Completed","path":"The Odin Project","segment":"Foundations","topic":"OdinIntro","type":"Adhoc","resource_name":"Markdown Tutorial","resource_url":"https://www.markdowntutorial.com/lesson/1/","started":datetime.fromisoformat("2024-07-02T13:00:00"),"completed":datetime.fromisoformat("2024-07-03T19:36:00"),"rating":3,"review":"I had to read this twice before it made sense"}
-        resource7 = {"sequence":7,"roadmap":"Later","path":"EngineerKit","segment":"Craftsmanship","type":"Resource","resource_id":ObjectId("cccc00000000000000000010"), "name": "DigitalLogicSimTool", "link": "https://somevalidlink10.com"}
+        expected = {"_id":ObjectId("aaaa00000000000000000001"),"completed":completed,"now":now,"next":next,"later":later,"lastSaved":breadcrumb}
         
         mongo_io = MongoIO.get_instance()
         curriculum = mongo_io.get_curriculum("aaaa00000000000000000001")
-        self.assertEqual(curriculum.get("_id"), ObjectId("aaaa00000000000000000001"))
-        self.assertEqual(curriculum.get("lastSaved"), breadcrumb)
-        self.assertIsInstance(curriculum.get("resources"), list)
-        self.assertEqual(len(curriculum["resources"]), 7)
-        
-        self.assertEqual(curriculum.get("resources")[0], resource1)
-        self.assertEqual(curriculum.get("resources")[1], resource2)
-        self.assertEqual(curriculum.get("resources")[6], resource7)
+        print(f"Expected: {expected}, Found: {curriculum}")
+        self.assertEqual(curriculum, expected)
            
     def test_create_curriculum(self): # TODO
         mongo_io = MongoIO.get_instance()
         breadcrumb = {"atTime": datetime.fromisoformat("2024-01-01T12:34:56"), "byUser": ObjectId("aaaa00000000000000000001"),"fromIp": "127.0.0.1", "correlationId": "aaaa-aaaa-aaaa-aaaa"}
-        mongo_io.create_curriculum("aaaa00000000000000000012", breadcrumb)
+        empty_curriculum = {"_id":ObjectId("aaaa00000000000000000012"),"completed":[],"now":[],"next":[],"later":[],"lastSaved":breadcrumb}
 
-        expected = {"_id": ObjectId("aaaa00000000000000000012"), "resources": [], "lastSaved": breadcrumb}
+        str_id = mongo_io.create_curriculum("aaaa00000000000000000012", breadcrumb)
+        self.assertEqual(str_id, "aaaa00000000000000000012" )
+
         curriculum = mongo_io.get_curriculum("aaaa00000000000000000012")
-        self.assertEqual(curriculum, expected)
+        self.assertEqual(curriculum, empty_curriculum)
         
     def test_update_curriculum(self): #TODO Update
         mongo_io = MongoIO.get_instance()
