@@ -41,10 +41,10 @@ class TestCurriculumRoutes(unittest.TestCase):
         data = response.get_json()
         self.assertEqual(data, self.sample_curriculum)
 
-    @patch('src.routes.curriculum_routes.CurriculumService.get_or_create_curriculum')
+    @patch('src.routes.curriculum_routes.CurriculumService.delete_curriculum')
     def test_delete_curriculum_success(self, mock_update):
         # Mock the CurriculumService's delete_curriculum method
-        mock_update.return_value = {"result": "Success"}
+        mock_update.delete_curriculum.return_value = {"result": "Success"}
 
         response = self.client.delete('/api/curriculum/AAAA00000000000000000001')
         self.assertEqual(response.status_code, 200)

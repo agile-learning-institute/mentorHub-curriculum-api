@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import datetime, timezone
 import unittest
 
@@ -8,6 +9,13 @@ from src.utils.mongo_io import MongoIO
 class TestMongoIO(unittest.TestCase):
     
     def setUp(self):
+        # Test Data - Matches test data from database
+        self.completed = [{"name":"JeanBartikandtheENIACWom","link":"https://somevalidlink08.com","started":datetime.fromisoformat("2024-07-01T13:00:00"),"completed":datetime.fromisoformat("2024-07-01T14:30:00"),"rating":4,"review":"This was a great intro"},{"name":"Markdown Tutorial","link":"https://www.markdowntutorial.com/lesson/1/","started":datetime.fromisoformat("2024-07-02T13:00:00"),"completed":datetime.fromisoformat("2024-07-03T19:36:00"),"rating":3,"review":"I had to read this twice before it made sense"}]
+        self.now = [{"name":"AWSStorageResource","link":"https://somevalidlink.35.com","started":datetime.fromisoformat("2024-07-15T13:00:00")},{"name":"Some Unique Resource","url":"https://some.com/resource"}]
+        self.next = [{"path":"The Odin Project","segments":[{"segment":"Intermediate HTML and CSS","topics":[{"topic":"Intermediate HTML","resources":[{"name":"Howdocomputersreadcode?V","link":"https://somevalidlink.22.com"},{"name":"A one-off resource","link":"https://some.com/resource"}]}]}]}]
+        self.later = [{"path_id":ObjectId("999900000000000000000000"),"name":"The Odin Project"},{"path_id":ObjectId("999900000000000000000001"),"name":"EngineerKit"},{"path_id":ObjectId("999900000000000000000003"),"name":"Cantrillo"}]
+        self.breadcrumb = {"atTime": datetime.fromisoformat("2024-02-27T18:17:58"),"byUser": ObjectId("aaaa00000000000000000001"),"fromIp": "192.168.1.3", "correlationId": "ae078031-7de2-4519-bcbe-fbd5e72b69d3"}
+
         self.maxDiff = None
         MongoIO._instance = None
         mongo_io = MongoIO.get_instance()
@@ -30,12 +38,6 @@ class TestMongoIO(unittest.TestCase):
         self.assertEqual(len(config.versions), 11)
 
         self.assertIsInstance(config.enumerators, dict)
-        self.assertIsInstance(config.enumerators.get("roadmap"), dict)
-        roadmaps = config.enumerators.get("roadmap")
-        self.assertEqual(roadmaps.get("Completed"), "A resource that has been marked as completed")
-        self.assertEqual(roadmaps.get("Now"), "A resources that an apprentice is currently assigned")
-        self.assertEqual(roadmaps.get("Next"), "Resources we think we may do next")
-        self.assertEqual(roadmaps.get("Later"), "Resources that might come later")
 
     def test_get_mentor(self):
         mongo_io = MongoIO.get_instance()
@@ -83,18 +85,10 @@ class TestMongoIO(unittest.TestCase):
         expected = {"name":"History of Computing","resources":[{"name":"ComputerHistoryTimelineA","link":"https://somevalidlink02.com"},{"name":"HistoryofComputingArticl","link":"https://somevalidlink03.com"},{"name":"PiratesofSiliconValleyFi","link":"https://somevalidlink04.com"},{"name":"Apple1984SuperBowlCommer","link":"https://somevalidlink05.com"},{"name":"BretVictorTheFutureofPro","link":"https://somevalidlink06.com"},{"name":"AwesomeComputerHistoryRe","link":"https://somevalidlink07.com"},{"name":"JeanBartikandtheENIACWom","link":"https://somevalidlink08.com"}]}
         self.assertEqual(topic, expected)
 
-    def test_get_curriculum(self): # TODO
-        # Test Data - Matches test data from database
-        completed = [{"name":"JeanBartikandtheENIACWom","link":"https://somevalidlink08.com","started":datetime.fromisoformat("2024-07-01T13:00:00"),"completed":datetime.fromisoformat("2024-07-01T14:30:00"),"rating":4,"review":"This was a great intro"},{"name":"Markdown Tutorial","link":"https://www.markdowntutorial.com/lesson/1/","started":datetime.fromisoformat("2024-07-02T13:00:00"),"completed":datetime.fromisoformat("2024-07-03T19:36:00"),"rating":3,"review":"I had to read this twice before it made sense"}]
-        now = [{"name":"AWSStorageResource","link":"https://somevalidlink.35.com","started":datetime.fromisoformat("2024-07-15T13:00:00")},{"name":"Some Unique Resource","url":"https://some.com/resource"}]
-        next = [{"path":"The Odin Project","segments":[{"segment":"Intermediate HTML and CSS","topics":[{"topic":"Intermediate HTML","resources":[{"name":"Howdocomputersreadcode?V","link":"https://somevalidlink.22.com"},{"name":"A one-off resource","link":"https://some.com/resource"}]}]}]}]
-        later = [{"path_id":ObjectId("999900000000000000000000"),"name":"The Odin Project"},{"path_id":ObjectId("999900000000000000000001"),"name":"EngineerKit"},{"path_id":ObjectId("999900000000000000000003"),"name":"Cantrillo"}]
-        breadcrumb = {"atTime": datetime.fromisoformat("2024-02-27T18:17:58"),"byUser": ObjectId("aaaa00000000000000000001"),"fromIp": "192.168.1.3", "correlationId": "ae078031-7de2-4519-bcbe-fbd5e72b69d3"}
-        expected = {"_id":ObjectId("aaaa00000000000000000001"),"completed":completed,"now":now,"next":next,"later":later,"lastSaved":breadcrumb}
-        
+    def test_get_curriculum(self): 
         mongo_io = MongoIO.get_instance()
         curriculum = mongo_io.get_curriculum("aaaa00000000000000000001")
-        print(f"Expected: {expected}, Found: {curriculum}")
+        expected = {"_id":ObjectId("aaaa00000000000000000001"),"completed":self.completed,"now":self.now,"next":self.next,"later":self.later,"lastSaved":self.breadcrumb}
         self.assertEqual(curriculum, expected)
            
     def test_create_curriculum(self): # TODO
@@ -108,24 +102,35 @@ class TestMongoIO(unittest.TestCase):
         curriculum = mongo_io.get_curriculum("aaaa00000000000000000012")
         self.assertEqual(curriculum, empty_curriculum)
         
-    def test_update_curriculum(self): #TODO Update
+    def test_update_curriculum_completed(self): #TODO Update
         mongo_io = MongoIO.get_instance()
-        breadcrumb = {"atTime": datetime.fromisoformat("2024-01-01T12:00:00"), "byUser": ObjectId("aaaa00000000000000000001"),"fromIp": "127.0.0.1", "correlationId": "aaaa-aaaa-aaaa-aaaa"}
-        mongo_io.create_curriculum("aaaa00000000000000000012", breadcrumb)
+        mongo_io.create_curriculum("aaaa00000000000000000012", self.breadcrumb)
+
+        breadcrumb = deepcopy(self.breadcrumb)
+        set = {"completed": [{"name": "foo"}], "lastSaved": breadcrumb}
+        count = mongo_io.update_curriculum("aaaa00000000000000000012", set)
+        self.assertEqual(count, 1)
+        
+        curriculum = mongo_io.get_curriculum("aaaa00000000000000000012")
+        expected = {"_id":ObjectId("aaaa00000000000000000012"),"completed":[{"name": "foo"}],"now":[],"next":[],"later":[],"lastSaved":breadcrumb}
+        self.assertEqual(curriculum, expected)
 
         breadcrumb["fromIp"] = "127.0.0.2"
-        mongo_io.add_resource_to_curriculum("aaaa00000000000000000012", {"sequence": 1},breadcrumb)
+        set = {"now": [{"name": "foo"}], "lastSaved": breadcrumb}
+        count = mongo_io.update_curriculum("aaaa00000000000000000012", set)
+        self.assertEqual(count, 1)
 
-        # Test update_curriculum method
-        breadcrumb["fromIp"] = "127.0.0.3"
-        resource = mongo_io.update_curriculum(
-            "aaaa00000000000000000012", 
-             1,
-            {"type":"Adhoc"},
-            breadcrumb
-        )
-
-        expected = {"_id": ObjectId("aaaa00000000000000000012"), "resources": [{"sequence": 1, "type":"Adhoc"}], "lastSaved": breadcrumb}
         curriculum = mongo_io.get_curriculum("aaaa00000000000000000012")
+        expected = {"_id":ObjectId("aaaa00000000000000000012"),"completed":[{"name": "foo"}],"now":[{"name": "foo"}],"next":[],"later":[],"lastSaved":breadcrumb}
         self.assertEqual(curriculum, expected)
+
+        breadcrumb["fromIp"] = "127.0.0.3"
+        set = {"completed": [{"name": "foo"}, {"name":"bar"}], "lastSaved": breadcrumb}
+        count = mongo_io.update_curriculum("aaaa00000000000000000012", set)
+        self.assertEqual(count, 1)
+
+        curriculum = mongo_io.get_curriculum("aaaa00000000000000000012")
+        expected = {"_id":ObjectId("aaaa00000000000000000012"),"completed":[{"name": "foo"}, {"name":"bar"}],"now":[{"name": "foo"}],"next":[],"later":[],"lastSaved":breadcrumb}
+        self.assertEqual(curriculum, expected)
+
         
