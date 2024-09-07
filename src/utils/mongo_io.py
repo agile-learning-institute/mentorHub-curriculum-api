@@ -131,8 +131,70 @@ class MongoIO:
             raise
     
     def get_path(self, path_id):
-        # TODO: Get Path, with Topics, with Resources
-        return {}
+        """Get a paths with topoic and resource data"""
+        if not self.connected:
+            return None
+        
+        try:
+            paths_collection = self.db.get_collection(config.get_paths_collection_name())
+            topics_collection_name = config.get_topics_collection_name()
+            resources_collection_name = config.get_resources_collection_name()
+            path_object_id = ObjectId(path_id)
+            pipeline =  pipeline = [
+                {"$match": { "_id": path_object_id }},
+                {"$unwind": "$segments"  },
+                {"$unwind": "$segments.topics"},
+                {"$lookup": {
+                    "from": topics_collection_name,
+                    "localField": "segments.topics.topic_id", 
+                    "foreignField": "_id", 
+                    "as": "topic_data"
+                }},
+                {"$unwind": "$topic_data"},
+                {"$unwind": "$topic_data.resources"},
+                {"$lookup": {
+                    "from": resources_collection_name,
+                    "localField": "topic_data.resources",  
+                    "foreignField": "_id",
+                    "as": "resource_data"
+                }},
+                {"$unwind": "$resource_data"  },
+                {"$project": {  
+                    "name": 1, 
+                    "segments.name": 1,
+                    "segments.topics.name": "$topic_data.name",
+                    "segments.topics.resources": {  
+                        "name": "$resource_data.name",
+                        "link": "$resource_data.link"
+                    }
+                }},
+                {"$group": {  
+                    "_id": "$_id",
+                    "name": { "$first": "$name" },
+                    "segments": {
+                        "$push": {
+                            "name": "$segments.name",
+                            "topics": {
+                                "$push": {
+                                    "name": "$segments.topics.name",
+                                    "resources": { 
+                                        "$push": {
+                                            "name": "$segments.topics.resources.name",
+                                            "link": "$segments.topics.resources.link"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }}
+            ]
+
+            results = list(paths_collection.aggregate(pipeline))
+            return results
+        except Exception as e:
+            logger.error(f"Failed to get paths: {e}")
+            raise
     
     def get_topics(self, query):
         """Get a list of topics"""
@@ -167,34 +229,32 @@ class MongoIO:
             topic_object_id = ObjectId(topic_id)
             pipeline = [
                 {
-                    "$match": {
-                        "_id": topic_object_id  # Match the topic by its _id
-                    }
+                    "$match": {"_id": topic_object_id}
                 },
                 {
                     "$lookup": {
-                        "from": resources_collection_name,  # Lookup the resources from the resource collection
-                        "localField": "resources",  # The array of resource _id's in the topic
-                        "foreignField": "_id",  # The _id field in the resource collection
-                        "as": "resource_data"  # Store the joined data in the resource_data field
+                        "from": resources_collection_name,
+                        "localField": "resources", 
+                        "foreignField": "_id",  
+                        "as": "resource_data"  
                     }
                 },
                 {
                     "$project": {
-                        "_id": 1,  # Include the topic _id
-                        "name": 1,  # Include the topic name
-                        "resources": {  # Replace the resources field with sorted resource data
+                        "_id": 0,
+                        "name": 1,
+                        "resources": {
                             "$map": {
                                 "input": { 
-                                    "$sortArray": {  # Sort the resource_data array by the name field
+                                    "$sortArray": {  
                                         "input": "$resource_data", 
-                                        "sortBy": { "name": 1 }  # Sort by name in ascending order
+                                        "sortBy": { "name": 1 }  
                                     }
                                 },
                                 "as": "resource",
                                 "in": {
-                                    "name": "$$resource.name",  # Only include name
-                                    "link": "$$resource.link"  # Only include link
+                                    "name": "$$resource.name",  
+                                    "link": "$$resource.link"  
                                 }
                             }
                         }
