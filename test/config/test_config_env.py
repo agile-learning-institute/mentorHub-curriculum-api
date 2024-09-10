@@ -10,7 +10,7 @@ class TestConfigEnvironment(unittest.TestCase):
         cls.config_items = [
             "BUILT_AT", "CONFIG_FOLDER", "DB_NAME", "CURRICULUM_COLLECTION", 
             "PEOPLE_COLLECTION", "TOPICS_COLLECTION", "PATHS_COLLECTION", 
-            "RESOURCES_COLLECTION", "VERSION_COLLECTION", "ENUMERATORS_COLLECTION",
+            "VERSION_COLLECTION", "ENUMERATORS_COLLECTION",
             "TOPIC_HOST"
         ]
         
@@ -37,7 +37,6 @@ class TestConfigEnvironment(unittest.TestCase):
         self.assertEqual(config.get_db_name(), "ENV_VALUE")
         self.assertEqual(config.get_curriculum_collection_name(), "ENV_VALUE")
         self.assertEqual(config.get_topics_collection_name(), "ENV_VALUE")
-        self.assertEqual(config.get_resources_collection_name(), "ENV_VALUE")
         self.assertEqual(config.get_paths_collection_name(), "ENV_VALUE")
         self.assertEqual(config.get_version_collection_name(), "ENV_VALUE")
         self.assertEqual(config.get_enumerators_collection_name(), "ENV_VALUE")
@@ -48,7 +47,6 @@ class TestConfigEnvironment(unittest.TestCase):
         self._test_config_environment_value("DB_NAME")
         self._test_config_environment_value("CURRICULUM_COLLECTION")
         self._test_config_environment_value("TOPICS_COLLECTION")
-        self._test_config_environment_value("RESOURCES_COLLECTION")
         self._test_config_environment_value("PATHS_COLLECTION")
         self._test_config_environment_value("VERSION_COLLECTION")
         self._test_config_environment_value("ENUMERATORS_COLLECTION")

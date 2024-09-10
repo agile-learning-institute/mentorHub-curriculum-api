@@ -27,7 +27,6 @@ class Config:
             self._db_name = ""
             self._curriculum_collection_name = ""
             self._topics_collection_name = ""
-            self._resources_collection_name = ""
             self._people_collection_name = ""
             self._paths_collection_name = ""
             self._version_collection_name = ""
@@ -42,7 +41,7 @@ class Config:
         self.config_items = []
         self.versions = []
         self.enumerators = {}
-        self.api_version = "2.0." + self._get_config_value("BUILT_AT", "LOCAL", False)
+        self.api_version = "2.1." + self._get_config_value("BUILT_AT", "LOCAL", False)
         self._config_folder = self._get_config_value("CONFIG_FOLDER", "/opt/mentorhub-partner-api", False)
         self._port = int(self._get_config_value("PORT", "8088", False))
         self._connection_string = self._get_config_value("CONNECTION_STRING", "mongodb://root:example@localhost:27017", True)
@@ -50,7 +49,6 @@ class Config:
         self._curriculum_collection_name = self._get_config_value("CURRICULUM_COLLECTION", "curriculum", False)
         self._people_collection_name = self._get_config_value("PEOPLE_COLLECTION", "people", False)
         self._topics_collection_name = self._get_config_value("TOPICS_COLLECTION", "topics", False)
-        self._resources_collection_name = self._get_config_value("RESOURCES_COLLECTION", "resources", False)
         self._paths_collection_name = self._get_config_value("PATHS_COLLECTION", "paths", False)
         self._version_collection_name = self._get_config_value("VERSION_COLLECTION", "msmCurrentVersions", False)
         self._enumerators_collection_name = self._get_config_value("ENUMERATORS_COLLECTION", "enumerators", False)
@@ -93,9 +91,6 @@ class Config:
 
     def get_topics_collection_name(self):
         return self._topics_collection_name
-
-    def get_resources_collection_name(self):
-        return self._resources_collection_name
 
     def get_paths_collection_name(self):
         return self._paths_collection_name
