@@ -6,7 +6,7 @@ This is a simple Flask API that provides Get/Post/Patch services for docuements 
 
 The OpenAPI specifications for the api can be found in the ``docs`` folder, and are served [here](https://agile-learning-institute.github.io/mentorHub-curriculum-api/)
 
-## Prerequisits
+## Prerequisites
 
 - [Mentorhub Developer Edition](https://github.com/agile-learning-institute/mentorHub/blob/main/mentorHub-developer-edition/README.md)
 - [Python](https://www.python.org/downloads/)
@@ -68,8 +68,8 @@ pipenv run load
 - ``/src/config/config.py`` is the singleton config object that manages configuration values and acts as a cache for enumerators and other low volatility data values.
 - ``/src/models`` contains helpers related to creating transactional data objects such as breadcrumbs or RBAC tokens
 - ``/src/routes`` contains Flask http request/response handlers
-- ``/src/services`` service interface that wraps databse calls with RBAC, encode/decode, and other business logic
-- ``/src/utils/mongo_io.py`` is a singleton that manages the mongodb connection, and provides databse io functions to the service layer. 
+- ``/src/services`` service interface that wraps database calls with RBAC, encode/decode, and other business logic
+- ``/src/utils/mongo_io.py`` is a singleton that manages the mongodb connection, and provides database io functions to the service layer. 
 - ``/test`` this folder contains unit testing, and testing artifacts. The sub-folder structure mimics the ``/src`` folder
 
 # API Testing with CURL
@@ -78,7 +78,7 @@ If you want to do more manual testing, here are the curl commands to use
 
 ### Test Health Endpoint
 
-This endpoint supports the promethius monitoring standards for a healthcheck endpoint
+This endpoint supports the Promethius monitoring standards for a healthcheck endpoint
 
 ```bash
 curl http://localhost:8088/api/health/

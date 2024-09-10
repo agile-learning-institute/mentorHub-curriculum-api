@@ -19,11 +19,13 @@ class TestConfigFiles(unittest.TestCase):
         self.assertEqual(config.get_port(), 9999)
         self.assertEqual(config.get_db_name(), "TEST_VALUE")
         self.assertEqual(config.get_curriculum_collection_name(), "TEST_VALUE")
+        self.assertEqual(config.get_people_collection_name(), "TEST_VALUE")
         self.assertEqual(config.get_topics_collection_name(), "TEST_VALUE")
         self.assertEqual(config.get_resources_collection_name(), "TEST_VALUE")
         self.assertEqual(config.get_paths_collection_name(), "TEST_VALUE")
         self.assertEqual(config.get_version_collection_name(), "TEST_VALUE")
         self.assertEqual(config.get_enumerators_collection_name(), "TEST_VALUE")
+        self.assertEqual(config.get_topics_host(), "TEST_VALUE")
 
     def test_file_config_items(self):
         self._test_config_file_value("DB_NAME")
@@ -33,6 +35,7 @@ class TestConfigFiles(unittest.TestCase):
         self._test_config_file_value("PATHS_COLLECTION")
         self._test_config_file_value("VERSION_COLLECTION")
         self._test_config_file_value("ENUMERATORS_COLLECTION")
+        self._test_config_file_value("TOPIC_HOST")
 
     def _test_config_file_value(self, config_name):
         """Helper function to check file values."""

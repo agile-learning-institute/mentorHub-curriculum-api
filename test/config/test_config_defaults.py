@@ -12,16 +12,18 @@ class TestConfigDefaults(unittest.TestCase):
         self.assertEqual(config.get_port(), 8088)
         self.assertEqual(config.get_db_name(), "mentorHub")
         self.assertEqual(config.get_curriculum_collection_name(), "curriculum")
+        self.assertEqual(config.get_people_collection_name(), "people")
         self.assertEqual(config.get_topics_collection_name(), "topics")
         self.assertEqual(config.get_resources_collection_name(), "resources")
         self.assertEqual(config.get_paths_collection_name(), "paths")
         self.assertEqual(config.get_version_collection_name(), "msmCurrentVersions")
         self.assertEqual(config.get_enumerators_collection_name(), "enumerators")
+        self.assertEqual(config.get_topics_host(), "localhost:8087")
 
     def test_to_dict(self):
         """Test the to_dict method of the Config class."""
         expected_dict = {
-            "api_version": "1.0.LOCAL",
+            "api_version": "2.0.LOCAL",
             "versions": [],
             "enumerators": {},
         }
@@ -41,11 +43,13 @@ class TestConfigDefaults(unittest.TestCase):
         self._test_config_default_value("CONFIG_FOLDER", "/opt/mentorhub-partner-api")
         self._test_config_default_value("DB_NAME", "mentorHub")
         self._test_config_default_value("CURRICULUM_COLLECTION", "curriculum")
+        self._test_config_default_value("PEOPLE_COLLECTION", "people")
         self._test_config_default_value("TOPICS_COLLECTION", "topics")
         self._test_config_default_value("RESOURCES_COLLECTION", "resources")
         self._test_config_default_value("PATHS_COLLECTION", "paths")
         self._test_config_default_value("VERSION_COLLECTION", "msmCurrentVersions")
         self._test_config_default_value("ENUMERATORS_COLLECTION", "enumerators")
+        self._test_config_default_value("TOPIC_HOST", "localhost:8087")
 
     def _test_config_default_value(self, config_name, expected_value):
         """Helper function to check default values."""

@@ -92,21 +92,134 @@ class MongoIO:
             sys.exit(1)
 
     def get_mentor(self, person_id):
+        """Get a person's mentor ID as a string"""
         if not self.connected:
             return None
         
         try:
-            people = self.db.get_collection(config.get_person_collection())
-            pipeline = [
-                # match _id = ObjectId(person_id)
-                # project str of mentor_id or ""
-            ]
-            mentor_id = list(people.aggregate(pipeline))[0]            
-            return mentor_id
+            people = self.db.get_collection(config.get_people_collection_name())
+            person_object_id = ObjectId(person_id)
+            person = people.find_one({ "_id": person_object_id })
+
+            # Return the mentor_id or an empty string if not found
+            mentor_id = person.get("mentorId", "") if person else ""
+            return str(mentor_id)
         except Exception as e:
             logger.error(f"Failed to get person-mentor_id: {e}")
             raise
+    
+    def get_paths(self, query):
+        """Get a list of paths"""
+        if not self.connected:
+            return None
+        
+        try:
+            paths_collection = self.db.get_collection(config.get_paths_collection_name())
+            pipeline = [
+                {"$match": { "name": { "$regex": query, "$options": "i" }}},
+                {"$project": {
+                        "_id": { "$toString": "$_id" },
+                        "name": 1  
+                    }
+                },
+                {"$sort": { "name": 1}}
+            ]
+            results = list(paths_collection.aggregate(pipeline))
+            return results
+        except Exception as e:
+            logger.error(f"Failed to get paths: {e}")
+            raise
+    
+    def get_path(self, path_id):
+        """Get a paths with topoic and resource data"""
+        if not self.connected:
+            return None
+        
+        try:
+            # Get the path document
+            paths_collection = self.db.get_collection(config.get_paths_collection_name())
+            path_object_id = ObjectId(path_id)
+            path = paths_collection.find_one({"_id": path_object_id})
+            if not path: return {}
 
+            # Could not get a 3-layer lookup to work, so doing it in 2 steps
+            for segment in path.get("segments", []):
+                for i, topic_id in enumerate(segment.get("topics", [])):
+                    topic_data = self.get_topic(str(topic_id))  
+                    segment["topics"][i] = topic_data  
+
+            # Housekeep un-wanted properties
+            del path["_id"]
+            del path["status"]
+            return path
+        except Exception as e:
+            logger.error(f"Failed to get path: {e}")
+            raise
+    
+    def get_topics(self, query):
+        """Get a list of topics"""
+        if not self.connected:
+            return None
+        
+        try:
+            topics_collection = self.db.get_collection(config.get_topics_collection_name())
+            pipeline = [
+                {"$match": { "name": { "$regex": query, "$options": "i" }}},
+                {"$project": {
+                        "_id": { "$toString": "$_id" },
+                        "name": 1  
+                    }
+                },
+                {"$sort": { "name": 1}}
+            ]
+            results = list(topics_collection.aggregate(pipeline))
+            return results
+        except Exception as e:
+            logger.error(f"Failed to get paths: {e}")
+            raise
+    
+    def get_topic(self, topic_id):
+        """Get a list of topics"""
+        if not self.connected:
+            return None
+        
+        try:
+            topics_collection = self.db.get_collection(config.get_topics_collection_name())
+            resources_collection_name = config.get_resources_collection_name()
+            topic_object_id = ObjectId(topic_id)
+            pipeline = [
+                {
+                    "$match": {"_id": topic_object_id}
+                },
+                {
+                    "$lookup": {
+                        "from": resources_collection_name,
+                        "localField": "resources", 
+                        "foreignField": "_id",  
+                        "as": "resource_data"  
+                    }
+                },
+                {"$project": {
+                    "_id": 0,
+                    "name": 1,
+                    "resources": {
+                        "$map": {
+                            "input": "$resource_data",  # No sorting, just map over the resource_data array
+                            "as": "resource",
+                            "in": {
+                                "name": "$$resource.name",
+                                "link": "$$resource.link"
+                            }
+                        }
+                    }
+                }}
+            ]
+            results = list(topics_collection.aggregate(pipeline))[0]
+            return results
+        except Exception as e:
+            logger.error(f"Failed to get paths: {e}")
+            raise
+    
     def get_curriculum(self, curriculum_id):
         """Retrieve a curriculum by ID."""
         if not self.connected:
@@ -114,39 +227,35 @@ class MongoIO:
 
         try:
             # Query Curriculum - Lookup resource name/link by resource_id
-            curriculum_object_id = ObjectId(curriculum_id)
+            paths_collection_name =  config.get_paths_collection_name()
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
+            curriculum_object_id = ObjectId(curriculum_id)
+
             pipeline = [
-                {
-                    "$match": {"_id": curriculum_object_id } 
-                },
-                {
-                    "$unwind": { 
-                        "path": "$resources",               
-                        "preserveNullAndEmptyArrays": True  
-                    }
-                },
-                {
-                    "$lookup": { 
-                        "from": "resources",          
-                        "localField": "resources.resource_id",
-                        "foreignField": "_id",              
-                        "as": "resource_info"               
-                    }
-                },
-                {
-                    "$addFields": { # Add 'name' and 'link' from resource_info
-                        "resources.name": {"$arrayElemAt": ["$resource_info.name", 0] }, 
-                        "resources.link": {"$arrayElemAt": ["$resource_info.link", 0] }  
-                    }
-                },
-                {
-                    "$group": { # Group back by curriculum ID
-                        "_id": "$_id",                      
-                        "resources": {"$push": "$resources"},
-                        "lastSaved": { "$first": "$lastSaved" }  # Preserve other fields like lastSaved
-                    }
-                }
+                {"$match": { "_id": curriculum_object_id }},
+                {"$lookup": {  
+                        "from": config.get_paths_collection_name(),  
+                        "localField": "later",  
+                        "foreignField": "_id",  
+                        "as": "later_paths"  
+                }},
+                {"$project": {  
+                        "_id": 1,  
+                        "completed": 1,
+                        "now": 1,
+                        "next": 1,
+                        "lastSaved":1,
+                        "later": {  
+                            "$map": { 
+                                "input": "$later_paths",
+                                "as": "path",
+                                "in": {
+                                    "path_id": "$$path._id",
+                                    "name": "$$path.name" 
+                                }
+                            }
+                        }
+                }}
             ]
 
             # Execute the pipeline and get the single curriculum returned.
@@ -155,8 +264,6 @@ class MongoIO:
                 return None
             else:
                 curriculum = results[0]
-                # Cleanup empty resources here instead of complicating the pipeline
-                if curriculum["resources"] == [{}]: curriculum["resources"] = []
                 return curriculum
         except Exception as e:
             logger.error(f"Failed to get curriculum: {e}")
@@ -169,7 +276,10 @@ class MongoIO:
         try:
             curriculum_data = {
                 "_id": ObjectId(curriculum_id),
-                "resources": [],
+                "completed":[],
+                "now":[],
+                "next":[],
+                "later":[],
                 "lastSaved": breadcrumb
             }
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
@@ -179,70 +289,22 @@ class MongoIO:
             logger.error(f"Failed to create curriculum: {e}")
             raise
 
-    def add_resource_to_curriculum(self, curriculum_id, resource_data, breadcrumb):
-        """Add a new resource to the curriculum."""
-        if not self.connected: return None
-
-        try:
-            curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
-            curriculum_objecct_id = ObjectId(curriculum_id)
-            match = {
-                "_id": curriculum_objecct_id
-            }
-            pipeline = {
-                "$push": {"resources": resource_data},
-                "$set": {"lastSaved": breadcrumb}
-            }
-
-            result = curriculum_collection.update_one(match, pipeline)
-            return result.modified_count
-        except Exception as e:
-            logger.error(f"Failed to add resource to curriculum: {e}")
-            raise
-
-    def update_curriculum(self, curriculum_id, seq, resource_data, breadcrumb):
-        """Update a specific resource in the curriculum."""
+    def update_curriculum(self, curriculum_id, data):
+        """Update a curriculum."""
         if not self.connected: return None
 
         try:
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
             curriculum_object_id = ObjectId(curriculum_id)
- 
-            update_fields = {f"resources.$.{key}": value for key, value in resource_data.items()}
-            update_fields["lastSaved"] = breadcrumb  
-            match = {
-                "_id": curriculum_object_id,  
-                "resources.sequence": seq
-            }
-            pipeline = {
-                "$set": update_fields
-            }            
+            
+            match = {"_id": curriculum_object_id}
+            pipeline = {"$set": data}            
             result = curriculum_collection.update_one(match, pipeline)
         except Exception as e:
             logger.error(f"Failed to update resource in curriculum: {e}")
             raise
-        
+
         return result.modified_count
-
-    def delete_resource_from_curriculum(self, curriculum_id, seq, breadcrumb):
-        """Delete a specific resource from the curriculum."""
-        if not self.connected: return None
-
-        try:
-            curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
-            curriculum_object_id = ObjectId(curriculum_id)
-            match = {
-                "_id": curriculum_object_id
-            }
-            pipeline = {
-                "$pull": {"resources": {"sequence": seq}},  # Pull the resource with matching sequence
-                "$set": {"lastSaved": breadcrumb}  # Optionally update the lastSaved field
-            }
-            result = curriculum_collection.update_one(match, pipeline)
-            return result.modified_count
-        except Exception as e:
-            logger.error(f"Failed to delete resource from curriculum: {e}")
-            raise
 
     def delete_curriculum(self, curriculum_id):
         """Delete a specific curriculum."""
@@ -251,7 +313,6 @@ class MongoIO:
         try:
             curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
             curriculum_collection.delete_one({"_id": ObjectId(curriculum_id)})
-            logger.info(f"Curriculum {curriculum_id} deleted")
         except Exception as e:
             logger.error(f"Failed to delete curriculum: {e}")
 

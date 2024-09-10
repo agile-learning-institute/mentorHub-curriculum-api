@@ -1,5 +1,9 @@
 # Initilize Logging
 import logging
+
+from src.routes.path_routes import create_path_routes
+from src.routes.topic_routes import create_topic_routes
+from src.utils.ejson_encoder import MongoJSONEncoder
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -14,6 +18,7 @@ from src.routes.config_routes import create_config_routes
 
 # Initilize Flask App
 app = Flask(__name__)
+app.json = MongoJSONEncoder(app)
 
 # Initialize Database Connection, and load one-time data
 mongo = MongoIO()
@@ -26,9 +31,13 @@ metrics.info('app_info', 'Application info', version=config.api_version)
 # Initialize Route Handlers
 config_handler = create_config_routes()
 curriculum_handler = create_curriculum_routes()
+path_handler = create_path_routes()
+topic_handler = create_topic_routes()
 
 # Register routes
 app.register_blueprint(curriculum_handler, url_prefix='/api/curriculum')
+app.register_blueprint(path_handler, url_prefix='/api/path')
+app.register_blueprint(topic_handler, url_prefix='/api/topic')
 app.register_blueprint(config_handler, url_prefix='/api/config')
 
 # Define a signal handler for SIGTERM and SIGINT
