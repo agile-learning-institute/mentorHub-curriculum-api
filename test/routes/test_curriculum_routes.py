@@ -35,14 +35,14 @@ class TestCurriculumRoutes(unittest.TestCase):
     @patch('src.routes.curriculum_routes.CurriculumService.update_curriculum')
     def test_update_curriculum_success(self, mock_update):
         # Mock the CurriculumService's update_curriculum method
-        mock_update.return_value = self.sample_curriculum
+        mock_update.return_value = self.sample_curriculum_encoded
 
         response = self.client.patch('/api/curriculum/AAAA00000000000000000001', json={"resource": "Updated Resource"})
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.is_json)
 
         data = response.get_json()
-        self.assertEqual(data, self.sample_curriculum)
+        self.assertEqual(data, self.sample_curriculum_decoded)
 
     @patch('src.routes.curriculum_routes.CurriculumService.delete_curriculum')
     def test_delete_curriculum_success(self, mock_update):
@@ -58,38 +58,38 @@ class TestCurriculumRoutes(unittest.TestCase):
     @patch('src.routes.curriculum_routes.CurriculumService.assign_resource')
     def test_assign_resource_success(self, mock_update):
         # Mock the CurriculumService's update_curriculum method
-        mock_update.return_value = self.sample_curriculum
+        mock_update.return_value = self.sample_curriculum_encoded
 
         response = self.client.patch('/api/curriculum/AAAA00000000000000000001/assign/link')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.is_json)
 
         data = response.get_json()
-        self.assertEqual(data, self.sample_curriculum)
+        self.assertEqual(data, self.sample_curriculum_decoded)
 
     @patch('src.routes.curriculum_routes.CurriculumService.complete_resource')
     def test_complete_resource_success(self, mock_update):
         # Mock the CurriculumService's update_curriculum method
-        mock_update.return_value = self.sample_curriculum
+        mock_update.return_value = self.sample_curriculum_encoded
 
         response = self.client.patch('/api/curriculum/AAAA00000000000000000001/complete/link')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.is_json)
 
         data = response.get_json()
-        self.assertEqual(data, self.sample_curriculum)
+        self.assertEqual(data, self.sample_curriculum_decoded)
 
     @patch('src.routes.curriculum_routes.CurriculumService.add_path')
     def test_add_path_success(self, mock_update):
         # Mock the CurriculumService's update_curriculum method
-        mock_update.return_value = self.sample_curriculum
+        mock_update.return_value = self.sample_curriculum_encoded
 
         response = self.client.post('/api/curriculum/AAAA00000000000000000001/path/cccc00000000000000000001')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.is_json)
 
         data = response.get_json()
-        self.assertEqual(data, self.sample_curriculum)
+        self.assertEqual(data, self.sample_curriculum_decoded)
 
 if __name__ == '__main__':
     unittest.main()

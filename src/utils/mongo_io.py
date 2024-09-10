@@ -185,37 +185,34 @@ class MongoIO:
         
         try:
             topics_collection = self.db.get_collection(config.get_topics_collection_name())
-            resources_collection_name = config.get_resources_collection_name()
             topic_object_id = ObjectId(topic_id)
             pipeline = [
                 {
                     "$match": {"_id": topic_object_id}
                 },
                 {
-                    "$lookup": {
-                        "from": resources_collection_name,
-                        "localField": "resources", 
-                        "foreignField": "_id",  
-                        "as": "resource_data"  
+                    "$project": {
+                        "_id": 0,
+                        "name": 1,
+                        "resources": 1,
+                        "skills": 1
                     }
-                },
-                {"$project": {
-                    "_id": 0,
-                    "name": 1,
-                    "resources": {
-                        "$map": {
-                            "input": "$resource_data",  # No sorting, just map over the resource_data array
-                            "as": "resource",
-                            "in": {
-                                "name": "$$resource.name",
-                                "link": "$$resource.link"
-                            }
-                        }
-                    }
-                }}
+                }
             ]
-            results = list(topics_collection.aggregate(pipeline))[0]
-            return results
+            
+            # Get the Topic document
+            topic = list(topics_collection.aggregate(pipeline))[0]
+            
+            # Replace Resource skill indexes with skill description
+            for resource in topic['resources']:
+                for index in range(len(resource['skills'])):
+                    skill_index = resource["skills"][index]
+                    resource["skills"][index] = topic['skills'][skill_index]['description']
+                    
+            # remove the topic skills property
+            del topic['skills']
+            
+            return topic
         except Exception as e:
             logger.error(f"Failed to get paths: {e}")
             raise
