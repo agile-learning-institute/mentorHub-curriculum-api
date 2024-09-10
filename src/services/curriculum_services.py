@@ -124,7 +124,8 @@ class CurriculumService:
                             # Add resource to curriculum.now 
                             curriculum.get('now').append({
                                 'name': resource.get('name'),
-                                'link': resource.get('link')
+                                'link': resource.get('link'),
+                                'description': resource.get('description')
                             })
 
                             # Remove the resource from curriculum.next
