@@ -44,7 +44,7 @@ class Config:
         self.api_version = "2.1." + self._get_config_value("BUILT_AT", "LOCAL", False)
         self._config_folder = self._get_config_value("CONFIG_FOLDER", "/opt/mentorhub-partner-api", False)
         self._port = int(self._get_config_value("PORT", "8088", False))
-        self._connection_string = self._get_config_value("CONNECTION_STRING", "mongodb://root:example@localhost:27017", True)
+        self._connection_string = self._get_config_value("CONNECTION_STRING", "mongodb://mongodb:27017/?replicaSet=rs0", True)
         self._db_name = self._get_config_value("DB_NAME", "mentorHub", False)
         self._curriculum_collection_name = self._get_config_value("CURRICULUM_COLLECTION", "curriculum", False)
         self._people_collection_name = self._get_config_value("PEOPLE_COLLECTION", "people", False)
