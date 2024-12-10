@@ -4,7 +4,7 @@ from src.routes.path_routes import create_path_routes
 from unittest.mock import patch
 from src.utils.ejson_encoder import MongoJSONEncoder
 
-class TestConfigRoutes(unittest.TestCase):
+class TestPathRoutes(unittest.TestCase):
 
     def setUp(self):
         # Set up the Flask test app and register the blueprint
