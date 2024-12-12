@@ -283,8 +283,8 @@ paths:
 
 components:
   schemas:
-    Resource:
-      description: A learning resource
+    Next_Resource:
+      description: A learning resource in the Next Scope
       type: object
       properties:
         name:
@@ -296,8 +296,62 @@ components:
           type: string
           pattern: >-
             ^(https?:\/\/)([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z-]{2,24}(:[0-9]{1,5})?(\/(([\w\-\.~]|%[a-fA-F0-9]{2}|[!\$&'\(\)\*\+,;=:@])*\/?)*)?
+        description:
+          description: The Topic overview paragraph
+          pattern: ^[ -~]{0,256}$
+          type: string
+        skills:
+          description: >-
+            The list of skills this resource contributes
+            to
+          type: array
+          items:
+            type: string
+            pattern: ^[ -~]{0,256}$
+        tags:
+          description: >-
+            Tags to assist with classification of this
+            resource
+          type: array
+          items:
+            type: string
+            enum:
+              - $
+              - Article
+              - Book
+              - Exam
+              - Interactive
+              - Lecture
+              - Lesson
+              - Reference
+              - Tutorial
+              - User Guide
+              - Video
+              - UI/UX
+              - API
+              - Data
+              - SRE
+      additionalProperties: false
+
+    Completed_Resource: 
+      description: A Learning Resource in the Completed scope
+      type: object
+      properties:
+        name:
+          description: resource name
+          type: string
+          pattern: ^[ -~]{0,256}$
+        link:
+          description: resource link
+          type: string
+          pattern: >-
+            ^(https?:\/\/)([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z-]{2,24}(:[0-9]{1,5})?(\/(([\w\-\.~]|%[a-fA-F0-9]{2}|[!\$&'\(\)\*\+,;=:@])*\/?)*)?
+        description:
+          description: The Topic overview paragraph
+          pattern: ^[ -~]{0,256}$
+          type: string
         started:
-          description: When did they start this resource
+          description: When was the resource started
           type: string
           format: date-time
         completed:
@@ -311,7 +365,28 @@ components:
           description: resource short review
           type: string
           pattern: ^[ -~]{0,256}$
-      additionalProperties: false
+
+    Now_Resource: 
+      description: A Learning Resource in the Completed scope
+      type: object
+      properties:
+        name:
+          description: resource name
+          type: string
+          pattern: ^[ -~]{0,256}$
+        link:
+          description: resource link
+          type: string
+          pattern: >-
+            ^(https?:\/\/)([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z-]{2,24}(:[0-9]{1,5})?(\/(([\w\-\.~]|%[a-fA-F0-9]{2}|[!\$&'\(\)\*\+,;=:@])*\/?)*)?
+        description:
+          description: The Topic overview paragraph
+          pattern: ^[ -~]{0,256}$
+          type: string
+        started:
+          description: When was the resource started
+          type: string
+          format: date-time
 
     Topic:
       description: A topic (group of resources)
@@ -325,7 +400,7 @@ components:
           description: List of learning resources
           type: array
           items:
-            $ref: '#/components/schemas/Resource'
+            $ref: '#/components/schemas/Next_Resource'
       additionalProperties: false
 
     Segment:
@@ -400,12 +475,12 @@ components:
           description: List of Completed Resources
           type: array
           items:
-            $ref: '#/components/schemas/Resource'
+            $ref: '#/components/schemas/Completed_Resource'
         now:
           description: List of Resources to work on NOW
           type: array
           items:
-            $ref: '#/components/schemas/Resource'
+            $ref: '#/components/schemas/Now_Resource'
         next:
           description: List of Learning Paths
           type: array
@@ -428,12 +503,12 @@ components:
           description: List of Completed Resources
           type: array
           items:
-            $ref: '#/components/schemas/Resource'
+            $ref: '#/components/schemas/Completed_Resource'
         now:
           description: List of Resources to work on NOW
           type: array
           items:
-            $ref: '#/components/schemas/Resource'
+            $ref: '#/components/schemas/Now_Resource'
         next:
           description: List of Learning Paths
           type: array

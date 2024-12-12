@@ -170,17 +170,56 @@ tests:
           check:
             status: /200/
             json.equals:
+              _id: AAAA00000000000000000006
               name: Spectrum of Platforms
+              status: Active
+              description: With this topic you will learn about the different combinations of hardware
+                operating systems and runtimes used to run software applications.
+              category: Foundations of ITSM
               resources:
-              - "name": "BrowserStacklistofplatfo"
-                "link": "https://somevalidlink.30.com"
-              - "name": "ComputingplatformArticle"
-                "link": "https://somevalidlink.31.com"
+              - name: BrowserStacklistofplatfo
+                link: https://somevalidlink.30.com
+                description: BrowserStack list of platforms Resource
+                skills:
+                - 1
+                tags:
+                - "$"
+                - Article
+                - Book
+                - Exam
+                - Interactive
+                - Lecture
+                - Lesson
+                - Reference
+                - Tutorial
+                - User Guide
+                - UI/UX
+                - Data
+              - name: ComputingplatformArticle
+                link: https://somevalidlink.31.com
+                description: Computing platform Article
+                skills:
+                - 1
+                tags:
+                - "$"
+                - Lecture
+                - Lesson
+                - Tutorial
+                - User Guide
+                - UI/UX
+                - API
+              skills:
+              - name: Simple Skill
+                description: A simple skill you can get
+              - name: Mainframes
+                description: Understanding of Z-Series Mainframes and z/OS conecpts
+                mastery: Apprentice
+                speciality: SRE Engineer
               lastSaved:
-                atTime: '2024-04-03T18:17:58.000Z'
-                byUser: '00000001349a44eabfb26419'
-                fromIp: "192.168.1.39"
-                correlationId: "ae078031-7de2-4519-bcbe-fbd5e72b69d3"
+                atTime: 4/3/2024 18:17:58
+                byUser: '000000000000000000000001'
+                fromIp: 192.168.1.39
+                correlationId: ae078031-7de2-4519-bcbe-fbd5e72b69d3
 
   curriculum:
     name: Test get curriculum 
@@ -198,12 +237,26 @@ tests:
               completed:
               - name: JeanBartikandtheENIACWom
                 link: https://somevalidlink08.com
+                description: The Description String
                 started: '2024-07-01T13:00:00'
+                skills:
+                - skill_A
+                - skill_B
+                tags:
+                - Article
+                - Book
                 completed: '2024-07-01T14:30:00'
                 rating: 4
                 review: This was a great intro
               - name: Markdown Tutorial
                 link: https://www.markdowntutorial.com/lesson/1/
+                description: The Description String
+                skills:
+                - skil_C
+                - skill_D
+                tags:
+                - User Guide
+                - Interactive
                 started: '2024-07-02T13:00:00'
                 completed: '2024-07-03T19:36:00'
                 rating: 3
@@ -211,9 +264,23 @@ tests:
               now:
               - name: AWSStorageResource
                 link: https://somevalidlink.35.com
+                description: The Description String
+                skills:
+                - skil-A
+                - skill-B
+                tags:
+                - Reference
+                - Data
                 started: '2024-07-15T13:00:00'
               - name: Some Unique Resource
-                url: https://some.com/resource
+                description: The Description String
+                skills:
+                - skil-C
+                - skill-D
+                tags:
+                - Video
+                - Exam
+                link: https://some.com/resource
               next:
               - path: The Odin Project
                 segments:
@@ -223,8 +290,22 @@ tests:
                     resources:
                     - name: Howdocomputersreadcode?V
                       link: https://somevalidlink.22.com
+                      description: The Description String
+                      skills:
+                      - skil1
+                      - skill2
+                      tags:
+                      - Lesson
+                      - Tutorial
                     - name: A one-off resource
                       link: https://some.com/resource
+                      description: The Description String
+                      skills:
+                      - skil3
+                      - skill4
+                      tags:
+                      - Reference
+                      - Data
               later:
               - path_id: '999900000000000000000000'
                 name: The Odin Project

@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from src.utils.ejson_encoder import MongoJSONEncoder
 
-class TestConfigRoutes(unittest.TestCase):
+class TestTopicRoutes(unittest.TestCase):
 
     def setUp(self):
         # Set up the Flask test app and register the blueprint

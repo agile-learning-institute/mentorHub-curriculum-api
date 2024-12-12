@@ -10,9 +10,9 @@ class TestMongoIO(unittest.TestCase):
     
     def setUp(self):
         # Test Data - Matches test data from database
-        self.completed = [{"name":"JeanBartikandtheENIACWom","link":"https://somevalidlink08.com","started":datetime.fromisoformat("2024-07-01T13:00:00"),"completed":datetime.fromisoformat("2024-07-01T14:30:00"),"rating":4,"review":"This was a great intro"},{"name":"Markdown Tutorial","link":"https://www.markdowntutorial.com/lesson/1/","started":datetime.fromisoformat("2024-07-02T13:00:00"),"completed":datetime.fromisoformat("2024-07-03T19:36:00"),"rating":3,"review":"I had to read this twice before it made sense"}]
-        self.now = [{"name":"AWSStorageResource","link":"https://somevalidlink.35.com","started":datetime.fromisoformat("2024-07-15T13:00:00")},{"name":"Some Unique Resource","url":"https://some.com/resource"}]
-        self.next = [{"path":"The Odin Project","segments":[{"segment":"Intermediate HTML and CSS","topics":[{"topic":"Intermediate HTML","resources":[{"name":"Howdocomputersreadcode?V","link":"https://somevalidlink.22.com"},{"name":"A one-off resource","link":"https://some.com/resource"}]}]}]}]
+        self.completed = [{"name":"JeanBartikandtheENIACWom","link":"https://somevalidlink08.com","description":"The Description String","started":datetime.fromisoformat("2024-07-01T13:00:00"),"completed":datetime.fromisoformat("2024-07-01T14:30:00"),"rating":4,"review":"This was a great intro"},{"name":"Markdown Tutorial","link":"https://www.markdowntutorial.com/lesson/1/","description":"The Description String","started":datetime.fromisoformat("2024-07-02T13:00:00"),"completed":datetime.fromisoformat("2024-07-03T19:36:00"),"rating":3,"review":"I had to read this twice before it made sense"}]
+        self.now = [{"name":"AWSStorageResource","link":"https://somevalidlink.35.com","description":"The Description String","started":datetime.fromisoformat("2024-07-15T13:00:00")},{"name":"Some Unique Resource","description":"The Description String","link":"https://some.com/resource"}]
+        self.next = [{"path":"The Odin Project","segments":[{"segment":"Intermediate HTML and CSS","topics":[{"topic":"Intermediate HTML","resources":[{"name":"Howdocomputersreadcode?V","link":"https://somevalidlink.22.com","description":"The Description String","skills":[],"tags":[]},{"name":"A one-off resource","link":"https://some.com/resource","description":"The Description String","skills":[],"tags":[]}]}]}]}]
         self.later = [{"path_id":ObjectId("999900000000000000000000"),"name":"The Odin Project"},{"path_id":ObjectId("999900000000000000000001"),"name":"EngineerKit"},{"path_id":ObjectId("999900000000000000000003"),"name":"Cantrillo"}]
         self.breadcrumb = {"atTime": datetime.fromisoformat("2024-02-27T18:17:58"),"byUser": ObjectId("aaaa00000000000000000001"),"fromIp": "192.168.1.3", "correlationId": "ae078031-7de2-4519-bcbe-fbd5e72b69d3"}
 
@@ -35,7 +35,7 @@ class TestMongoIO(unittest.TestCase):
     def test_config_loaded(self):
         # Test that MongoIO is a singleton
         self.assertIsInstance(config.versions, list)
-        self.assertEqual(len(config.versions), 11)
+        self.assertEqual(len(config.versions), 9)
 
         self.assertIsInstance(config.enumerators, dict)
 
@@ -65,7 +65,7 @@ class TestMongoIO(unittest.TestCase):
     def test_get_path(self):
         mongo_io = MongoIO.get_instance()
         path = mongo_io.get_path("999900000000000000000003")
-        expected = {"name":"Cantrillo","segments":[{"name":"Fundamentals","topics":[{"name":"History of Computing","resources":[{"name":"ComputerHistoryTimelineA","link":"https://somevalidlink02.com"},{"name":"HistoryofComputingArticl","link":"https://somevalidlink03.com"},{"name":"PiratesofSiliconValleyFi","link":"https://somevalidlink04.com"},{"name":"Apple1984SuperBowlCommer","link":"https://somevalidlink05.com"},{"name":"BretVictorTheFutureofPro","link":"https://somevalidlink06.com"},{"name":"AwesomeComputerHistoryRe","link":"https://somevalidlink07.com"},{"name":"JeanBartikandtheENIACWom","link":"https://somevalidlink08.com"}]},{"name":"Hardware","resources":[{"name":"ExploringHowComputersWor","link":"https://somevalidlink09.com"},{"name":"DigitalLogicSimTool","link":"https://somevalidlink10.com"},{"name":"HistoryandTheoryofElectr","link":"https://somevalidlin11.com"},{"name":"Buildingan8-bitcomputerV","link":"https://somevalidlink12.com"},{"name":"nand2tetris:buildingacom","link":"https://somevalidlink13.com"},{"name":"8StandardComputerCompone","link":"https://somevalidlink14.com"}]}]}]}
+        expected = {"name":"Cantrillo","segments":[{"name":"Fundamentals","topics":[{"name":"History of Computing","resources":[{"name":"ComputerHistoryTimelineA","description":"Computer History Timeline Article","link":"https://somevalidlink02.com","skills":["Basic use of the Unix/Linux command line and shell scripts","Vue.js concepts with design system libraries"],"tags":["$","Article","Exam","Interactive","Lesson","Tutorial","Video","Data"]},{"name":"HistoryofComputingArticl","description":"History of Computing Article","link":"https://somevalidlink03.com","skills":["Vue.js concepts with design system libraries","Python Data Structures and with Pandas"],"tags":["Article","Book","Reference","User Guide","API","Data"]},{"name":"PiratesofSiliconValleyFi","description":"Pirates of Silicon Valley Film","link":"https://somevalidlink04.com","skills":["Basic use of the Unix/Linux command line and shell scripts","Python Data Structures and with Pandas"],"tags":["Exam","Lecture","Video","API","Data"]},{"name":"Apple1984SuperBowlCommer","description":"Apple 1984 Super Bowl Commercial Video","link":"https://somevalidlink05.com","skills":["Vue.js concepts with design system libraries","Python Data Structures and with Pandas"],"tags":["Article","Book","Interactive","Lecture","Lesson","User Guide","UI/UX","API","Data"]},{"name":"BretVictorTheFutureofPro","description":"Bret Victor The Future of Programming Video","link":"https://somevalidlink06.com","skills":["Basic use of the Unix/Linux command line and shell scripts"],"tags":["Lecture","Lesson","Tutorial","User Guide","Video","API","Data"]},{"name":"AwesomeComputerHistoryRe","description":"Awesome Computer History Resource","link":"https://somevalidlink07.com","skills":["Vue.js concepts with design system libraries"],"tags":["Book","Lecture","Reference","User Guide","Video","UI/UX","Data"]},{"name":"JeanBartikandtheENIACWom","description":"Jean Bartik and the ENIAC Women Video","link":"https://somevalidlink08.com","skills":["Basic use of the Unix/Linux command line and shell scripts","Python Data Structures and with Pandas"],"tags":["Article","Exam","Interactive","Lecture","Tutorial","User Guide","UI/UX","API","Data"]}]},{"name":"Hardware","resources":[{"name":"ExploringHowComputersWor","link":"https://somevalidlink09.com","description":"Exploring How Computers Work Video","skills":["Working knowledge of Javascript / Typescript fundamentals"],"tags":["Article","Exam","Interactive","Lecture","Lesson","Tutorial","Video","UI/UX"]},{"name":"DigitalLogicSimTool","link":"https://somevalidlink10.com","description":"Digital Logic Sim Tool","skills":["Working knowledge of Javascript / Typescript fundamentals"],"tags":["$","Video","UI/UX","Data"]},{"name":"HistoryandTheoryofElectr","link":"https://somevalidlin11.com","description":"History and Theory of Electricity Video","skills":["Working knowledge of Javascript / Typescript fundamentals"],"tags":["Article","Tutorial","User Guide","Video","UI/UX","API","Data"]},{"name":"Buildingan8-bitcomputerV","link":"https://somevalidlink12.com","description":"Building an 8-bit computer Video Series","skills":["Working knowledge of Javascript / Typescript fundamentals"],"tags":["Article","Book","Lesson","Reference","Tutorial","Video","Data"]},{"name":"nand2tetris:buildingacom","link":"https://somevalidlink13.com","description":"nand2tetris: building a computer from first principles Course","skills":["Working knowledge of Javascript / Typescript fundamentals"],"tags":["Article","Book","Exam","Interactive","Lesson","Tutorial","Video","UI/UX","Data"]},{"name":"8StandardComputerCompone","link":"https://somevalidlink14.com","description":"8 Standard Computer Components Article","skills":["Working knowledge of Javascript / Typescript fundamentals"],"tags":["Interactive","Lecture","Tutorial","Video","Data"]}]}]}]}
         self.assertEqual(path, expected)
 
     def test_get_all_topics(self):
@@ -82,7 +82,7 @@ class TestMongoIO(unittest.TestCase):
     def test_get_a_topic(self):
         mongo_io = MongoIO.get_instance()
         topic = mongo_io.get_topic("aaaa00000000000000000002")
-        expected = {"name":"History of Computing","resources":[{"name":"ComputerHistoryTimelineA","link":"https://somevalidlink02.com"},{"name":"HistoryofComputingArticl","link":"https://somevalidlink03.com"},{"name":"PiratesofSiliconValleyFi","link":"https://somevalidlink04.com"},{"name":"Apple1984SuperBowlCommer","link":"https://somevalidlink05.com"},{"name":"BretVictorTheFutureofPro","link":"https://somevalidlink06.com"},{"name":"AwesomeComputerHistoryRe","link":"https://somevalidlink07.com"},{"name":"JeanBartikandtheENIACWom","link":"https://somevalidlink08.com"}]}
+        expected = {"name":"History of Computing","resources":[{"name":"ComputerHistoryTimelineA","description":"Computer History Timeline Article","link":"https://somevalidlink02.com","skills":["Basic use of the Unix/Linux command line and shell scripts","Vue.js concepts with design system libraries"],"tags":["$","Article","Exam","Interactive","Lesson","Tutorial","Video","Data"]},{"name":"HistoryofComputingArticl","description":"History of Computing Article","link":"https://somevalidlink03.com","skills":["Vue.js concepts with design system libraries","Python Data Structures and with Pandas"],"tags":["Article","Book","Reference","User Guide","API","Data"]},{"name":"PiratesofSiliconValleyFi","description":"Pirates of Silicon Valley Film","link":"https://somevalidlink04.com","skills":["Basic use of the Unix/Linux command line and shell scripts","Python Data Structures and with Pandas"],"tags":["Exam","Lecture","Video","API","Data"]},{"name":"Apple1984SuperBowlCommer","description":"Apple 1984 Super Bowl Commercial Video","link":"https://somevalidlink05.com","skills":["Vue.js concepts with design system libraries","Python Data Structures and with Pandas"],"tags":["Article","Book","Interactive","Lecture","Lesson","User Guide","UI/UX","API","Data"]},{"name":"BretVictorTheFutureofPro","description":"Bret Victor The Future of Programming Video","link":"https://somevalidlink06.com","skills":["Basic use of the Unix/Linux command line and shell scripts"],"tags":["Lecture","Lesson","Tutorial","User Guide","Video","API","Data"]},{"name":"AwesomeComputerHistoryRe","description":"Awesome Computer History Resource","link":"https://somevalidlink07.com","skills":["Vue.js concepts with design system libraries"],"tags":["Book","Lecture","Reference","User Guide","Video","UI/UX","Data"]},{"name":"JeanBartikandtheENIACWom","description":"Jean Bartik and the ENIAC Women Video","link":"https://somevalidlink08.com","skills":["Basic use of the Unix/Linux command line and shell scripts","Python Data Structures and with Pandas"],"tags":["Article","Exam","Interactive","Lecture","Tutorial","User Guide","UI/UX","API","Data"]}]}
         self.assertEqual(topic, expected)
 
     def test_get_curriculum(self): 
@@ -102,7 +102,7 @@ class TestMongoIO(unittest.TestCase):
         curriculum = mongo_io.get_curriculum("aaaa00000000000000000012")
         self.assertEqual(curriculum, empty_curriculum)
         
-    def test_update_curriculum_completed(self): #TODO Update
+    def test_update_curriculum_completed1(self): 
         mongo_io = MongoIO.get_instance()
         mongo_io.create_curriculum("aaaa00000000000000000012", self.breadcrumb)
 
@@ -115,22 +115,45 @@ class TestMongoIO(unittest.TestCase):
         expected = {"_id":ObjectId("aaaa00000000000000000012"),"completed":[{"name": "foo"}],"now":[],"next":[],"later":[],"lastSaved":breadcrumb}
         self.assertEqual(curriculum, expected)
 
+    def test_update_curriculum_now(self): #TODO Update
+        mongo_io = MongoIO.get_instance()
+        mongo_io.create_curriculum("aaaa00000000000000000012", self.breadcrumb)
+
+        breadcrumb = deepcopy(self.breadcrumb)
+
         breadcrumb["fromIp"] = "127.0.0.2"
         set = {"now": [{"name": "foo"}], "lastSaved": breadcrumb}
         count = mongo_io.update_curriculum("aaaa00000000000000000012", set)
         self.assertEqual(count, 1)
 
         curriculum = mongo_io.get_curriculum("aaaa00000000000000000012")
-        expected = {"_id":ObjectId("aaaa00000000000000000012"),"completed":[{"name": "foo"}],"now":[{"name": "foo"}],"next":[],"later":[],"lastSaved":breadcrumb}
+        expected = {"_id":ObjectId("aaaa00000000000000000012"),"completed":[],"now":[{"name":"foo"}],"next":[],"later":[],"lastSaved":breadcrumb}
         self.assertEqual(curriculum, expected)
 
+    def test_update_curriculum_completed2(self): #TODO Update
+        mongo_io = MongoIO.get_instance()
+        mongo_io.create_curriculum("aaaa00000000000000000012", self.breadcrumb)
+
+        breadcrumb = deepcopy(self.breadcrumb)
         breadcrumb["fromIp"] = "127.0.0.3"
         set = {"completed": [{"name": "foo"}, {"name":"bar"}], "lastSaved": breadcrumb}
         count = mongo_io.update_curriculum("aaaa00000000000000000012", set)
         self.assertEqual(count, 1)
 
         curriculum = mongo_io.get_curriculum("aaaa00000000000000000012")
-        expected = {"_id":ObjectId("aaaa00000000000000000012"),"completed":[{"name": "foo"}, {"name":"bar"}],"now":[{"name": "foo"}],"next":[],"later":[],"lastSaved":breadcrumb}
+        expected = {"_id":ObjectId("aaaa00000000000000000012"),"completed":[{"name":"foo"},{"name":"bar"}],"now":[],"next":[],"later":[],"lastSaved":breadcrumb}
         self.assertEqual(curriculum, expected)
 
-        
+    def test_update_curriculum_completed_description(self): #TODO Update
+        mongo_io = MongoIO.get_instance()
+        mongo_io.create_curriculum("aaaa00000000000000000012", self.breadcrumb)
+
+        breadcrumb = deepcopy(self.breadcrumb)
+        breadcrumb["fromIp"] = "127.0.0.4"
+        set = {"completed": [{"description": "foo"}, {"description":"bar"}], "lastSaved": breadcrumb}
+        count = mongo_io.update_curriculum("aaaa00000000000000000012", set)
+        self.assertEqual(count, 1)
+
+        curriculum = mongo_io.get_curriculum("aaaa00000000000000000012")
+        expected = {"_id":ObjectId("aaaa00000000000000000012"),"completed":[{"description":"foo"},{"description":"bar"}],"now":[],"next":[],"later":[],"lastSaved":breadcrumb}
+        self.assertEqual(curriculum, expected)
