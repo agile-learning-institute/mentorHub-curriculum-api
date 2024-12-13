@@ -3,7 +3,7 @@ import sys
 from datetime import datetime
 from bson import ObjectId 
 from pymongo import MongoClient
-from src.config.config import config
+from src.config.Config import config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,9 +29,9 @@ class MongoIO:
     def _connect(self):
         """Connect to MongoDB."""
         try:
-            self.client = MongoClient(config.get_connection_string(), serverSelectionTimeoutMS=2000)
+            self.client = MongoClient(config.MONGO_CONNECTION_STRING, serverSelectionTimeoutMS=2000)
             self.client.admin.command('ping')  # Force connection
-            self.db = self.client.get_database(config.get_db_name())
+            self.db = self.client.get_database(config.MONGO_DB_NAME)
             self.connected = True
             logger.info("Connected to MongoDB")
         except Exception as e:
@@ -53,7 +53,7 @@ class MongoIO:
     def _load_versions(self):
         """Load the versions collection into memory."""
         try:
-            versions_collection = self.db.get_collection(config.get_version_collection_name())
+            versions_collection = self.db.get_collection(config.VERSION_COLLECTION_NAME)
             versions_cursor = versions_collection.find({})
             versions = list(versions_cursor) 
             config.versions = versions
@@ -72,18 +72,18 @@ class MongoIO:
             # Get the enumerators version from the curricumum version number.
             version_strings = [version['currentVersion'].split('.').pop() or "0" 
                             for version in config.versions 
-                            if version['collectionName'] == config.get_curriculum_collection_name()]
+                            if version['collectionName'] == config.CURRICULUM_COLLECTION_NAME]
             the_version_string = version_strings.pop() if version_strings else "0"
             the_version = int(the_version_string)
 
             # Query the database            
-            enumerators_collection = self.db.get_collection(config.get_enumerators_collection_name())
+            enumerators_collection = self.db.get_collection(config.ENUMERATORS_COLLECTION_NAME)
             query = { "version": the_version }
             enumerations = enumerators_collection.find_one(query)
     
             # Fail Fast if not found - critical error
             if not enumerations:
-                logger.fatal(f"Enumerators not found for version: {config.get_curriculum_collection_name()}:{the_version_string}")
+                logger.fatal(f"Enumerators not found for version: {config.ENUMERATORS_COLLECTION_NAME}:{the_version_string}")
                 sys.exit(1)
     
             config.enumerators = enumerations['enumerators']
@@ -97,7 +97,7 @@ class MongoIO:
             return None
         
         try:
-            people = self.db.get_collection(config.get_people_collection_name())
+            people = self.db.get_collection(config.PEOPLE_COLLECTION_NAME)
             person_object_id = ObjectId(person_id)
             person = people.find_one({ "_id": person_object_id })
 
@@ -114,7 +114,7 @@ class MongoIO:
             return None
         
         try:
-            paths_collection = self.db.get_collection(config.get_paths_collection_name())
+            paths_collection = self.db.get_collection(config.PATHS_COLLECTION_NAME)
             pipeline = [
                 {"$match": { "name": { "$regex": query, "$options": "i" }}},
                 {"$project": {
@@ -137,7 +137,7 @@ class MongoIO:
         
         try:
             # Get the path document
-            paths_collection = self.db.get_collection(config.get_paths_collection_name())
+            paths_collection = self.db.get_collection(config.PATHS_COLLECTION_NAME)
             path_object_id = ObjectId(path_id)
             path = paths_collection.find_one({"_id": path_object_id})
             if not path: return {}
@@ -162,7 +162,7 @@ class MongoIO:
             return None
         
         try:
-            topics_collection = self.db.get_collection(config.get_topics_collection_name())
+            topics_collection = self.db.get_collection(config.TOPICS_COLLECTION_NAME)
             pipeline = [
                 {"$match": { "name": { "$regex": query, "$options": "i" }}},
                 {"$project": {
@@ -184,7 +184,7 @@ class MongoIO:
             return None
         
         try:
-            topics_collection = self.db.get_collection(config.get_topics_collection_name())
+            topics_collection = self.db.get_collection(config.TOPICS_COLLECTION_NAME)
             topic_object_id = ObjectId(topic_id)
             pipeline = [
                 {
@@ -224,14 +224,14 @@ class MongoIO:
 
         try:
             # Query Curriculum - Lookup resource name/link by resource_id
-            paths_collection_name =  config.get_paths_collection_name()
-            curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
+            paths_collection_name =  config.PATHS_COLLECTION_NAME
+            curriculum_collection = self.db.get_collection(config.CURRICULUM_COLLECTION_NAME)
             curriculum_object_id = ObjectId(curriculum_id)
 
             pipeline = [
                 {"$match": { "_id": curriculum_object_id }},
                 {"$lookup": {  
-                        "from": config.get_paths_collection_name(),  
+                        "from": config.PATHS_COLLECTION_NAME,  
                         "localField": "later",  
                         "foreignField": "_id",  
                         "as": "later_paths"  
@@ -279,7 +279,7 @@ class MongoIO:
                 "later":[],
                 "lastSaved": breadcrumb
             }
-            curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
+            curriculum_collection = self.db.get_collection(config.CURRICULUM_COLLECTION_NAME)
             result = curriculum_collection.insert_one(curriculum_data)
             return str(result.inserted_id)
         except Exception as e:
@@ -291,7 +291,7 @@ class MongoIO:
         if not self.connected: return None
 
         try:
-            curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
+            curriculum_collection = self.db.get_collection(config.CURRICULUM_COLLECTION_NAME)
             curriculum_object_id = ObjectId(curriculum_id)
             
             match = {"_id": curriculum_object_id}
@@ -308,7 +308,7 @@ class MongoIO:
         if not self.connected: return None
 
         try:
-            curriculum_collection = self.db.get_collection(config.get_curriculum_collection_name())
+            curriculum_collection = self.db.get_collection(config.CURRICULUM_COLLECTION_NAME)
             curriculum_collection.delete_one({"_id": ObjectId(curriculum_id)})
         except Exception as e:
             logger.error(f"Failed to delete curriculum: {e}")

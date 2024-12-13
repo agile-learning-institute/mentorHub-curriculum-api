@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import unittest
 
 from bson import ObjectId
-from src.config.config import config
+from src.config.Config import config
 from src.utils.mongo_io import MongoIO
 
 class TestMongoIO(unittest.TestCase):

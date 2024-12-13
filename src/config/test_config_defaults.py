@@ -1,5 +1,6 @@
+import json
 import unittest
-from src.config.config import config
+from src.config.Config import config
 
 class TestConfigDefaults(unittest.TestCase):
 
@@ -7,47 +8,38 @@ class TestConfigDefaults(unittest.TestCase):
         """Re-initialize the config for each test."""
         config.initialize()
 
-    def test_default_properties_in_getters(self):
-        self.assertEqual(config.get_config_folder(), "/opt/mentorhub-partner-api")
-        self.assertEqual(config.get_port(), 8088)
-        self.assertEqual(config.get_db_name(), "mentorHub")
-        self.assertEqual(config.get_curriculum_collection_name(), "curriculum")
-        self.assertEqual(config.get_people_collection_name(), "people")
-        self.assertEqual(config.get_topics_collection_name(), "topics")
-        self.assertEqual(config.get_paths_collection_name(), "paths")
-        self.assertEqual(config.get_version_collection_name(), "msmCurrentVersions")
-        self.assertEqual(config.get_enumerators_collection_name(), "enumerators")
-        self.assertEqual(config.get_topics_host(), "localhost:8087")
+    def test_default_string_properties(self):
+        for key, default in config.config_strings.items():
+            self.assertEqual(getattr(config, key), default)
+
+    def test_default_int_properties(self):
+        for key, default in config.config_ints.items():
+            self.assertEqual(getattr(config, key), int(default))
+
+    def test_default_string_secret_properties(self):
+        for key, default in config.config_string_secrets.items():
+            self.assertEqual(getattr(config, key), default)
+
+    def test_default_json_secret_properties(self):
+        for key, default in config.config_json_secrets.items():
+            self.assertEqual(getattr(config, key), json.loads(default))
 
     def test_to_dict(self):
         """Test the to_dict method of the Config class."""
-        expected_dict = {
-            "api_version": "2.1.LOCAL",
-            "versions": [],
-            "enumerators": {},
-        }
-
         # Convert the config object to a dictionary
-        result_dict = config.to_dict()
+        result_dict = config.to_dict({})
+        self.assertIsInstance(result_dict["config_items"], list)
+        self.assertIsInstance(result_dict["versions"], list)
+        self.assertIsInstance(result_dict["enumerators"], dict)
+        self.assertIsInstance(result_dict["token"], dict)
         
-        # Remove config_items from the result for this test
-        result_dict.pop("config_items", None)
-        
-        # Assert that the result matches the expected dictionary
-        self.assertEqual(result_dict, expected_dict)
-        
-    def test_default_config_items(self):
-        self._test_config_default_value("PORT", "8088")
-        self._test_config_default_value("BUILT_AT", "LOCAL")
-        self._test_config_default_value("CONFIG_FOLDER", "/opt/mentorhub-partner-api")
-        self._test_config_default_value("DB_NAME", "mentorHub")
-        self._test_config_default_value("CURRICULUM_COLLECTION", "curriculum")
-        self._test_config_default_value("PEOPLE_COLLECTION", "people")
-        self._test_config_default_value("TOPICS_COLLECTION", "topics")
-        self._test_config_default_value("PATHS_COLLECTION", "paths")
-        self._test_config_default_value("VERSION_COLLECTION", "msmCurrentVersions")
-        self._test_config_default_value("ENUMERATORS_COLLECTION", "enumerators")
-        self._test_config_default_value("TOPIC_HOST", "localhost:8087")
+    def test_default_string_ci(self):
+        for key, default in {**config.config_strings, **config.config_ints}.items():
+            self._test_config_default_value(key, default)
+
+    def test_default_secret_ci(self):
+        for key, default in {**config.config_string_secrets, **config.config_json_secrets}.items():
+            self._test_config_default_value(key, "secret")
 
     def _test_config_default_value(self, config_name, expected_value):
         """Helper function to check default values."""

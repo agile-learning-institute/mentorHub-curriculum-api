@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from pathlib import Path
 import os
 import logging
@@ -15,24 +16,47 @@ class Config:
         else:
             Config._instance = self
             self.config_items = []
-            self.paths = []
             self.versions = []
             self.enumerators = {}
-            self.api_version = ""
+            self.CONFIG_FOLDER = "./"
+            self.config_strings = {
+                "BUILT_AT": "LOCAL",
+                "CONFIG_FOLDER": "./",
+                "CURRICULUM_COLLECTION_NAME": "curriculum",
+                "ENCOUNTER_COLLECTION_NAME": "encounters",
+                "PARTNERS_COLLECTION_NAME": "partners",
+                "PATHS_COLLECTION_NAME": "paths",
+                "PEOPLE_COLLECTION_NAME": "people",
+                "PLANS_COLLECTION_NAME": "plans",
+                "RATINGS_COLLECTION_NAME": "ratings",
+                "REVIEWS__COLLECTION_NAME": "reviews",
+                "TOPICS_COLLECTION_NAME": "topics",
+                "VERSION_COLLECTION_NAME": "msmCurrentVersions",
+                "ENUMERATORS_COLLECTION_NAME": "enumerators",
+                "CURRICULUM_UI_URI": "http://localhost:8089/",
+                "ENCOUNTER_UI_URI": "http://localhost:8091/",
+                "PARTNERS_UI_URI": "http://localhost:8085/",
+                "PEOPLE_UI_URI": "http://localhost:8083/",
+                "TOPICS_UI_URI": "http://localhost:8087/",
+                "SEARCH_UI_URI": "http://localhost:8080/"
+            }
+            self.config_ints = {
+                "CURRICULUM_API_PORT": "8088",
+                "ENCOUNTER_API_PORT": "8090",
+                "PARTNERS_API_PORT": "8084",
+                "PEOPLE_API_PORT": "8082",
+                "TOPICS_API_PORT": "8086",
+                "SEARCH_API_PORT": "8081"
+            }
+            self.config_string_secrets = {
+                "ELASTIC_INDEX_NAME": "mentorhub", 
+                "MONGO_CONNECTION_STRING": "mongodb://mongodb:27017/?replicaSet=rs0",
+                "MONGO_DB_NAME": "mentorHub",
+            }
+            self.config_json_secrets = {
+                "ELASTIC_CLIENT_OPTIONS": '{"node":"http://localhost:9200"}',
+            }
 
-            # Private properties
-            self._config_folder = "./"
-            self._port = 8088
-            self._connection_string = ""
-            self._db_name = ""
-            self._curriculum_collection_name = ""
-            self._topics_collection_name = ""
-            self._people_collection_name = ""
-            self._paths_collection_name = ""
-            self._version_collection_name = ""
-            self._enumerators_collection_name = ""
-            self._topic_host = ""
-            
             # Initialize configuration
             self.initialize()
 
@@ -41,18 +65,22 @@ class Config:
         self.config_items = []
         self.versions = []
         self.enumerators = {}
-        self.api_version = "2.1." + self._get_config_value("BUILT_AT", "LOCAL", False)
-        self._config_folder = self._get_config_value("CONFIG_FOLDER", "/opt/mentorhub-partner-api", False)
-        self._port = int(self._get_config_value("PORT", "8088", False))
-        self._connection_string = self._get_config_value("CONNECTION_STRING", "mongodb://mongodb:27017/?replicaSet=rs0", True)
-        self._db_name = self._get_config_value("DB_NAME", "mentorHub", False)
-        self._curriculum_collection_name = self._get_config_value("CURRICULUM_COLLECTION", "curriculum", False)
-        self._people_collection_name = self._get_config_value("PEOPLE_COLLECTION", "people", False)
-        self._topics_collection_name = self._get_config_value("TOPICS_COLLECTION", "topics", False)
-        self._paths_collection_name = self._get_config_value("PATHS_COLLECTION", "paths", False)
-        self._version_collection_name = self._get_config_value("VERSION_COLLECTION", "msmCurrentVersions", False)
-        self._enumerators_collection_name = self._get_config_value("ENUMERATORS_COLLECTION", "enumerators", False)
-        self._topic_host = self._get_config_value("TOPIC_HOST", "localhost:8087", False)
+
+        for key, default in self.config_strings.items():
+            value = self._get_config_value(key, default, False)
+            setattr(self, key, value)
+            
+        for key, default in self.config_ints.items():
+            value = int(self._get_config_value(key, default, False))
+            setattr(self, key, value)
+            
+        for key, default in self.config_string_secrets.items():
+            value = self._get_config_value(key, default, True)
+            setattr(self, key, value)
+
+        for key, default in self.config_json_secrets.items():
+            value = json.loads(self._get_config_value(key, default, True))
+            setattr(self, key, value)
 
         logger.info(f"Configuration Initialized: {self.config_items}")
             
@@ -62,10 +90,11 @@ class Config:
         from_source = "default"
 
         # Check for config file first
-        file_path = Path(self._config_folder) / name
+        file_path = Path(self.CONFIG_FOLDER) / name
         if file_path.exists():
             value = file_path.read_text().strip()
             from_source = "file"
+            
         # If no file, check for environment variable
         elif os.getenv(name):
             value = os.getenv(name)
@@ -79,63 +108,15 @@ class Config:
         })
         return value
 
-    # Simple Getters
-    def get_port(self):
-        return self._port
-
-    def get_curriculum_collection_name(self):
-        return self._curriculum_collection_name
-
-    def get_people_collection_name(self):
-        return self._people_collection_name
-
-    def get_topics_collection_name(self):
-        return self._topics_collection_name
-
-    def get_paths_collection_name(self):
-        return self._paths_collection_name
-
-    def get_version_collection_name(self):
-        return self._version_collection_name
-
-    def get_enumerators_collection_name(self):
-        return self._enumerators_collection_name
-
-    def get_config_folder(self):
-        return self._config_folder
-
-    def get_connection_string(self):
-        return self._connection_string
-
-    def get_db_name(self):
-        return self._db_name
-
-    def get_topics_host(self):
-        return self._topic_host
-
     # Serializer
-    def to_dict(self):
+    def to_dict(self, token):
         """Convert the Config object to a dictionary with the required fields."""
         return {
-            "api_version": self.api_version,
             "config_items": self.config_items,
-            "versions": Config._decode_mongo_types(self.versions),
-            "enumerators": Config._decode_mongo_types(self.enumerators)
+            "versions": self.versions,
+            "enumerators": self.enumerators,
+            "token": token
         }    
-
-    @staticmethod
-    def _decode_mongo_types(document):
-        """Convert all ObjectId and datetime values to strings"""
-        if isinstance(document, dict):
-            return {key: Config._decode_mongo_types(value) for key, value in document.items()}
-        elif isinstance(document, list):
-            return [Config._decode_mongo_types(item) for item in document]
-        elif isinstance(document, ObjectId):
-            return str(document)
-        elif isinstance(document, datetime):
-            return document.isoformat()
-        else:
-            return document
 
     # Singleton Getter
     @staticmethod

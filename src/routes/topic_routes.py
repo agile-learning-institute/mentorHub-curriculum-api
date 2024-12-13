@@ -6,7 +6,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 from flask import Blueprint, Response, jsonify, request
-from src.config.config import config 
 
 # Define the Blueprint for config routes
 def create_topic_routes():

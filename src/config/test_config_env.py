@@ -1,64 +1,65 @@
 import unittest
 import os
-from src.config.config import config
+from src.config.Config import config
 
 class TestConfigEnvironment(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        """Class-level setup: Initialize configuration items"""
-        cls.config_items = [
-            "BUILT_AT", "CONFIG_FOLDER", "DB_NAME", "CURRICULUM_COLLECTION", 
-            "PEOPLE_COLLECTION", "TOPICS_COLLECTION", "PATHS_COLLECTION", 
-            "VERSION_COLLECTION", "ENUMERATORS_COLLECTION",
-            "TOPIC_HOST"
-        ]
-        
     def setUp(self):
         """Re-initialize the config for each test."""
         # Set all environment variables to "ENV_VALUE"
-        os.environ["PORT"] = "9999"
-        for var in self.config_items:
-            os.environ[var] = "ENV_VALUE"
+        for key, default in {**config.config_strings, **config.config_string_secrets}.items():
+            if key != "BUILT_AT" and key != "CONFIG_FOLDER":
+                os.environ[key] = "ENV_VALUE"
+            
+        for key, default in config.config_ints.items():
+            os.environ[key] = "1234"
+
+        for key, default in config.config_json_secrets.items():
+            os.environ[key] = '{"foo":"bar"}'
 
         # Initialize the Config object
+        config._instance = None
         config.initialize()
         
         # Reset environment variables 
-        if os.environ["PORT"]:
-            del os.environ["PORT"]
-        for var in self.config_items:
-            if os.environ[var]:
-                del os.environ[var]
+        for key, default in {**config.config_strings, **config.config_ints, **config.config_string_secrets, **config.config_json_secrets}.items():
+            if key != "BUILT_AT" and key != "CONFIG_FOLDER":
+                del os.environ[key]
+            
+    def test_env_string_properties(self):
+        for key, default in {**config.config_strings, **config.config_string_secrets}.items():
+            if key != "BUILT_AT" and key != "CONFIG_FOLDER":
+                self.assertEqual(getattr(config, key), "ENV_VALUE")
 
-    def test_environment_properties_in_getters(self):
-        self.assertEqual(config.get_config_folder(), "ENV_VALUE")
-        self.assertEqual(config.get_port(), 9999)
-        self.assertEqual(config.get_db_name(), "ENV_VALUE")
-        self.assertEqual(config.get_curriculum_collection_name(), "ENV_VALUE")
-        self.assertEqual(config.get_topics_collection_name(), "ENV_VALUE")
-        self.assertEqual(config.get_paths_collection_name(), "ENV_VALUE")
-        self.assertEqual(config.get_version_collection_name(), "ENV_VALUE")
-        self.assertEqual(config.get_enumerators_collection_name(), "ENV_VALUE")
+    def test_env_int_properties(self):
+        for key, default in config.config_ints.items():
+            self.assertEqual(getattr(config, key), 1234)
 
-    def test_environment_config_items(self):
-        self._test_config_environment_value("BUILT_AT")
-        self._test_config_environment_value("CONFIG_FOLDER")
-        self._test_config_environment_value("DB_NAME")
-        self._test_config_environment_value("CURRICULUM_COLLECTION")
-        self._test_config_environment_value("TOPICS_COLLECTION")
-        self._test_config_environment_value("PATHS_COLLECTION")
-        self._test_config_environment_value("VERSION_COLLECTION")
-        self._test_config_environment_value("ENUMERATORS_COLLECTION")
+    def test_env_json_secret_properties(self):
+        for key, default in config.config_json_secrets.items():
+            self.assertEqual(getattr(config, key), {"foo":"bar"})
 
-    def _test_config_environment_value(self, config_name):
+    def test_env_string_ci(self):
+        for key, default in config.config_strings.items():
+            if key != "BUILT_AT" and key != "CONFIG_FOLDER":
+                self._test_config_environment_value(key, "ENV_VALUE")
+
+    def test_env_int_ci(self):
+        for key, default in config.config_ints.items():
+            self._test_config_environment_value(key, "1234")
+
+    def test_env_secret_ci(self):
+        for key, default in {**config.config_string_secrets, **config.config_json_secrets}.items():
+            self._test_config_environment_value(key, "secret")
+
+    def _test_config_environment_value(self, ci_name, value):
         """Helper function to check environment values."""
         items = config.config_items
-        item = next((i for i in items if i['name'] == config_name), None)
+        item = next((i for i in items if i['name'] == ci_name), None)
         self.assertIsNotNone(item)
-        self.assertEqual(item['name'], config_name)
+        self.assertEqual(item['name'], ci_name)
+        self.assertEqual(item['value'], value)
         self.assertEqual(item['from'], "environment")
-        self.assertEqual(item['value'], "ENV_VALUE")
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,6 @@
 import unittest
 import os
-from src.config.config import config
+from src.config.Config import config
 
 class TestConfigFiles(unittest.TestCase):
 
@@ -15,34 +15,41 @@ class TestConfigFiles(unittest.TestCase):
         # Reset config folder location 
         del os.environ["CONFIG_FOLDER"]
 
-    def test_file_properties_in_getters(self):
-        self.assertEqual(config.get_port(), 9999)
-        self.assertEqual(config.get_db_name(), "TEST_VALUE")
-        self.assertEqual(config.get_curriculum_collection_name(), "TEST_VALUE")
-        self.assertEqual(config.get_people_collection_name(), "TEST_VALUE")
-        self.assertEqual(config.get_topics_collection_name(), "TEST_VALUE")
-        self.assertEqual(config.get_paths_collection_name(), "TEST_VALUE")
-        self.assertEqual(config.get_version_collection_name(), "TEST_VALUE")
-        self.assertEqual(config.get_enumerators_collection_name(), "TEST_VALUE")
-        self.assertEqual(config.get_topics_host(), "TEST_VALUE")
+    def test_file_string_properties(self):
+        for key, default in {**config.config_strings, **config.config_string_secrets}.items():
+            if key != "BUILT_AT" and key != "CONFIG_FOLDER":
+                self.assertEqual(getattr(config, key), "TEST_VALUE")
 
-    def test_file_config_items(self):
-        self._test_config_file_value("DB_NAME")
-        self._test_config_file_value("CURRICULUM_COLLECTION")
-        self._test_config_file_value("TOPICS_COLLECTION")
-        self._test_config_file_value("PATHS_COLLECTION")
-        self._test_config_file_value("VERSION_COLLECTION")
-        self._test_config_file_value("ENUMERATORS_COLLECTION")
-        self._test_config_file_value("TOPIC_HOST")
+    def test_file_int_properties(self):
+        for key, default in config.config_ints.items():
+            self.assertEqual(getattr(config, key), 9999)
 
-    def _test_config_file_value(self, config_name):
+    def test_file_json_secret_properties(self):
+        for key, default in config.config_json_secrets.items():
+            self.assertEqual(getattr(config, key), {"foo":"bat"})
+
+    def test_file_string_ci(self):
+        for key, default in config.config_strings.items():
+            if key != "BUILT_AT" and key != "CONFIG_FOLDER":
+                self._test_config_file_value(key, "TEST_VALUE")
+
+    def test_file_int_ci(self):
+        for key, default in config.config_ints.items():
+            self._test_config_file_value(key, "9999")
+
+    def test_file_secret_ci(self):
+        for key, default in {**config.config_string_secrets, **config.config_json_secrets}.items():
+            self._test_config_file_value(key, "secret")
+
+
+    def _test_config_file_value(self, config_name, value):
         """Helper function to check file values."""
         items = config.config_items
         item = next((i for i in items if i['name'] == config_name), None)
         self.assertIsNotNone(item)
         self.assertEqual(item['name'], config_name)
         self.assertEqual(item['from'], "file")
-        self.assertEqual(item['value'], "TEST_VALUE")
+        self.assertEqual(item['value'], value)
 
 if __name__ == '__main__':
     unittest.main()

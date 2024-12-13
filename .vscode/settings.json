@@ -7,13 +7,5 @@
       "./src",
       "-p",
       "test_*.py"
-    ],
-    "files.exclude": {
-      "**/node_modules": true,
-      "**/*.spec.js": true
-    },
-    "search.exclude": {
-      "**/node_modules": true,
-      "**/*.spec.js": true
-    }
+    ]
   }

@@ -1,12 +1,14 @@
 import unittest
 from flask import Flask
 from src.routes.config_routes import create_config_routes
+from src.utils.ejson_encoder import MongoJSONEncoder
 
 class TestConfigRoutes(unittest.TestCase):
 
     def setUp(self):
         # Set up the Flask test app and register the blueprint
         self.app = Flask(__name__)
+        self.app.json = MongoJSONEncoder(self.app)        
         config_routes = create_config_routes()
         self.app.register_blueprint(config_routes, url_prefix='/api/config')
         self.client = self.app.test_client()

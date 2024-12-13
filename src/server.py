@@ -1,4 +1,4 @@
-# Initilize Logging
+# Initialize Logging
 import logging
 
 from src.routes.path_routes import create_path_routes
@@ -11,7 +11,7 @@ import sys
 import signal
 from flask import Flask
 from prometheus_flask_exporter import PrometheusMetrics
-from src.config.config import config
+from src.config.Config import config
 from src.utils.mongo_io import MongoIO
 from src.routes.curriculum_routes import create_curriculum_routes
 from src.routes.config_routes import create_config_routes

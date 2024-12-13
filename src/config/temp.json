@@ -1,0 +1,292 @@
+[
+    {
+        "name": "BUILT_AT",
+        "value": "LOCAL",
+        "from": "default"
+    },
+    {
+        "name": "CONFIG_FOLDER",
+        "value": "./",
+        "from": "default"
+    },
+    {
+        "name": "CURRICULUM_COLLECTION_NAME",
+        "value": "curriculum",
+        "from": "default"
+    },
+    {
+        "name": "ENCOUNTER_COLLECTION_NAME",
+        "value": "encounters",
+        "from": "default"
+    },
+    {
+        "name": "PARTNERS_COLLECTION_NAME",
+        "value": "partners",
+        "from": "default"
+    },
+    {
+        "name": "PATHS_COLLECTION_NAME",
+        "value": "paths",
+        "from": "default"
+    },
+    {
+        "name": "PEOPLE_COLLECTION_NAME",
+        "value": "people",
+        "from": "default"
+    },
+    {
+        "name": "PLANS_COLLECTION_NAME",
+        "value": "plans",
+        "from": "default"
+    },
+    {
+        "name": "RATINGS_COLLECTION_NAME",
+        "value": "ratings",
+        "from": "default"
+    },
+    {
+        "name": "REVIEWS__COLLECTION_NAME",
+        "value": "reviews",
+        "from": "default"
+    },
+    {
+        "name": "TOPICS_COLLECTION_NAME",
+        "value": "topics",
+        "from": "default"
+    },
+    {
+        "name": "VERSION_COLLECTION_NAME",
+        "value": "msmCurrentVersions",
+        "from": "default"
+    },
+    {
+        "name": "ENUMERATORS_COLLECTION_NAME",
+        "value": "enumerators",
+        "from": "default"
+    },
+    {
+        "name": "CURRICULUM_UI_URI",
+        "value": "http://localhost:8089/",
+        "from": "default"
+    },
+    {
+        "name": "ENCOUNTER_UI_URI",
+        "value": "http://localhost:8091/",
+        "from": "default"
+    },
+    {
+        "name": "PARTNERS_UI_URI",
+        "value": "http://localhost:8085/",
+        "from": "default"
+    },
+    {
+        "name": "PEOPLE_UI_URI",
+        "value": "http://localhost:8083/",
+        "from": "default"
+    },
+    {
+        "name": "TOPICS_UI_URI",
+        "value": "http://localhost:8087/",
+        "from": "default"
+    },
+    {
+        "name": "SEARCH_UI_URI",
+        "value": "http://localhost:8080/",
+        "from": "default"
+    },
+    {
+        "name": "CURRICULUM_API_PORT",
+        "value": "8088",
+        "from": "default"
+    },
+    {
+        "name": "ENCOUNTER_API_PORT",
+        "value": "8090",
+        "from": "default"
+    },
+    {
+        "name": "PARTNERS_API_PORT",
+        "value": "8084",
+        "from": "default"
+    },
+    {
+        "name": "PEOPLE_API_PORT",
+        "value": "8082",
+        "from": "default"
+    },
+    {
+        "name": "TOPICS_API_PORT",
+        "value": "8086",
+        "from": "default"
+    },
+    {
+        "name": "SEARCH_API_PORT",
+        "value": "8081",
+        "from": "default"
+    },
+    {
+        "name": "ELASTIC_INDEX_NAME",
+        "value": "secret",
+        "from": "default"
+    },
+    {
+        "name": "MONGO_CONNECTION_STRING",
+        "value": "secret",
+        "from": "default"
+    },
+    {
+        "name": "MONGO_DB_NAME",
+        "value": "secret",
+        "from": "default"
+    },
+    {
+        "name": "ELASTIC_CLIENT_OPTIONS",
+        "value": "secret",
+        "from": "default"
+    },
+    {
+        "name": "BUILT_AT",
+        "value": "LOCAL",
+        "from": "default"
+    },
+    {
+        "name": "CONFIG_FOLDER",
+        "value": "./",
+        "from": "default"
+    },
+    {
+        "name": "CURRICULUM_COLLECTION_NAME",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "ENCOUNTER_COLLECTION_NAME",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "PARTNERS_COLLECTION_NAME",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "PATHS_COLLECTION_NAME",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "PEOPLE_COLLECTION_NAME",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "PLANS_COLLECTION_NAME",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "RATINGS_COLLECTION_NAME",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "REVIEWS__COLLECTION_NAME",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "TOPICS_COLLECTION_NAME",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "VERSION_COLLECTION_NAME",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "ENUMERATORS_COLLECTION_NAME",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "CURRICULUM_UI_URI",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "ENCOUNTER_UI_URI",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "PARTNERS_UI_URI",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "PEOPLE_UI_URI",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "TOPICS_UI_URI",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "SEARCH_UI_URI",
+        "value": "ENV_VALUE",
+        "from": "environment"
+    },
+    {
+        "name": "CURRICULUM_API_PORT",
+        "value": "9999",
+        "from": "environment"
+    },
+    {
+        "name": "ENCOUNTER_API_PORT",
+        "value": "9999",
+        "from": "environment"
+    },
+    {
+        "name": "PARTNERS_API_PORT",
+        "value": "9999",
+        "from": "environment"
+    },
+    {
+        "name": "PEOPLE_API_PORT",
+        "value": "9999",
+        "from": "environment"
+    },
+    {
+        "name": "TOPICS_API_PORT",
+        "value": "9999",
+        "from": "environment"
+    },
+    {
+        "name": "SEARCH_API_PORT",
+        "value": "9999",
+        "from": "environment"
+    },
+    {
+        "name": "ELASTIC_INDEX_NAME",
+        "value": "secret",
+        "from": "environment"
+    },
+    {
+        "name": "MONGO_CONNECTION_STRING",
+        "value": "secret",
+        "from": "environment"
+    },
+    {
+        "name": "MONGO_DB_NAME",
+        "value": "secret",
+        "from": "environment"
+    },
+    {
+        "name": "ELASTIC_CLIENT_OPTIONS",
+        "value": "secret",
+        "from": "environment"
+    }
+]
