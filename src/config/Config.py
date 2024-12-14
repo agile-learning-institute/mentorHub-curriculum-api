@@ -22,8 +22,9 @@ class Config:
             self.config_strings = {
                 "BUILT_AT": "LOCAL",
                 "CONFIG_FOLDER": "./",
+                "MONGO_DB_NAME": "mentorHub",
                 "CURRICULUM_COLLECTION_NAME": "curriculum",
-                "ENCOUNTER_COLLECTION_NAME": "encounters",
+                "ENCOUNTERS_COLLECTION_NAME": "encounters",
                 "PARTNERS_COLLECTION_NAME": "partners",
                 "PATHS_COLLECTION_NAME": "paths",
                 "PEOPLE_COLLECTION_NAME": "people",
@@ -51,7 +52,6 @@ class Config:
             self.config_string_secrets = {
                 "ELASTIC_INDEX_NAME": "mentorhub", 
                 "MONGO_CONNECTION_STRING": "mongodb://mongodb:27017/?replicaSet=rs0",
-                "MONGO_DB_NAME": "mentorHub",
             }
             self.config_json_secrets = {
                 "ELASTIC_CLIENT_OPTIONS": '{"node":"http://localhost:9200"}',

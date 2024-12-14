@@ -16,7 +16,7 @@ class CurriculumService:
         # Members can access their own curriculum
         if "Member" in token["roles"] and curriculum_id == token["user_id"]: return
         
-        # Mentors can access their apprenticeses curriculums
+        # Mentors can access their apprentices curriculums
         if "Mentor" in token["roles"]:
             mentor = MongoIO().get_mentor(curriculum_id)
             if mentor == token["user_id"]:
