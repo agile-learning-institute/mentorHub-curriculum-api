@@ -19,6 +19,39 @@ class Config:
             self.versions = []
             self.enumerators = {}
             self.CONFIG_FOLDER = "./"
+            
+            # Declare instance variables to support IDE code assist
+            self.BUILT_AT = ''
+            self.CONFIG_FOLDER = ''
+            self.MONGO_DB_NAME = ''
+            self.CURRICULUM_COLLECTION_NAME = ''
+            self.ENCOUNTERS_COLLECTION_NAME = ''
+            self.PARTNERS_COLLECTION_NAME = ''
+            self.PATHS_COLLECTION_NAME = ''
+            self.PEOPLE_COLLECTION_NAME = ''
+            self.PLANS_COLLECTION_NAME = ''
+            self.RATINGS_COLLECTION_NAME = ''
+            self.REVIEWS__COLLECTION_NAME = ''
+            self.TOPICS_COLLECTION_NAME = ''
+            self.VERSION_COLLECTION_NAME = ''
+            self.ENUMERATORS_COLLECTION_NAME = ''
+            self.CURRICULUM_UI_URI = ''
+            self.ENCOUNTER_UI_URI = ''
+            self.PARTNERS_UI_URI = ''
+            self.PEOPLE_UI_URI = ''
+            self.TOPICS_UI_URI = ''
+            self.SEARCH_UI_URI = ''
+            self.CURRICULUM_API_PORT = 0
+            self.ENCOUNTER_API_PORT = 0
+            self.PARTNERS_API_PORT = 0
+            self.PEOPLE_API_PORT = 0
+            self.TOPICS_API_PORT = 0
+            self.SEARCH_API_PORT = 0
+            self.ELASTIC_INDEX_NAME = ""
+            self.MONGO_CONNECTION_STRING = ""
+            self.ELASTIC_CLIENT_OPTIONS = {}
+    
+            # Default Values grouped by value type            
             self.config_strings = {
                 "BUILT_AT": "LOCAL",
                 "CONFIG_FOLDER": "./",
@@ -66,18 +99,22 @@ class Config:
         self.versions = []
         self.enumerators = {}
 
+        # Initialize Config Strings
         for key, default in self.config_strings.items():
             value = self._get_config_value(key, default, False)
             setattr(self, key, value)
             
+        # Initialize Config Integers
         for key, default in self.config_ints.items():
             value = int(self._get_config_value(key, default, False))
             setattr(self, key, value)
             
+        # Initialize String Secrets
         for key, default in self.config_string_secrets.items():
             value = self._get_config_value(key, default, True)
             setattr(self, key, value)
 
+        # Initialize JSON Secrets
         for key, default in self.config_json_secrets.items():
             value = json.loads(self._get_config_value(key, default, True))
             setattr(self, key, value)
