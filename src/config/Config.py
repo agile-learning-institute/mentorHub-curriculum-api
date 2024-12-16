@@ -1,10 +1,9 @@
-from datetime import datetime
+import os
 import json
 from pathlib import Path
-import os
-import logging
 
-from bson import ObjectId
+import logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class Config:
@@ -22,6 +21,7 @@ class Config:
             
             # Declare instance variables to support IDE code assist
             self.BUILT_AT = ''
+            self.LOGGING_LEVEL = ''
             self.CONFIG_FOLDER = ''
             self.MONGO_DB_NAME = ''
             self.CURRICULUM_COLLECTION_NAME = ''
@@ -55,6 +55,7 @@ class Config:
             self.config_strings = {
                 "BUILT_AT": "LOCAL",
                 "CONFIG_FOLDER": "./",
+                "LOGGING_LEVEL": "INFO", 
                 "MONGO_DB_NAME": "mentorHub",
                 "CURRICULUM_COLLECTION_NAME": "curriculum",
                 "ENCOUNTERS_COLLECTION_NAME": "encounters",
@@ -119,6 +120,8 @@ class Config:
             value = json.loads(self._get_config_value(key, default, True))
             setattr(self, key, value)
 
+        # Set Logging Level
+        logging.basicConfig(level=self.LOGGING_LEVEL)
         logger.info(f"Configuration Initialized: {self.config_items}")
             
     def _get_config_value(self, name, default_value, is_secret):
