@@ -1,6 +1,5 @@
 import logging
 import sys
-from datetime import datetime
 from bson import ObjectId 
 from pymongo import MongoClient
 from src.config.Config import config
@@ -99,23 +98,38 @@ class MentorHubMongoIO:
             logger.fatal(f"Failed to get or load enumerators: {e} - exiting")
             sys.exit(1) # fail fast 
 
-    def get_documents(self, collection_name, match=None, project=None):
-        """Retrieve a list of documents based on a match and projection."""
-        if not self.connected: return None
+    def get_documents(self, collection_name, match=None, project=None, sort_by=None):
+        """
+        Retrieve a list of documents based on a match, projection, and optional sorting.
+
+        Args:
+            collection_name (str): Name of the collection to query.
+            match (dict, optional): MongoDB match filter. Defaults to {}.
+            project (dict, optional): Fields to include or exclude. Defaults to None.
+            sort_by (list of tuple, optional): Sorting criteria (e.g., [('field1', ASCENDING), ('field2', DESCENDING)]). Defaults to None.
+
+        Returns:
+            list: List of documents matching the query.
+        """
+        if not self.connected:
+            return None
 
         # Default match and projection
         match = match or {}
         project = project or None
+        sort_by = sort_by or None
 
         try:
             collection = self.db.get_collection(collection_name)
             cursor = collection.find(match, project)
-            documents = list(cursor) 
+            if sort_by: cursor = cursor.sort(sort_by)
+
+            documents = list(cursor)
             return documents
         except Exception as e:
             logger.error(f"Failed to get documents from collection '{collection_name}': {e}")
             raise
-            
+                
     def get_document(self, collection_name, document_id):
         """Retrieve a document by ID."""
         if not self.connected: return None
@@ -125,7 +139,7 @@ class MentorHubMongoIO:
             collection = self.db.get_collection(collection_name)
             document_object_id = ObjectId(document_id)
             document = collection.find_one({"_id": document_object_id})
-            return document | {}
+            return document
         except Exception as e:
             logger.error(f"Failed to get document: {e}")
             raise

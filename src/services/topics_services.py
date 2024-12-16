@@ -1,4 +1,5 @@
-from src.utils import mentorhub_mongo_io
+from pymongo import ASCENDING
+from src.utils.mentorhub_mongo_io import mentorhub_mongoIO
 from src.config.Config import config
 
 import logging
@@ -17,9 +18,10 @@ class TopicService:
         """Get a list of topics that match query"""
         TopicService._check_user_access(token)
 
-        match = {} # TODO: Build match from query
+        match = {"name": {"$regex": query}}
+        order = [('name', ASCENDING)]
         project = {"_id":1,"name":1}
-        topics = mentorhub_mongo_io.getDocuments(config.TOPICS_COLLECTION_NAME, match, project)
+        topics = mentorhub_mongoIO.get_documents(config.TOPICS_COLLECTION_NAME, match, project, order)
         return topics
 
     @staticmethod
@@ -27,5 +29,5 @@ class TopicService:
         """Get the specified path"""
         TopicService._check_user_access(token)
 
-        topic = mentorhub_mongo_io.getDocument(config.TOPICS_COLLECTION_NAME, path_id)
+        topic = mentorhub_mongoIO.get_document(config.TOPICS_COLLECTION_NAME, path_id)
         return topic

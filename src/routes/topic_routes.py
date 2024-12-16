@@ -1,6 +1,8 @@
 import json
 import logging
 
+from src.models.breadcrumb import create_breadcrumb
+from src.models.token import create_token
 from src.services.topics_services import TopicService
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,9 +18,11 @@ def create_topic_routes():
     def get_topics():
         try:
             # Get the topics
+            breadcrumb = create_breadcrumb()
+            token = create_token()
             query = request.args.get('query') or ""
-            topics = TopicService.get_topics(query)
-            logger.info(f"Get Topics Success")
+            topics = TopicService.get_topics(query, token)
+            logger.info(f"Get Topics Success {breadcrumb}")
             return jsonify(topics), 200
         except Exception as e:
             logger.warning(f"Get Topic Error has occurred: {e}")
@@ -29,8 +33,10 @@ def create_topic_routes():
     def get_topic(id):
         try:
             # Get the topic
-            topic = TopicService.get_topic(id)
-            logger.info(f"Get Topic Success")
+            breadcrumb = create_breadcrumb()
+            token = create_token()
+            topic = TopicService.get_topic(id, token)
+            logger.info(f"Get Topic Success {breadcrumb}")
             return jsonify(topic), 200
         except Exception as e:
             logger.warn(f"Get Topic Error has occurred: {e}")

@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import unittest
 
 from bson import ObjectId
+from pymongo import ASCENDING, DESCENDING
 from src.config.Config import config
 from src.utils.mentorhub_mongo_io import MentorHubMongoIO
 
@@ -66,6 +67,29 @@ class TestMentorhubMongoIO(unittest.TestCase):
         self.assertIsInstance(encounter["_id"], ObjectId)
         self.assertEqual(encounter["personId"], ObjectId("aaaa00000000000000011111"))
         
+        
+    def test_order_by_ASCENDING(self):
+        mongo_io = MentorHubMongoIO.get_instance()
+        match = {"currentVersion":"1.0.0.1"}
+        project = {"collectionName": 1, "currentVersion": 1}
+        order = [('collectionName', ASCENDING)]        
+        
+        result = mongo_io.get_documents(config.VERSION_COLLECTION_NAME, match, project, order)
+        self.assertEqual(len(result), 5)
+        self.assertEqual(result[0]["collectionName"], "encounters")
+        self.assertEqual(result[4]["collectionName"], "reviews")
+
+    def test_order_by_DESCENDING(self):
+        mongo_io = MentorHubMongoIO.get_instance()
+        match = {"currentVersion":"1.0.0.1"}
+        project = {"collectionName": 1, "currentVersion": 1}
+        order = [('collectionName', DESCENDING)]        
+        
+        result = mongo_io.get_documents(config.VERSION_COLLECTION_NAME, match, project, order)
+        self.assertEqual(len(result), 5)
+        self.assertEqual(result[4]["collectionName"], "encounters")
+        self.assertEqual(result[0]["collectionName"], "reviews")
+
     def test_get_all_full_documents(self):
         mongo_io = MentorHubMongoIO.get_instance()
         result = mongo_io.get_documents("enumerators")
@@ -74,7 +98,7 @@ class TestMentorhubMongoIO(unittest.TestCase):
         self.assertEqual(len(result), 3)
         self.assertEqual(result[0]["name"], "Enumerations")
         self.assertEqual(result[0]["version"], 0)
-        self.assertEqual(result[0]["status"], "Depricated")
+        self.assertEqual(result[0]["status"], "Deprecated")
 
     def test_get_some_full_documents(self):
         mongo_io = MentorHubMongoIO.get_instance()

@@ -1,9 +1,9 @@
 import json
 import logging
 
+from src.models.breadcrumb import create_breadcrumb
 from src.models.token import create_token
 from src.services.paths_services import PathsService
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 from flask import Blueprint, Response, jsonify, request
@@ -17,10 +17,11 @@ def create_path_routes():
     def get_paths():
         try:
             # Get the paths
+            breadcrumb = create_breadcrumb()
             token = create_token()
             query = request.args.get('query') or ""
             paths = PathsService.get_paths(query, token)
-            logger.info(f"Get Path Success")
+            logger.info(f"Get Path Success {breadcrumb}")
             return jsonify(paths), 200
         except Exception as e:
             logger.warn(f"Get Path Error has occurred: {e}")
@@ -31,9 +32,10 @@ def create_path_routes():
     def get_path(id):
         try:
             # Get the specified path
+            breadcrumb = create_breadcrumb()
             token = create_token()
             path = PathsService.get_path(id, token)
-            logger.info(f"Get Path Success")
+            logger.info(f"Get Path Success {breadcrumb}")
             return jsonify(path), 200
         except Exception as e:
             logger.warn(f"Get Path Error has occurred: {e}")

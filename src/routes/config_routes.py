@@ -1,5 +1,6 @@
 import logging
 
+from src.models.breadcrumb import create_breadcrumb
 from src.models.token import create_token
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,8 +17,9 @@ def create_config_routes():
     def get_config():
         try:
             # Return the JSON representation of the config object
+            breadcrumb = create_breadcrumb()
             token = create_token()
-            logger.info(f"Get Config Success")
+            logger.info(f"Get Config Success {breadcrumb}")
             return jsonify(config.to_dict(token)), 200
         except Exception as e:
             logger.warn(f"Get Config Error has occured: {e}")

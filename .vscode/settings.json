@@ -6,6 +6,6 @@
       "-s",
       "./src",
       "-p",
-      "test_*.py"
+      "test*.py"
     ]
   }

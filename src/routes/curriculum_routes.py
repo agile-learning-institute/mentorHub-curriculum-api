@@ -14,13 +14,13 @@ def create_curriculum_routes():
     @curriculum_routes.route('/<string:id>', methods=['GET'])
     def get_or_create_curriculum(id):
         try:
-            breadcrumb = create_breadcrumb()
             token = create_token()
+            breadcrumb = create_breadcrumb()
             curriculum = CurriculumService.get_or_create_curriculum(id, token, breadcrumb)
             logger.info(f"Get Curriculum Successful {breadcrumb}")
             return jsonify(curriculum), 200
         except Exception as e:
-            logger.warn(f"A processing error occurred {e}")
+            logger.warning(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500
 
     # PATCH /api/curriculum/{id} - Update a curriculum
@@ -34,7 +34,7 @@ def create_curriculum_routes():
             logger.info(f"Update Curriculum Successful {breadcrumb}")
             return jsonify(curriculum), 200
         except Exception as e:
-            logger.warn(f"A processing error occurred {e}")
+            logger.warning(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500
         
     # DELETE /api/curriculum/{id} - Delete a curriculum
@@ -42,11 +42,12 @@ def create_curriculum_routes():
     def delete_curriculum(id):
         try:
             token = create_token()
+            breadcrumb = create_breadcrumb()
             CurriculumService.delete_curriculum(id, token)
-            logger.info(f"Delete Curriculum Successful")
+            logger.info(f"Delete Curriculum Successful {breadcrumb}")
             return jsonify({"result": "Success"}), 200
         except Exception as e:
-            logger.warn(f"Error during Delete {e}")
+            logger.warning(f"Error during Delete {e}")
             return jsonify({"error": "A processing error occurred"}), 500
         
     # PATCH /api/curriculum/{id}/assign/{link} - Move a resource from Next to Now
@@ -59,7 +60,7 @@ def create_curriculum_routes():
             logger.info(f"Assign Resource Successful {breadcrumb}")
             return jsonify(curriculum), 200
         except Exception as e:
-            logger.warn(f"A processing error occurred {e}")
+            logger.warning(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500
         
     # PATCH /api/curriculum/{id}/complete/{link} - Move a resource from Now to Complete
@@ -73,7 +74,7 @@ def create_curriculum_routes():
             logger.info(f"Complete Resource Successful {breadcrumb}")
             return jsonify(curriculum), 200
         except Exception as e:
-            logger.warn(f"A processing error occurred {e}")
+            logger.warning(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500
         
     # POST /api/curriculum/{curriculum_id}/path/{path_id} - Add a path to Next
@@ -86,7 +87,7 @@ def create_curriculum_routes():
             logger.info(f"Add Path Successful {breadcrumb}")
             return jsonify(curriculum), 200
         except Exception as e:
-            logger.warn(f"A processing error occurred {e}")
+            logger.warning(f"A processing error occurred {e}")
             return jsonify({"error": "A processing error occurred"}), 500
         
     # Ensure the Blueprint is returned correctly
