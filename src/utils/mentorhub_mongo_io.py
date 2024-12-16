@@ -2,7 +2,7 @@ import logging
 import sys
 from bson import ObjectId 
 from pymongo import MongoClient
-from src.config.MentorHub_Config import MentorHub_Config
+from mentorhub_config.MentorHub_Config import MentorHub_Config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

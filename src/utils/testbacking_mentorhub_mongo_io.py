@@ -4,7 +4,7 @@ import unittest
 
 from bson import ObjectId
 from pymongo import ASCENDING, DESCENDING
-from src.config.MentorHub_Config import MentorHub_Config
+from mentorhub_config.MentorHub_Config import MentorHub_Config
 from src.utils.mentorhub_mongo_io import MentorHubMongoIO
 
 class TestMentorhubMongoIO(unittest.TestCase):

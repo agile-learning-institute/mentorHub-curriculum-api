@@ -8,7 +8,7 @@ from src.routes.curriculum_routes import create_curriculum_routes
 from src.routes.config_routes import create_config_routes
 from src.utils.ejson_encoder import MongoJSONEncoder
 from prometheus_flask_exporter import PrometheusMetrics
-from src.config.MentorHub_Config import MentorHub_Config
+from mentorhub_config.MentorHub_Config import MentorHub_Config
 from src.utils.mentorhub_mongo_io import MentorHubMongoIO
 
 # Initialize Config

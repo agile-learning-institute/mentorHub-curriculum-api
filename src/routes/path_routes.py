@@ -1,8 +1,7 @@
 import json
 import logging
 
-from src.models.breadcrumb import create_breadcrumb
-from src.models.token import create_token
+from mentorhub_flask_utils import create_breadcrumb, create_token
 from src.services.paths_services import PathsService
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,7 @@
 from datetime import datetime
 from bson import ObjectId
 from flask import jsonify
-from src.config.MentorHub_Config import MentorHub_Config
+from mentorhub_config.MentorHub_Config import MentorHub_Config
 from src.utils.mentorhub_mongo_io import mentorhub_mongoIO
 import logging
 logger = logging.getLogger(__name__)

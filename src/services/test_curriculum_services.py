@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 
 from bson import ObjectId
-from src.config.MentorHub_Config import MentorHub_Config
+from mentorhub_config.MentorHub_Config import MentorHub_Config
 from src.services.curriculum_services import CurriculumService
 
 class TestCurriculumService(unittest.TestCase):

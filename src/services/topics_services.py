@@ -1,6 +1,6 @@
 from pymongo import ASCENDING
 from src.utils.mentorhub_mongo_io import mentorhub_mongoIO
-from src.config.MentorHub_Config import MentorHub_Config
+from mentorhub_config.MentorHub_Config import MentorHub_Config
 
 import logging
 logger = logging.getLogger(__name__)

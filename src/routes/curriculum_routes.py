@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
-from src.models.token import create_token
 from src.services.curriculum_services import CurriculumService
-from src.models.breadcrumb import create_breadcrumb
+from mentorhub_flask_utils import create_breadcrumb, create_token
 
 import logging
 logger = logging.getLogger(__name__)
