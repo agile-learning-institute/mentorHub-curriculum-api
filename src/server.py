@@ -5,7 +5,7 @@ from flask import Flask
 from src.routes.path_routes import create_path_routes
 from src.routes.topic_routes import create_topic_routes
 from src.routes.curriculum_routes import create_curriculum_routes
-from src.routes.config_routes import create_config_routes
+from mentorhub_config import create_config_routes
 from src.utils.ejson_encoder import MongoJSONEncoder
 from prometheus_flask_exporter import PrometheusMetrics
 from mentorhub_config.MentorHub_Config import MentorHub_Config
