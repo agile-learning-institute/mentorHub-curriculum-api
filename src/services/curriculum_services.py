@@ -1,7 +1,8 @@
 from datetime import datetime
 from bson import ObjectId
 from flask import jsonify
-from src.utils.mongo_io import MongoIO
+from src.config.Config import config
+from src.utils.mentorhub_mongo_io import mentorhub_mongoIO
 import logging
 logger = logging.getLogger(__name__)
 
@@ -18,59 +19,27 @@ class CurriculumService:
         
         # Mentors can access their apprentices curriculums
         if "Mentor" in token["roles"]:
-            mentor = MongoIO().get_mentor(curriculum_id)
-            if mentor == token["user_id"]:
+            apprentice = mentorhub_mongoIO.get_document(config.PEOPLE_COLLECTION_NAME, curriculum_id)
+            if apprentice["mentorId"] == token["user_id"]:
                 return
         
         # User has No Access! Log a warning and raise an exception
-        logger.warn(f"Access Denied: {curriculum_id}, {token['user_id']}, {token['roles']}")
+        logger.warning(f"Access Denied: {curriculum_id}, {token['user_id']}, {token['roles']}")
         raise Exception("Access Denied")
-
-    @staticmethod
-    def _encode_resource_data(document):
-        """Encode ObjectId and datetime values for MongoDB"""
-        id_properties = ["later"]
-        date_properties = ["started", "completed"]
-        
-        def encode_value(key, value):
-            """Encode identified values"""
-            if key in id_properties:
-                if isinstance(value, str):
-                    return ObjectId(value)
-                if isinstance(value, list):
-                    return [ObjectId(item) if isinstance(item, str) else item for item in value]
-            if key in date_properties:
-                if isinstance(value, str):
-                    return datetime.fromisoformat(value)
-                if isinstance(value, list):
-                    return [datetime.fromisoformat(item) if isinstance(item, str) else item for item in value]
-            return value
-
-        # Traverse the document and encode relevant properties
-        for key, value in document.items():
-            if isinstance(value, dict):
-                CurriculumService._encode_resource_data(value)  # Recursively encode nested documents
-            elif isinstance(value, list):
-                # Check if the list contains dictionaries (objects)
-                if all(isinstance(item, dict) for item in value):
-                    document[key] = [CurriculumService._encode_resource_data(item) for item in value]
-                else:
-                    document[key] = [encode_value(key, item) for item in value]  # Encode non-object list items
-            else:
-                document[key] = encode_value(key, value)  # Encode single values
-
-        return document
         
     @staticmethod
     def get_or_create_curriculum(curriculum_id, token, breadcrumb):
         """Get a curriculum if it exits, if not create a new one and return that"""
         CurriculumService._check_user_access(curriculum_id, token)
 
-        mongo_io = MongoIO()
-        curriculum = mongo_io.get_curriculum(curriculum_id)
+        curriculum = mentorhub_mongoIO.get_document(config.CURRICULUM_COLLECTION_NAME, curriculum_id)
         if curriculum == None:
-            mongo_io.create_curriculum(curriculum_id, breadcrumb)
-            curriculum = mongo_io.get_curriculum(curriculum_id)
+            document = {
+                "_id": ObjectId(curriculum_id),
+                "lastSaved": breadcrumb
+            }
+            mentorhub_mongoIO.create_document(config.CURRICULUM_COLLECTION_NAME, document)
+            curriculum = mentorhub_mongoIO.get_document(config.CURRICULUM_COLLECTION_NAME, curriculum_id)
         return curriculum
 
     @staticmethod
@@ -80,22 +49,17 @@ class CurriculumService:
 
         # Add breadcrumb to patch_data
         patch_data["lastSaved"] = breadcrumb
-        mongo_io = MongoIO()
-        mongo_io.update_curriculum(curriculum_id, patch_data)
-        curriculum = mongo_io.get_curriculum(curriculum_id)
+        curriculum = mentorhub_mongoIO.update_document(config.CURRICULUM_COLLECTION_NAME, curriculum_id, patch_data)
         return curriculum
 
     @staticmethod
     def delete_curriculum(curriculum_id, token):
-        """Remove a resource from the curriculum"""
+        """Remove a curriculum - for testing"""
         if not "Staff" in token["roles"]:
-            logger.warn(f"Delete Access Denied, Staff only: {token['roles']}")
+            logger.warning(f"Delete Access Denied, Staff only: {token['roles']}")
             raise Exception("Access Denied")
     
-        CurriculumService._check_user_access(curriculum_id, token)
-
-        mongo_io = MongoIO()
-        mongo_io.delete_curriculum(curriculum_id)
+        mentorhub_mongoIO.delete_document(config.CURRICULUM_COLLECTION_NAME, curriculum_id)
         return 
 
     @staticmethod
@@ -104,10 +68,9 @@ class CurriculumService:
         # Check if the user has access
         CurriculumService._check_user_access(curriculum_id, token)
 
-        mongo_io = MongoIO()
-        curriculum = mongo_io.get_curriculum(curriculum_id)
+        curriculum = mentorhub_mongoIO.get_document(config.CURRICULUM_COLLECTION_NAME, curriculum_id)
         
-        # Initilize curriculum, we won't be changing any of these values
+        # Initialize curriculum, we won't be changing any of these values
         del curriculum["_id"]
         del curriculum["completed"]
         del curriculum["later"]
@@ -140,8 +103,7 @@ class CurriculumService:
                                 curriculum['next'].remove(path)
                                 
                             # Update the curriculum and return
-                            mongo_io.update_curriculum(curriculum_id, curriculum)
-                            curriculum = mongo_io.get_curriculum(curriculum_id)
+                            curriculum = mentorhub_mongoIO.update_document(config.CURRICULUM_COLLECTION_NAME, curriculum_id, curriculum)
                             return curriculum
         raise ValueError(f"Resource with link '{link}' not found in next")
     
@@ -150,10 +112,9 @@ class CurriculumService:
         """Promote a resource from Now to Completed"""
         CurriculumService._check_user_access(curriculum_id, token)
 
-        mongo_io = MongoIO()
-        curriculum = mongo_io.get_curriculum(curriculum_id)
+        curriculum = mentorhub_mongoIO.get_document(config.CURRICULUM_COLLECTION_NAME, curriculum_id)
         
-        # Initilize curriculum, we won't be changing any of these values
+        # Initialize curriculum, we won't be changing any of these values
         del curriculum["_id"]
         del curriculum["next"]
         del curriculum["later"]
@@ -173,8 +134,7 @@ class CurriculumService:
                 curriculum.get('completed').append(resource)
 
                 # Update the curriculum and return
-                mongo_io.update_curriculum(curriculum_id, curriculum)
-                curriculum = mongo_io.get_curriculum(curriculum_id)
+                curriculum = mentorhub_mongoIO.update_document(config.CURRICULUM_COLLECTION_NAME, curriculum_id, curriculum)
                 return curriculum
         raise ValueError(f"Resource with link '{link}' not found in {curriculum['now']}")
     
@@ -183,11 +143,10 @@ class CurriculumService:
         """Add a path to Next"""
         CurriculumService._check_user_access(curriculum_id, token)
 
-        mongo_io = MongoIO()
-        curriculum = mongo_io.get_curriculum(curriculum_id)
-        path = mongo_io.get_path(path_id)
+        curriculum = mentorhub_mongoIO.get_document(config.CURRICULUM_COLLECTION_NAME, curriculum_id)
+        path = mentorhub_mongoIO.get_document(config.PATHS_COLLECTION_NAME, path_id)
         
-        # Initilize curriculum, we won't be changing any of these values
+        # Initialize curriculum, we won't be changing any of these values
         del curriculum["_id"]
         del curriculum["completed"]
         del curriculum["now"]
@@ -197,10 +156,9 @@ class CurriculumService:
         curriculum["lastSaved"] = breadcrumb
 
         # Add the path
-        curriculum["next"] = curriculum["next"] + path
+        curriculum["next"] = curriculum["next"] + [path]
 
         # Update the database, get the updated document        
-        mongo_io.update_curriculum(curriculum_id, curriculum)
-        curriculum = mongo_io.get_curriculum(curriculum_id)
+        curriculum = mentorhub_mongoIO.update_document(config.CURRICULUM_COLLECTION_NAME, curriculum_id, curriculum)
         return curriculum
     

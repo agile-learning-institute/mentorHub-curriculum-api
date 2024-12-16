@@ -1,32 +1,33 @@
-# Initialize Logging
-import logging
-
-from src.routes.path_routes import create_path_routes
-from src.routes.topic_routes import create_topic_routes
-from src.utils.ejson_encoder import MongoJSONEncoder
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 import sys
 import signal
 from flask import Flask
-from prometheus_flask_exporter import PrometheusMetrics
-from src.config.Config import config
-from src.utils.mongo_io import MongoIO
+
+from src.routes.path_routes import create_path_routes
+from src.routes.topic_routes import create_topic_routes
 from src.routes.curriculum_routes import create_curriculum_routes
 from src.routes.config_routes import create_config_routes
+from src.utils.ejson_encoder import MongoJSONEncoder
+from prometheus_flask_exporter import PrometheusMetrics
+from src.config.Config import config
+from src.utils.mentorhub_mongo_io import MentorHubMongoIO
 
-# Initilize Flask App
+# Initialize Logging
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+# Initialize Flask App
 app = Flask(__name__)
 app.json = MongoJSONEncoder(app)
 
 # Initialize Database Connection, and load one-time data
-mongo = MongoIO()
-mongo.initialize()
+mongo = MentorHubMongoIO()
+mongo.initialize(config.CURRICULUM_COLLECTION_NAME)
 
 # Apply Prometheus monitoring middleware
 metrics = PrometheusMetrics(app, path='/api/health/')
-metrics.info('app_info', 'Application info', version=config.api_version)
+metrics.info('app_info', 'Application info', version=config.BUILT_AT)
 
 # Initialize Route Handlers
 config_handler = create_config_routes()

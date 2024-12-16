@@ -1,7 +1,8 @@
 import json
 import logging
 
-from src.utils.mongo_io import MongoIO
+from src.models.token import create_token
+from src.services.paths_services import PathsService
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -13,17 +14,30 @@ def create_path_routes():
 
     # GET /api/path - Return a list of paths that match query
     @path_routes.route('', methods=['GET'])
-    def get_path():
+    def get_paths():
         try:
             # Get the paths
-            mongo_io = MongoIO()
+            token = create_token()
             query = request.args.get('query') or ""
-            paths = mongo_io.get_paths(query)
+            paths = PathsService.get_paths(query, token)
             logger.info(f"Get Path Success")
             return jsonify(paths), 200
         except Exception as e:
             logger.warn(f"Get Path Error has occurred: {e}")
             return jsonify({"error": "A processing error occurred"}), 500
         
+    # GET /api/path/id - Return a specific path
+    @path_routes.route('/<string:id>', methods=['GET'])
+    def get_path(id):
+        try:
+            # Get the specified path
+            token = create_token()
+            path = PathsService.get_path(id, token)
+            logger.info(f"Get Path Success")
+            return jsonify(path), 200
+        except Exception as e:
+            logger.warn(f"Get Path Error has occurred: {e}")
+            return jsonify({"error": "A processing error occurred"}), 500
+
     # Ensure the Blueprint is returned correctly
     return path_routes

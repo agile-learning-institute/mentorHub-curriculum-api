@@ -1,8 +1,7 @@
 import unittest
 from unittest.mock import patch
-import sys
 import signal
-from src.server import app, mongo, handle_exit, logger
+from src.server import app, handle_exit, logger
 
 class TestServer(unittest.TestCase):
 
