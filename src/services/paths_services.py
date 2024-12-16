@@ -1,6 +1,6 @@
 from pymongo import ASCENDING
 from src.utils.mentorhub_mongo_io import mentorhub_mongoIO
-from src.config.Config import config
+from src.config.MentorHub_Config import MentorHub_Config
 
 import logging
 logger = logging.getLogger(__name__)
@@ -16,6 +16,7 @@ class PathsService:
     @staticmethod
     def get_paths(query, token):
         """Get a list of paths that match query"""
+        config = MentorHub_Config.get_instance()
         PathsService._check_user_access(token)
 
         match = {"name": {"$regex": query}}
@@ -27,6 +28,7 @@ class PathsService:
     @staticmethod
     def get_path(path_id, token):
         """Get the specified path"""
+        config = MentorHub_Config.get_instance()
         PathsService._check_user_access(token)
 
         path = mentorhub_mongoIO.get_document(config.PATHS_COLLECTION_NAME, path_id)

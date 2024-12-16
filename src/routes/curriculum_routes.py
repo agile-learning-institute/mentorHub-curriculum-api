@@ -7,7 +7,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 def create_curriculum_routes():
-    # Define the Blueprint
     curriculum_routes = Blueprint('curriculum_routes', __name__)
 
     # GET /api/curriculum/{id}/ - Get or create a curriculum

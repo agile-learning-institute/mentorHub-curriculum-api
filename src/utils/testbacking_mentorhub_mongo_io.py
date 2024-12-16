@@ -4,12 +4,13 @@ import unittest
 
 from bson import ObjectId
 from pymongo import ASCENDING, DESCENDING
-from src.config.Config import config
+from src.config.MentorHub_Config import MentorHub_Config
 from src.utils.mentorhub_mongo_io import MentorHubMongoIO
 
 class TestMentorhubMongoIO(unittest.TestCase):
     
-    def setUp(self):       
+    def setUp(self):
+        self.config = MentorHub_Config.get_instance()
         self.test_id = "eeee00000000000000009999"
         
         MentorHubMongoIO._instance = None
@@ -30,10 +31,10 @@ class TestMentorhubMongoIO(unittest.TestCase):
 
     def test_config_loaded(self):
         # Test that Config loaded version and enumerators
-        self.assertIsInstance(config.versions, list)
-        self.assertEqual(len(config.versions), 9)
+        self.assertIsInstance(self.config.versions, list)
+        self.assertEqual(len(self.config.versions), 9)
 
-        self.assertIsInstance(config.enumerators, dict)
+        self.assertIsInstance(self.config.enumerators, dict)
 
     def test_CRUD_document(self):
         # Create a Test Document
@@ -74,7 +75,7 @@ class TestMentorhubMongoIO(unittest.TestCase):
         project = {"collectionName": 1, "currentVersion": 1}
         order = [('collectionName', ASCENDING)]        
         
-        result = mongo_io.get_documents(config.VERSION_COLLECTION_NAME, match, project, order)
+        result = mongo_io.get_documents(self.config.VERSION_COLLECTION_NAME, match, project, order)
         self.assertEqual(len(result), 5)
         self.assertEqual(result[0]["collectionName"], "encounters")
         self.assertEqual(result[4]["collectionName"], "reviews")
@@ -85,7 +86,7 @@ class TestMentorhubMongoIO(unittest.TestCase):
         project = {"collectionName": 1, "currentVersion": 1}
         order = [('collectionName', DESCENDING)]        
         
-        result = mongo_io.get_documents(config.VERSION_COLLECTION_NAME, match, project, order)
+        result = mongo_io.get_documents(self.config.VERSION_COLLECTION_NAME, match, project, order)
         self.assertEqual(len(result), 5)
         self.assertEqual(result[4]["collectionName"], "encounters")
         self.assertEqual(result[0]["collectionName"], "reviews")

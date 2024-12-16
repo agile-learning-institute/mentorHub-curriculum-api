@@ -2,7 +2,7 @@ import logging
 import sys
 from bson import ObjectId 
 from pymongo import MongoClient
-from src.config.Config import config
+from src.config.MentorHub_Config import MentorHub_Config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -13,12 +13,12 @@ class MentorHubMongoIO:
     _instance = None
 
     def __new__(cls, *args, **kwargs):
-        config.get_instance()   # Ensure the config is constructed first
         if cls._instance is None:
             cls._instance = super(MentorHubMongoIO, cls).__new__(cls, *args, **kwargs)
             cls._instance.connected = False
             cls._instance.client = None
             cls._instance.db = None
+            cls._instance.config = MentorHub_Config.get_instance()
         return cls._instance
 
     def initialize(self, enumerators_collection_key):
@@ -30,10 +30,10 @@ class MentorHubMongoIO:
     def _connect(self):
         """Connect to MongoDB."""
         try:
-            self.client = MongoClient(config.MONGO_CONNECTION_STRING, serverSelectionTimeoutMS=2000, socketTimeoutMS=5000)
+            self.client = MongoClient(self.config.MONGO_CONNECTION_STRING, serverSelectionTimeoutMS=2000, socketTimeoutMS=5000)
             # TODO: Config timeout
             self.client.admin.command('ping')  # Force connection
-            self.db = self.client.get_database(config.MONGO_DB_NAME)
+            self.db = self.client.get_database(self.config.MONGO_DB_NAME)
             self.connected = True
             logger.info(f"Connected to MongoDB")
         except Exception as e:
@@ -55,36 +55,36 @@ class MentorHubMongoIO:
     def _load_versions(self):
         """Load the versions collection into memory."""
         try:
-            versions_collection_name = config.VERSION_COLLECTION_NAME
-            config.versions = self.get_documents(versions_collection_name)
+            versions_collection_name = self.config.VERSION_COLLECTION_NAME
+            self.config.versions = self.get_documents(versions_collection_name)
             
-            logger.info(f"{len(config.versions)} Versions Loaded.")
+            logger.info(f"{len(self.config.versions)} Versions Loaded.")
         except Exception as e:
             logger.fatal(f"Failed to get or load versions: {e} - exiting")
             sys.exit(1) # fail fast 
 
     def _load_enumerators(self, enumerators_collection_key):
         """Load the enumerators collection into memory."""
-        if len(config.versions) == 0:
+        if len(self.config.versions) == 0:
             logger.fatal("No Versions to load Enumerators from - exiting")
             sys.exit(1) # fail fast 
         
         try: 
             # Get the enumerators version from the curriculum version number.
             version_strings = [version['currentVersion'].split('.').pop() or "0" 
-                for version in config.versions if version['collectionName'] == enumerators_collection_key]
+                for version in self.config.versions if version['collectionName'] == enumerators_collection_key]
             the_version_string = version_strings.pop() if version_strings else "0"
             the_version = int(the_version_string)
 
             # Query the database            
             
-            enumerators_collection_name = config.ENUMERATORS_COLLECTION_NAME
+            enumerators_collection_name = self.config.ENUMERATORS_COLLECTION_NAME
             match = { "version": the_version }
             enumerations = self.get_documents(enumerators_collection_name, match)
     
             # Fail Fast if not found - critical error
             if not enumerations:
-                logger.fatal(f"Enumerators not found for version: {config.ENUMERATORS_COLLECTION_NAME}:{the_version_string}")
+                logger.fatal(f"Enumerators not found for version: {self.config.ENUMERATORS_COLLECTION_NAME}:{the_version_string}")
                 sys.exit(1) # fail fast 
     
             # Fail Fast if too many are found - it should be 1 document
@@ -92,7 +92,7 @@ class MentorHubMongoIO:
                 logger.fatal(f"{len(enumerations)} ! Too many Enumerators found for version: {the_version_string}")
                 sys.exit(1) # fail fast 
     
-            config.enumerators = enumerations[0]['enumerators']
+            self.config.enumerators = enumerations[0]['enumerators']
             logger.info(f"{len(enumerations)} Enumerators Loaded.")
         except Exception as e:
             logger.fatal(f"Failed to get or load enumerators: {e} - exiting")

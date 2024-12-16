@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 
 from bson import ObjectId
-from src.config.Config import config
+from src.config.MentorHub_Config import MentorHub_Config
 from src.services.curriculum_services import CurriculumService
 
 class TestCurriculumService(unittest.TestCase):
@@ -18,6 +18,7 @@ class TestCurriculumService(unittest.TestCase):
         
     @patch('src.services.curriculum_services.mentorhub_mongoIO')
     def test_token_staff(self, mock_mentorhub_mongo_io):
+        config = MentorHub_Config.get_instance()
         mock_mentorhub_mongo_io.get_document.return_value = {"foo": "bar"}
 
         curriculum = CurriculumService.get_or_create_curriculum("curriculum_id", self.token, self.breadcrumb)
@@ -26,6 +27,7 @@ class TestCurriculumService(unittest.TestCase):
 
     @patch('src.services.curriculum_services.mentorhub_mongoIO')
     def test_token_member_pass(self, mock_mentorhub_mongo_io):
+        config = MentorHub_Config.get_instance()
         token = {"user_id":"000000000000000000000000", "roles":["Member"]}
         mock_mentorhub_mongo_io.get_document.return_value = {"foo": "bar"}
 
@@ -43,6 +45,7 @@ class TestCurriculumService(unittest.TestCase):
 
     @patch('src.services.curriculum_services.mentorhub_mongoIO')
     def test_token_mentor_pass(self, mock_mentorhub_mongo_io):
+        config = MentorHub_Config.get_instance()
         token = {"user_id":"000000000000000000000012", "roles":["Mentor"]}
         mock_mentorhub_mongo_io.get_document.side_effect = [
             {"mentorId": "000000000000000000000012"},
@@ -66,6 +69,7 @@ class TestCurriculumService(unittest.TestCase):
 
     @patch('src.services.curriculum_services.mentorhub_mongoIO')
     def test_get_or_create_curriculum_new_success(self, mock_mentorhub_mongo_io):
+        config = MentorHub_Config.get_instance()
         return_curriculum = {"_id":ObjectId("aaaa00000000000000000999"),"completed":[],"now":[],"next":[],"later":[],"lastSaved":self.breadcrumb}
         mock_mentorhub_mongo_io.get_document.side_effect = [None, return_curriculum]
         mock_mentorhub_mongo_io.create_document.return_value = {}
@@ -90,6 +94,7 @@ class TestCurriculumService(unittest.TestCase):
             
     @patch('src.services.curriculum_services.mentorhub_mongoIO')
     def test_get_or_create_curriculum_existing_success(self, mock_mentorhub_mongo_io):
+        config = MentorHub_Config.get_instance()
         return_curriculum = {"_id":ObjectId("aaaa00000000000000000999"),"completed":[],"now":[],"next":[],"later":[],"lastSaved":self.breadcrumb}
         mock_mentorhub_mongo_io.get_document.return_value = return_curriculum
         
@@ -102,6 +107,7 @@ class TestCurriculumService(unittest.TestCase):
             
     @patch('src.services.curriculum_services.mentorhub_mongoIO')
     def test_update_curriculum_success(self, mock_mentorhub_mongo_io):
+        config = MentorHub_Config.get_instance()
         return_curriculum = {"_id":ObjectId("aaaa00000000000000000999"),"completed":[],"now":[],"next":[],"later":[],"lastSaved":self.breadcrumb}
         mock_mentorhub_mongo_io.update_document.return_value = return_curriculum
 
@@ -110,6 +116,7 @@ class TestCurriculumService(unittest.TestCase):
 
     @patch('src.services.curriculum_services.mentorhub_mongoIO')
     def test_delete_curriculum_success(self, mock_mentorhub_mongo_io):
+        config = MentorHub_Config.get_instance()
         mock_mentorhub_mongo_io.delete_document.return_value = {}
 
         curriculum = CurriculumService.delete_curriculum("aaaa00000000000000000001", self.token)
@@ -118,6 +125,7 @@ class TestCurriculumService(unittest.TestCase):
     @patch('src.services.curriculum_services.mentorhub_mongoIO')
     def test_assign_resource_simple_success(self, mock_mentorhub_mongo_io):
         # Setup test data
+        config = MentorHub_Config.get_instance()
         before_update = {"_id": ObjectId("aaaa00000000000000000001"), "completed": [], "later": [], "now":[{"name":"AWSStorageResource","link":"https://somevalidlink.35.com","description":"foo","started":datetime.fromisoformat("2024-07-15T13:00:00")},{"name":"Some Unique Resource","link":"https://some.com/resource","description":"bar"}],"next":[{"path":"The Odin Project","segments":[{"segment":"Intermediate HTML and CSS","topics":[{"topic":"Intermediate HTML","resources":[{"name":"A one-off resource","link":"https://some.com/resource","description":"test-it2"},{"name":"Howdocomputersreadcode?V","link":"https://somevalidlink.22.com","description":"test-it1"}]}]}]}],"lastSaved":self.breadcrumb}
         expected_after = {"now":[{"name":"AWSStorageResource","link":"https://somevalidlink.35.com","description":"foo","started":datetime.fromisoformat("2024-07-15T13:00:00")},{"name":"Some Unique Resource","link":"https://some.com/resource","description":"bar"},{"name":"Howdocomputersreadcode?V","link":"https://somevalidlink.22.com","description":"test-it1"}],"next":[{"path":"The Odin Project","segments":[{"segment":"Intermediate HTML and CSS","topics":[{"topic":"Intermediate HTML","resources":[{"name":"A one-off resource","link":"https://some.com/resource","description":"test-it2"}]}]}]}],"lastSaved":self.breadcrumb}
         
@@ -134,6 +142,7 @@ class TestCurriculumService(unittest.TestCase):
     @patch('src.services.curriculum_services.mentorhub_mongoIO')
     def test_assign_resource_cleaning_success(self, mock_mentorhub_mongo_io):
         # Setup test data
+        config = MentorHub_Config.get_instance()
         before_update = {"_id": ObjectId("aaaa00000000000000000001"), "completed": [], "later": [], "now":[{"name":"AWSStorageResource","link":"https://somevalidlink.35.com","description":"foo","started":datetime.fromisoformat("2024-07-15T13:00:00")},{"name":"Some Unique Resource","link":"https://some-other.com/resource","description":"bar"}],"next":[{"path":"The Odin Project","segments":[{"segment":"Intermediate HTML and CSS","topics":[{"topic":"Intermediate HTML","resources":[{"name":"A one-off resource","description":"test","link":"https://some.com/resource"}]}]}]}],"lastSaved":self.breadcrumb}
         expected_after = {"now":[{"name":"AWSStorageResource","link":"https://somevalidlink.35.com","description":"foo","started":datetime.fromisoformat("2024-07-15T13:00:00")},{"name":"Some Unique Resource","link":"https://some-other.com/resource","description":"bar"},{"name":"A one-off resource","description":"test","link":"https://some.com/resource"}],"next":[],"lastSaved":self.breadcrumb}
         
@@ -151,6 +160,7 @@ class TestCurriculumService(unittest.TestCase):
     @patch('src.services.curriculum_services.mentorhub_mongoIO')
     def test_complete_resource_with_rating_success(self, mock_mentorhub_mongo_io, mock_datetime):
         # Setup test data
+        config = MentorHub_Config.get_instance()
         before_update = {"_id":ObjectId("aaaa00000000000000000001"),"next":[],"later":[],"completed":[],"now":[{"name":"AWSStorageResource","link":"https://somevalidlink.35.com","description":"foo","started":datetime.fromisoformat("2024-07-15T13:00:00")},{"name":"Some Unique Resource","link":"https://some-other.com/resource","description":"bar"}],"lastSaved":self.breadcrumb}
         expected_after = {"completed":[{"name":"AWSStorageResource","link":"https://somevalidlink.35.com","description":"foo","started":datetime.fromisoformat("2024-07-15T13:00:00"),"completed":datetime.fromisoformat("2024-01-01T12:34:56"),"rating":4,"review":"Nice"}],"now":[{"name":"Some Unique Resource","link":"https://some-other.com/resource","description":"bar"}],"lastSaved":self.breadcrumb}
 
@@ -177,6 +187,7 @@ class TestCurriculumService(unittest.TestCase):
     @patch('src.services.curriculum_services.mentorhub_mongoIO')
     def test_complete_resource_without_rating_success(self, mock_mentorhub_mongo_io, mock_datetime):
         # Setup test data
+        config = MentorHub_Config.get_instance()
         before_update = {"_id":ObjectId("aaaa00000000000000000001"),"next":[],"later":[],"completed":[],"now":[{"name":"AWSStorageResource","link":"https://somevalidlink.35.com","description":"foo","started":datetime.fromisoformat("2024-07-15T13:00:00")},{"name":"Some Unique Resource","link":"https://some-other.com/resource","description":"bar"}],"lastSaved":self.breadcrumb}
         expected_after = {"completed":[{"name":"AWSStorageResource","link":"https://somevalidlink.35.com","description":"foo","started":datetime.fromisoformat("2024-07-15T13:00:00"),"completed":datetime.fromisoformat("2024-01-01T12:34:56")}],"now":[{"name":"Some Unique Resource","link":"https://some-other.com/resource","description":"bar"}],"lastSaved":self.breadcrumb}
 
@@ -196,6 +207,7 @@ class TestCurriculumService(unittest.TestCase):
     @patch('src.services.curriculum_services.mentorhub_mongoIO')
     def test_add_path_success(self, mock_mentorhub_mongo_io):
         # Setup Test Data
+        config = MentorHub_Config.get_instance()
         curriculum = {"_id": "", "completed": [], "now": [], "next": [], "later": []}
         path = {"path":"The Odin Project","segments":[{"segment":"Intermediate HTML and CSS","topics":[{"topic":"Intermediate HTML","resources":[{"name":"Howdocomputersreadcode?V","link":"https://somevalidlink.22.com","description":"test-it1"},{"name":"A one-off resource","link":"https://some.com/resource","description":"test-it2"}]}]}]}
         expected_update = {"next":[path], "lastSaved":self.breadcrumb}

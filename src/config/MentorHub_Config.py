@@ -6,14 +6,14 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class Config:
+class MentorHub_Config:
     _instance = None  # Singleton instance
 
     def __init__(self):
-        if Config._instance is not None:
+        if MentorHub_Config._instance is not None:
             raise Exception("This class is a singleton!")
         else:
-            Config._instance = self
+            MentorHub_Config._instance = self
             self.config_items = []
             self.versions = []
             self.enumerators = {}
@@ -162,9 +162,7 @@ class Config:
     @staticmethod
     def get_instance():
         """Get the singleton instance of the Config class."""
-        if Config._instance is None:
-            Config()
-        return Config._instance
+        if MentorHub_Config._instance is None:
+            MentorHub_Config()
+        return MentorHub_Config._instance
         
-# Create a singleton instance of Config and export it
-config = Config.get_instance()
