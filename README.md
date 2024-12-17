@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a simple Flask API that provides Get/Post/Patch services for docuements in the Curriculum collection. This API uses data from a [backing Mongo Database](https://github.com/agile-learning-institute/mentorHub-mongodb), and supports a [Single Page Application.](https://github.com/agile-learning-institute/mentorHub-curriculum-ui)
+This is a simple Flask API that provides Get/Post/Patch services for documents in the Curriculum collection. This API uses data from a [backing Mongo Database](https://github.com/agile-learning-institute/mentorHub-mongodb), and supports a [Single Page Application.](https://github.com/agile-learning-institute/mentorHub-curriculum-ui)
 
 The OpenAPI specifications for the api can be found in the ``docs`` folder, and are served [here](https://agile-learning-institute.github.io/mentorHub-curriculum-api/)
 
@@ -79,7 +79,7 @@ If you want to do more manual testing, here are the curl commands to use
 
 ### Test Health Endpoint
 
-This endpoint supports the Promethius monitoring standards for a healthcheck endpoint
+This endpoint supports the Prometheus monitoring standards for a healthcheck endpoint
 
 ```bash
 curl http://localhost:8088/api/health/
