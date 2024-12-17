@@ -1,5 +1,5 @@
 from pymongo import ASCENDING
-from src.utils.mentorhub_mongo_io import mentorhub_mongoIO
+from mentorhub_utils import mentorhub_mongoIO
 from mentorhub_config.MentorHub_Config import MentorHub_Config
 
 import logging

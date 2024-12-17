@@ -5,10 +5,12 @@ from flask import Flask
 from src.routes.path_routes import create_path_routes
 from src.routes.topic_routes import create_topic_routes
 from src.routes.curriculum_routes import create_curriculum_routes
-from mentorhub_config import create_config_routes, MentorHub_Config
-from mentorhub_flask_utils import MongoJSONEncoder
 from prometheus_flask_exporter import PrometheusMetrics
-from src.utils.mentorhub_mongo_io import MentorHubMongoIO
+from m
+from mentorhub_utils import create_config_routes
+from mentorhub_utils import MentorHub_Config
+from mentorhub_utils import MongoJSONEncoder
+from mentorhub_utils import MentorHubMongoIO
 
 # Initialize Config
 config = MentorHub_Config.get_instance()

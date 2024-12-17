@@ -1,7 +1,7 @@
 import json
 import logging
 
-from mentorhub_flask_utils import create_breadcrumb, create_token
+from mentorhub_utils import create_breadcrumb, create_token
 from src.services.topics_services import TopicService
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

@@ -2,7 +2,7 @@ import unittest
 from flask import Flask
 from src.routes.path_routes import create_path_routes
 from unittest.mock import patch
-from src.utils.ejson_encoder import MongoJSONEncoder
+from mentorhub_utils.ejson_encoder import MongoJSONEncoder
 
 class TestPathRoutes(unittest.TestCase):
 

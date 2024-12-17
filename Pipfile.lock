@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3658521372d3beeac5f4376a7bd0f9e2f073d03e77491436c1b9373886485942"
+            "sha256": "4c478a07af0f07f0c287243ca6e9263dae16d0f3a216533df70fa929ad8209ef"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -132,13 +132,14 @@
             "markers": "python_version >= '3.9'",
             "version": "==3.0.2"
         },
-        "mentorhub-config": {
-            "git": "https://github.com/agile-learning-institute/mentorHub-python-config.git",
-            "ref": "ab36e6496b6659403838ec92174419456a5c70d2"
-        },
-        "mentorhub-flask-utils": {
-            "git": "https://github.com/agile-learning-institute/mentorHub-flask-utils.git",
-            "ref": "b28f7c2edae26c970ecf317062661bc9fa0576d1"
+        "mentorhub-utils": {
+            "hashes": [
+                "sha256:686158389442f8798bb3d2af310b5e96e9eba46867dc5ff4b69bd3e6f2e0e9cd",
+                "sha256:dbe9445e8f72b5d909e885f89c65ea9085b4d89c9a3fe5c34df21c65882fcd83"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.6'",
+            "version": "==1.0.0"
         },
         "prometheus-client": {
             "hashes": [

@@ -3,7 +3,7 @@ from flask import Flask
 from src.routes.topic_routes import create_topic_routes
 from unittest.mock import patch
 
-from src.utils.ejson_encoder import MongoJSONEncoder
+from mentorhub_utils.ejson_encoder import MongoJSONEncoder
 
 class TestTopicRoutes(unittest.TestCase):
 
