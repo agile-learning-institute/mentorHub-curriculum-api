@@ -32,7 +32,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Curriculum'
         '500':
-          description: A Processing Error occured
+          description: A Processing Error occurred
     patch:
       summary: Update a curriculum
       description: 
@@ -62,7 +62,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Curriculum'
         '500':
-          description: A Processing Error occured
+          description: A Processing Error occurred
     delete:
       summary: Delete a curriculum!
       description: This is a live - hard delete function that removes the curriculum!
@@ -205,6 +205,26 @@ paths:
                     name:
                       description: Path name
                       type: string
+  /api/path/{id}:
+    get:
+      summary: Get a list of paths
+      description: Find paths That fuzzy match the name provided. If no name is provided, all paths are returned.
+      operationId: getPaths
+      parameters:
+        - name: id
+          in: path
+          description: ID of topic or retrieve
+          required: true
+          schema:
+            type: string
+            format: GUID
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Path'
 
   /api/topic/:
     get:
@@ -527,6 +547,12 @@ components:
         apiVersion:
           description: Semantic Version Number
           type: string
+        enumerators:
+          description: Dictionary of enumerator values
+          type: object
+        versions:
+          description: List of Database Collection versions
+          type: array
         configItems:
           type: array
           items:

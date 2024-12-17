@@ -1,12 +1,10 @@
-import json
-import logging
+from mentorhub_utils import create_breadcrumb, create_token
+from src.services.topics_services import TopicService
 
-from src.utils.mongo_io import MongoIO
-logging.basicConfig(level=logging.INFO)
+import logging
 logger = logging.getLogger(__name__)
 
 from flask import Blueprint, Response, jsonify, request
-from src.config.config import config 
 
 # Define the Blueprint for config routes
 def create_topic_routes():
@@ -17,13 +15,14 @@ def create_topic_routes():
     def get_topics():
         try:
             # Get the topics
-            mongo_io = MongoIO()
+            token = create_token()
+            breadcrumb = create_breadcrumb(token)
             query = request.args.get('query') or ""
-            topics = mongo_io.get_topics(query)
-            logger.info(f"Get Topics Success")
+            topics = TopicService.get_topics(query, token)
+            logger.info(f"Get Topics Success {breadcrumb}")
             return jsonify(topics), 200
         except Exception as e:
-            logger.warn(f"Get Topic Error has occured: {e}")
+            logger.warning(f"Get Topic Error has occurred: {e}")
             return jsonify({"error": "A processing error occurred"}), 500
         
     # GET /api/topic/{id} - Return a list of topics that match query
@@ -31,12 +30,13 @@ def create_topic_routes():
     def get_topic(id):
         try:
             # Get the topic
-            mongo_io = MongoIO()
-            topic = mongo_io.get_topic(id)
-            logger.info(f"Get Topic Success")
+            token = create_token()
+            breadcrumb = create_breadcrumb(token)
+            topic = TopicService.get_topic(id, token)
+            logger.info(f"Get Topic Success {breadcrumb}")
             return jsonify(topic), 200
         except Exception as e:
-            logger.warn(f"Get Topic Error has occured: {e}")
+            logger.warn(f"Get Topic Error has occurred: {e}")
             return jsonify({"error": "A processing error occurred"}), 500
         
     # Ensure the Blueprint is returned correctly
