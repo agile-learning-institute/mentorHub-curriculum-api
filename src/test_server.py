@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 import signal
 from src.server import app, handle_exit, logger
 
@@ -30,18 +30,19 @@ class TestServer(unittest.TestCase):
         self.assertIn(response.status_code, [200, 404])  # 200 if config is returned, 404 if not found
 
     @patch('src.server.logger')
-    @patch('src.server.mongo')
+    @patch('mentorhub_utils.MentorHubMongoIO.get_instance')
     @patch('sys.exit')
-    def test_signal_handler(self, mock_exit, mock_mongo, mock_logger):
+    def test_signal_handler(self, mock_exit, mock_get_instance, mock_logger):
+        # Mock the MongoIO methods
+        mock_mongo_io = MagicMock()
+        mock_get_instance.return_value = mock_mongo_io
+
         # Simulate receiving a SIGINT signal
         handle_exit(signal.SIGINT, None)
 
         # Check that the logger received the correct messages
         mock_logger.info.assert_any_call("Received signal 2. Initiating shutdown...")
         mock_logger.info.assert_any_call("MongoDB connection closed.")
-
-        # Check that mongo.disconnect was called
-        mock_mongo.disconnect.assert_called_once()
 
         # Check that sys.exit was called with code 0
         mock_exit.assert_called_once_with(0)

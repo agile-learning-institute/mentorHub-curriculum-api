@@ -1,9 +1,7 @@
-import json
-import logging
-
 from mentorhub_utils import create_breadcrumb, create_token
 from src.services.topics_services import TopicService
-logging.basicConfig(level=logging.INFO)
+
+import logging
 logger = logging.getLogger(__name__)
 
 from flask import Blueprint, Response, jsonify, request
@@ -17,8 +15,8 @@ def create_topic_routes():
     def get_topics():
         try:
             # Get the topics
-            breadcrumb = create_breadcrumb()
             token = create_token()
+            breadcrumb = create_breadcrumb(token)
             query = request.args.get('query') or ""
             topics = TopicService.get_topics(query, token)
             logger.info(f"Get Topics Success {breadcrumb}")
@@ -32,8 +30,8 @@ def create_topic_routes():
     def get_topic(id):
         try:
             # Get the topic
-            breadcrumb = create_breadcrumb()
             token = create_token()
+            breadcrumb = create_breadcrumb(token)
             topic = TopicService.get_topic(id, token)
             logger.info(f"Get Topic Success {breadcrumb}")
             return jsonify(topic), 200

@@ -1,8 +1,8 @@
 from datetime import datetime
 from bson import ObjectId
 from flask import jsonify
-from mentorhub_config.MentorHub_Config import MentorHub_Config
-from mentorhub_utils import mentorhub_mongoIO
+from mentorhub_utils import MentorHub_Config, MentorHubMongoIO
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -12,6 +12,7 @@ class CurriculumService:
     def _check_user_access(curriculum_id, token):
         """Role Based Access Control logic"""
         config = MentorHub_Config.get_instance()
+        mentorhub_mongoIO = MentorHubMongoIO.get_instance()
         
         # Staff can edit all curriculums
         if "Staff" in token["roles"]: return
@@ -33,6 +34,8 @@ class CurriculumService:
     def get_or_create_curriculum(curriculum_id, token, breadcrumb):
         """Get a curriculum if it exits, if not create a new one and return that"""
         config = MentorHub_Config.get_instance()
+        mentorhub_mongoIO = MentorHubMongoIO.get_instance()
+
         CurriculumService._check_user_access(curriculum_id, token)
 
         curriculum = mentorhub_mongoIO.get_document(config.CURRICULUM_COLLECTION_NAME, curriculum_id)
@@ -49,6 +52,8 @@ class CurriculumService:
     def update_curriculum(curriculum_id, patch_data, token, breadcrumb):
         """Update the specified curriculum"""
         config = MentorHub_Config.get_instance()
+        mentorhub_mongoIO = MentorHubMongoIO.get_instance()
+
         CurriculumService._check_user_access(curriculum_id, token)
 
         # Add breadcrumb to patch_data
@@ -60,6 +65,7 @@ class CurriculumService:
     def delete_curriculum(curriculum_id, token):
         """Remove a curriculum - for testing"""
         config = MentorHub_Config.get_instance()
+        mentorhub_mongoIO = MentorHubMongoIO.get_instance()
 
         if not "Staff" in token["roles"]:
             logger.warning(f"Delete Access Denied, Staff only: {token['roles']}")
@@ -72,6 +78,8 @@ class CurriculumService:
     def assign_resource(curriculum_id, link, token, breadcrumb):
         """Promote a resource from Next to Now"""
         config = MentorHub_Config.get_instance()
+        mentorhub_mongoIO = MentorHubMongoIO.get_instance()
+
         CurriculumService._check_user_access(curriculum_id, token)
 
         curriculum = mentorhub_mongoIO.get_document(config.CURRICULUM_COLLECTION_NAME, curriculum_id)
@@ -117,6 +125,8 @@ class CurriculumService:
     def complete_resource(curriculum_id, link, review, token, breadcrumb):
         """Promote a resource from Now to Completed"""
         config = MentorHub_Config.get_instance()
+        mentorhub_mongoIO = MentorHubMongoIO.get_instance()
+
         CurriculumService._check_user_access(curriculum_id, token)
 
         curriculum = mentorhub_mongoIO.get_document(config.CURRICULUM_COLLECTION_NAME, curriculum_id)
@@ -149,6 +159,8 @@ class CurriculumService:
     def add_path(curriculum_id, path_id, token, breadcrumb):
         """Add a path to Next"""
         config = MentorHub_Config.get_instance()
+        mentorhub_mongoIO = MentorHubMongoIO.get_instance()
+
         CurriculumService._check_user_access(curriculum_id, token)
 
         curriculum = mentorhub_mongoIO.get_document(config.CURRICULUM_COLLECTION_NAME, curriculum_id)

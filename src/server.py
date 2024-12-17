@@ -6,7 +6,6 @@ from src.routes.path_routes import create_path_routes
 from src.routes.topic_routes import create_topic_routes
 from src.routes.curriculum_routes import create_curriculum_routes
 from prometheus_flask_exporter import PrometheusMetrics
-from m
 from mentorhub_utils import create_config_routes
 from mentorhub_utils import MentorHub_Config
 from mentorhub_utils import MongoJSONEncoder
@@ -25,8 +24,8 @@ app = Flask(__name__)
 app.json = MongoJSONEncoder(app)
 
 # Initialize Database Connection, and load one-time data
-mongo = MentorHubMongoIO()
-mongo.initialize(config.CURRICULUM_COLLECTION_NAME)
+mongo = MentorHubMongoIO.get_instance()
+mongo.configure(config.CURRICULUM_COLLECTION_NAME)
 
 # Apply Prometheus monitoring middleware
 metrics = PrometheusMetrics(app, path='/api/health/')

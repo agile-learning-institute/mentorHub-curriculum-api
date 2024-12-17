@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from src.services.curriculum_services import CurriculumService
 from mentorhub_utils import create_breadcrumb, create_token
+from src.services.curriculum_services import CurriculumService
 
 import logging
 logger = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ def create_curriculum_routes():
     def get_or_create_curriculum(id):
         try:
             token = create_token()
-            breadcrumb = create_breadcrumb()
+            breadcrumb = create_breadcrumb(token)
             curriculum = CurriculumService.get_or_create_curriculum(id, token, breadcrumb)
             logger.info(f"Get Curriculum Successful {breadcrumb}")
             return jsonify(curriculum), 200
@@ -26,7 +26,7 @@ def create_curriculum_routes():
     def update_curriculum(id):
         try:
             token = create_token()
-            breadcrumb = create_breadcrumb()
+            breadcrumb = create_breadcrumb(token)
             patch_data = request.get_json()
             curriculum = CurriculumService.update_curriculum(id, patch_data, token, breadcrumb)
             logger.info(f"Update Curriculum Successful {breadcrumb}")
@@ -40,7 +40,7 @@ def create_curriculum_routes():
     def delete_curriculum(id):
         try:
             token = create_token()
-            breadcrumb = create_breadcrumb()
+            breadcrumb = create_breadcrumb(token)
             CurriculumService.delete_curriculum(id, token)
             logger.info(f"Delete Curriculum Successful {breadcrumb}")
             return jsonify({"result": "Success"}), 200
@@ -53,7 +53,7 @@ def create_curriculum_routes():
     def assign_resource(id, link):
         try:
             token = create_token()
-            breadcrumb = create_breadcrumb()
+            breadcrumb = create_breadcrumb(token)
             curriculum = CurriculumService.assign_resource(id, link, token, breadcrumb)
             logger.info(f"Assign Resource Successful {breadcrumb}")
             return jsonify(curriculum), 200
@@ -66,7 +66,7 @@ def create_curriculum_routes():
     def complete_resource(id, link):
         try:
             token = create_token()
-            breadcrumb = create_breadcrumb()
+            breadcrumb = create_breadcrumb(token)
             review = request.get_json(silent=True) or {}
             curriculum = CurriculumService.complete_resource(id, link, review, token, breadcrumb)
             logger.info(f"Complete Resource Successful {breadcrumb}")
@@ -80,7 +80,7 @@ def create_curriculum_routes():
     def add_path(curriculum_id, path_id):
         try:
             token = create_token()
-            breadcrumb = create_breadcrumb()
+            breadcrumb = create_breadcrumb(token)
             curriculum = CurriculumService.add_path(curriculum_id, path_id, token, breadcrumb)
             logger.info(f"Add Path Successful {breadcrumb}")
             return jsonify(curriculum), 200

@@ -1,8 +1,7 @@
-import json
-import logging
-
 from mentorhub_utils import create_breadcrumb, create_token
 from src.services.paths_services import PathsService
+
+import logging
 logger = logging.getLogger(__name__)
 
 from flask import Blueprint, Response, jsonify, request
@@ -16,8 +15,8 @@ def create_path_routes():
     def get_paths():
         try:
             # Get the paths
-            breadcrumb = create_breadcrumb()
             token = create_token()
+            breadcrumb = create_breadcrumb(token)
             query = request.args.get('query') or ""
             paths = PathsService.get_paths(query, token)
             logger.info(f"Get Path Success {breadcrumb}")
@@ -31,8 +30,8 @@ def create_path_routes():
     def get_path(id):
         try:
             # Get the specified path
-            breadcrumb = create_breadcrumb()
             token = create_token()
+            breadcrumb = create_breadcrumb(token)
             path = PathsService.get_path(id, token)
             logger.info(f"Get Path Success {breadcrumb}")
             return jsonify(path), 200

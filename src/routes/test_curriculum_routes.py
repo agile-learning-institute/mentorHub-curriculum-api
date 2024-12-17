@@ -4,7 +4,7 @@ from unittest.mock import patch, MagicMock
 from bson import ObjectId
 from flask import Flask
 from src.routes.curriculum_routes import create_curriculum_routes
-from mentorhub_utils.ejson_encoder import MongoJSONEncoder
+from mentorhub_utils import MongoJSONEncoder
 
 class TestCurriculumRoutes(unittest.TestCase):
 
