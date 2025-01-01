@@ -4,16 +4,8 @@
     "python.testing.unittestArgs": [
       "-v",
       "-s",
-      "./test",
+      "./src",
       "-p",
-      "test_*.py"
-    ],
-    "files.exclude": {
-      "**/node_modules": true,
-      "**/*.spec.js": true
-    },
-    "search.exclude": {
-      "**/node_modules": true,
-      "**/*.spec.js": true
-    }
+      "test*.py"
+    ]
   }

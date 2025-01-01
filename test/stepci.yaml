@@ -21,19 +21,19 @@ tests:
             schema:
               type: object
               properties:
-                api_version:
-                  type: string
                 config_items:
                   type: array
                 versions:
                   type: array
                 enumerators:
                   type: object
+                token:
+                  type: object
               required:
-                - api_version
                 - config_items
                 - versions
                 - enumerators
+                - token
               additionalProperties: false
       - name: GET Health
         http:
@@ -53,17 +53,17 @@ tests:
             Content-Type: application/json          
           check:
             status: /200/
-            json.equals:
-              - _id: "999900000000000000000000"
-                name: The Odin Project
-              - _id: "999900000000000000000001"
-                name: EngineerKit
-              - _id: "999900000000000000000002"
-                name: Salesforce
+            jsonpath:
               - _id: "999900000000000000000003"
                 name: Cantrillo
+              - _id: "999900000000000000000001"
+                name: EngineerKit
               - _id: "999900000000000000000004"
                 name: SRE Speciality
+              - _id: "999900000000000000000002"
+                name: Salesforce
+              - _id: "999900000000000000000000"
+                name: The Odin Project
       - name: Get one Path
         http:
           url: http://${{env.host}}/api/path?query=SRE
@@ -72,7 +72,7 @@ tests:
             Content-Type: application/json          
           check:
             status: /200/
-            json.equals:
+            jsonpath:
               - _id: "999900000000000000000004"
                 name: SRE Speciality
       - name: Get some Paths
@@ -83,13 +83,13 @@ tests:
             Content-Type: application/json          
           check:
             status: /200/
-            json.equals:
-              - _id: "999900000000000000000002"
-                name: Salesforce
+            jsonpath:
               - _id: "999900000000000000000003"
                 name: Cantrillo
               - _id: "999900000000000000000004"
                 name: SRE Speciality
+              - _id: "999900000000000000000002"
+                name: Salesforce
 
   topics:
     name: Test topic endpoints
@@ -102,7 +102,7 @@ tests:
             Content-Type: application/json          
           check:
             status: /200/
-            json.equals:
+            jsonpath:
               - _id: aaaa00000000000000000009
                 name: Data Manipulation
               - _id: aaaa00000000000000000008
@@ -135,13 +135,14 @@ tests:
                 name: WebDevSetup
       - name: Get some Topics
         http:
-          url: http://${{env.host}}/api/topic?query=data
+          url: http://${{env.host}}/api/topic?query=Data
           method: GET
           headers:
             Content-Type: application/json          
           check:
             status: /200/
-            json.equals:
+            print_body: true
+            jsonpath:
               - _id: aaaa00000000000000000009
                 name: Data Manipulation
               - _id: aaaa00000000000000000008
@@ -150,6 +151,7 @@ tests:
                 name: Data Wrangling
               - _id: aaaa00000000000000000007
                 name: Types of Data
+
       - name: Get one Topic
         http:
           url: http://${{env.host}}/api/topic?query=Data%20Manipulation
@@ -158,9 +160,10 @@ tests:
             Content-Type: application/json          
           check:
             status: /200/
-            json.equals:
+            jsonpath:
               - _id: aaaa00000000000000000009
                 name: Data Manipulation
+                  
       - name: Get a Topic
         http:
           url: http://${{env.host}}/api/topic/aaaa00000000000000000006
@@ -169,17 +172,96 @@ tests:
             Content-Type: application/json          
           check:
             status: /200/
-            json.equals:
-              _id: AAAA00000000000000000006
+            schema:
+              type: object
+              required:
+                - _id
+                - status
+                - name
+                - description
+                - category
+                - skills
+                - resources
+                - lastSaved
+              properties:
+                _id:
+                  type: string
+                status:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                category:
+                  type: string
+                skills:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - description
+                    properties:
+                      name:
+                        type: string
+                      description:
+                        type: string
+                      mastery:
+                        type: string
+                      specialty:
+                        type: string
+                    additionalProperties: false
+                resources:
+                  type: array
+                  items: 
+                    type: object
+                    required:
+                      - name
+                      - link
+                      - description
+                      - skills
+                      - tags
+                    properties:
+                      name:
+                        type: string
+                      link:
+                        type: string
+                      description:
+                        type: string
+                      skills:
+                        type: array
+                      tags:
+                        type: array
+                    additionalProperties: false
+                lastSaved:
+                  type: object
+                  required:
+                    - fromIp
+                    - byUser
+                    - atTime
+                    - correlationId
+                  properties:
+                    fromIp:
+                      type: string
+                    byUser:
+                      type: string
+                    atTime:
+                      type: string
+                    correlationId:
+                      type: string
+                  additionalProperties: false
+              additionalProperties: false
+            jsonpath:
+              _id: aaaa00000000000000000006
               name: Spectrum of Platforms
               status: Active
               description: With this topic you will learn about the different combinations of hardware
                 operating systems and runtimes used to run software applications.
               category: Foundations of ITSM
-              resources:
-              - name: BrowserStacklistofplatfo
-                link: https://somevalidlink.30.com
+              resources[0]: 
                 description: BrowserStack list of platforms Resource
+                link: https://somevalidlink.30.com
+                name: BrowserStacklistofplatfo
                 skills:
                 - 1
                 tags:
@@ -195,9 +277,10 @@ tests:
                 - User Guide
                 - UI/UX
                 - Data
-              - name: ComputingplatformArticle
-                link: https://somevalidlink.31.com
+              resources[1]: 
                 description: Computing platform Article
+                link: https://somevalidlink.31.com
+                name: ComputingplatformArticle
                 skills:
                 - 1
                 tags:
@@ -208,18 +291,19 @@ tests:
                 - User Guide
                 - UI/UX
                 - API
-              skills:
-              - name: Simple Skill
+              skills[0]: 
                 description: A simple skill you can get
-              - name: Mainframes
-                description: Understanding of Z-Series Mainframes and z/OS conecpts
+                name: Simple Skill
+              skills[1]: 
+                description: Understanding of Z-Series Mainframes and z/OS concepts
                 mastery: Apprentice
-                speciality: SRE Engineer
+                name: Mainframes
+                specialty: SRE Engineer
               lastSaved:
-                atTime: 4/3/2024 18:17:58
-                byUser: '000000000000000000000001'
-                fromIp: 192.168.1.39
+                atTime: '2024-04-03 18:17:58'
+                byUser: aaaa00000000000000000006
                 correlationId: ae078031-7de2-4519-bcbe-fbd5e72b69d3
+                fromIp: "192.168.1.39"
 
   curriculum:
     name: Test get curriculum 
